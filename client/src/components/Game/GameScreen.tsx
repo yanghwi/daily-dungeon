@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import { GameCanvas } from './GameCanvas';
+import { GameCanvas, GameCanvasHandle } from './GameCanvas';
+import { CombatPopup } from '../Combat/CombatPopup';
 import { useGameStore } from '../../stores/gameStore';
 import { theme } from '../../styles/theme';
 import type { Position, DungeonTile, Player } from '@daily-dungeon/shared';
@@ -10,10 +11,11 @@ interface GameScreenProps {
 }
 
 export function GameScreen({ socket }: GameScreenProps) {
-  const { player, room } = useGameStore();
+  const { player, room, combat, clearCombat } = useGameStore();
   const [dungeonTiles, setDungeonTiles] = useState<DungeonTile[][] | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [spawnPoint, setSpawnPoint] = useState<Position | null>(null);
+  const gameCanvasRef = useRef<GameCanvasHandle>(null);
 
   // 서버에서 받은 던전 데이터 사용
   useEffect(() => {
@@ -84,6 +86,58 @@ export function GameScreen({ socket }: GameScreenProps) {
     [socket, player]
   );
 
+  // 몬스터 조우 콜백
+  const handleEncounterMonster = useCallback(
+    (monsterId: string, monsterPos: Position) => {
+      if (!socket || !player) return;
+      console.log('[GameScreen] encounterMonster:', monsterId, monsterPos);
+      socket.emit('encounter-monster', { monsterId, monsterPos });
+    },
+    [socket, player]
+  );
+
+  // 전투 팝업 닫기
+  const handleCloseCombat = useCallback(() => {
+    // 전투 후 던전 타일 업데이트 (몬스터 제거, 아이템 드랍)
+    if (combat.outcome && room?.dungeon) {
+      const { monsterPosition, drops, monster } = combat.outcome;
+
+      // Phaser 씬에서 몬스터 스프라이트 제거
+      gameCanvasRef.current?.removeMonster(monster.id);
+
+      // 로컬 타일 상태 업데이트
+      setDungeonTiles((prev) => {
+        if (!prev || !monsterPosition) return prev;
+
+        const newTiles = prev.map((row, rowY) =>
+          rowY === monsterPosition.y
+            ? row.map((tile, colX) =>
+                colX === monsterPosition.x
+                  ? {
+                      ...tile,
+                      content: drops.length > 0
+                        ? { type: 'item' as const, item: drops[0] }
+                        : null,
+                    }
+                  : tile
+              )
+            : row
+        );
+        return newTiles;
+      });
+
+      // Phaser 씬 타일 업데이트
+      if (monsterPosition) {
+        const newContent = drops.length > 0
+          ? { type: 'item' as const, item: drops[0] }
+          : null;
+        gameCanvasRef.current?.updateTileContent(monsterPosition, newContent);
+      }
+    }
+
+    clearCombat();
+  }, [clearCombat, combat.outcome, room?.dungeon]);
+
   if (!player || !room || !dungeonTiles) {
     return (
       <div style={styles.loading}>
@@ -107,12 +161,18 @@ export function GameScreen({ socket }: GameScreenProps) {
       {/* 게임 캔버스 */}
       <div style={styles.canvasContainer}>
         <GameCanvas
+          ref={gameCanvasRef}
           playerId={player.id}
           players={players}
           dungeonTiles={dungeonTiles}
           onMove={handleMove}
+          onEncounterMonster={handleEncounterMonster}
+          isCombatActive={combat.isActive}
         />
       </div>
+
+      {/* 전투 팝업 */}
+      {combat.isActive && <CombatPopup onClose={handleCloseCombat} />}
 
       {/* 미니맵 - 우측 상단 */}
       <div style={styles.minimap}>

@@ -9,6 +9,8 @@ import type {
   MapType,
   DungeonTile,
   Position,
+  CombatResultResponse,
+  PlayerDiedResponse,
 } from '@daily-dungeon/shared';
 
 const SOCKET_URL = import.meta.env.DEV ? 'http://localhost:3000' : '';
@@ -23,6 +25,9 @@ export function useSocket() {
     addPlayer,
     removePlayer,
     setGameState,
+    setCombatActive,
+    updatePlayers,
+    updateDungeonTile,
   } = useGameStore();
 
   useEffect(() => {
@@ -105,6 +110,29 @@ export function useSocket() {
       setGameState('playing');
     });
 
+    // 전투 결과
+    socket.on('combat-result', (data: CombatResultResponse) => {
+      console.log('[combat-result] Received:', data.outcome.result);
+      setCombatActive(true, data.outcome);
+      updatePlayers(data.updatedPlayers);
+
+      // 전투 후 타일 업데이트 (몬스터 제거 또는 아이템 드랍)
+      const { monsterPosition, drops } = data.outcome;
+      if (monsterPosition) {
+        // 드랍 아이템이 있으면 해당 타일에 아이템 배치, 없으면 빈 타일로
+        const newContent = drops.length > 0
+          ? { type: 'item' as const, item: drops[0] }
+          : null;
+        updateDungeonTile(monsterPosition, newContent);
+      }
+    });
+
+    // 플레이어 사망
+    socket.on('player-died', (data: PlayerDiedResponse) => {
+      console.log('[player-died]', data.playerName);
+      // 추가 UI 처리 필요 시 여기에 추가
+    });
+
     // 에러 처리
     socket.on('join-error', (data: { message: string }) => {
       setError(data.message);
@@ -139,11 +167,17 @@ export function useSocket() {
     setGameState('home');
   };
 
+  const encounterMonster = (monsterId: string, monsterPos: Position) => {
+    console.log('[encounterMonster] Called:', monsterId, monsterPos);
+    socketRef.current?.emit('encounter-monster', { monsterId, monsterPos });
+  };
+
   return {
     socket: socketRef.current,
     createRoom,
     joinRoom,
     startGame,
     leaveRoom,
+    encounterMonster,
   };
 }

@@ -145,3 +145,25 @@ dungeon-crawler/
 - 위치 동기화 100ms 제한
 - AI 호출 시 캐싱 필수
 - Redis로 열쇠/세션 관리
+
+## 스타일링 규칙
+
+### 필수
+- **Tailwind CSS 미사용** (설치되지 않음)
+- **Inline Styles + theme.ts** 조합 사용
+- 타입: `const styles: Record<string, React.CSSProperties>`
+
+### 참고 파일
+- 색상 정의: `client/src/styles/theme.ts`
+- 패턴 예시: `client/src/components/Lobby/Home.tsx`
+
+### 금지 사항
+```tsx
+// ❌ 잘못된 예
+className="flex items-center bg-blue-500"  // Tailwind 클래스
+backgroundColor: '#1a1a2e'                  // 하드코딩 색상
+
+// ✅ 올바른 예
+style={styles.container}
+backgroundColor: theme.colors.bgDark
+```

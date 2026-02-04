@@ -8,6 +8,7 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.25.0",
     "@daily-dungeon/shared": "*",
     "cors": "^2.8.5",
     "express": "^4.18.2",

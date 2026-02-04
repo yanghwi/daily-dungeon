@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { GAME_CONFIG } from '../config';
-import type { Position, Player, DungeonTile, PlayerClass } from '@daily-dungeon/shared';
+import type { Position, Player, DungeonTile, PlayerClass, Monster } from '@daily-dungeon/shared';
 
 // 타일 색상 (픽셀 던전 스타일)
 const TILE_COLORS: Record<DungeonTile['type'] | 'unexplored', number> = {
@@ -19,11 +19,15 @@ const CLASS_COLORS: Record<PlayerClass, number> = {
   rogue: 0x22c55e,
 };
 
+// 몬스터 색상
+const MONSTER_COLOR = 0xff6b6b;
+
 interface GameData {
   playerId: string;
   players: Player[];
   dungeonTiles: DungeonTile[][];
   onMove: (position: Position) => void;
+  onEncounterMonster: (monsterId: string, monsterPos: Position) => void;
 }
 
 export class ExploreScene extends Phaser.Scene {
@@ -48,6 +52,12 @@ export class ExploreScene extends Phaser.Scene {
 
   // 콜백
   private onMoveCallback?: (position: Position) => void;
+  private onEncounterMonsterCallback?: (monsterId: string, monsterPos: Position) => void;
+
+  // 몬스터 관련
+  private monsterSprites: Map<string, Phaser.GameObjects.Arc> = new Map();
+  private encounteredMonsters: Set<string> = new Set();
+  private isCombatActive: boolean = false;
 
   // 동기화 타이머
   private lastSyncTime: number = 0;
@@ -65,6 +75,12 @@ export class ExploreScene extends Phaser.Scene {
     this.players = data.players || [];
     this.dungeonTiles = data.dungeonTiles || [];
     this.onMoveCallback = data.onMove;
+    this.onEncounterMonsterCallback = data.onEncounterMonster;
+
+    // 상태 초기화
+    this.monsterSprites.clear();
+    this.encounteredMonsters.clear();
+    this.isCombatActive = false;
   }
 
   create() {
@@ -96,6 +112,9 @@ export class ExploreScene extends Phaser.Scene {
   }
 
   update(time: number, delta: number) {
+    // 전투 중에는 이동 불가
+    if (this.isCombatActive) return;
+
     // 플레이어 이동 처리
     this.handleMovement(delta);
 
@@ -107,6 +126,9 @@ export class ExploreScene extends Phaser.Scene {
 
     // 시야 업데이트
     this.updateVisibility();
+
+    // 몬스터 접촉 감지
+    this.checkMonsterEncounter();
   }
 
   // 던전 맵 렌더링
@@ -152,8 +174,46 @@ export class ExploreScene extends Phaser.Scene {
             TILE_SIZE - 9
           );
         }
+
+        // 몬스터 렌더링
+        if ((isExplored || tile.explored) && tile.content?.type === 'monster') {
+          this.renderMonster(tile.content.monster, x, y);
+        }
+
+        // 아이템 표시
+        if ((isExplored || tile.explored) && tile.content?.type === 'item') {
+          this.tileGraphics.fillStyle(0xfbbf24, 0.8);
+          this.tileGraphics.fillRect(
+            x * TILE_SIZE + TILE_SIZE / 4,
+            y * TILE_SIZE + TILE_SIZE / 4,
+            TILE_SIZE / 2,
+            TILE_SIZE / 2
+          );
+        }
       }
     }
+  }
+
+  // 몬스터 렌더링
+  private renderMonster(monster: Monster, x: number, y: number) {
+    const { TILE_SIZE } = GAME_CONFIG;
+
+    // 이미 스프라이트가 있으면 스킵
+    if (this.monsterSprites.has(monster.id)) return;
+
+    const posX = x * TILE_SIZE + TILE_SIZE / 2;
+    const posY = y * TILE_SIZE + TILE_SIZE / 2;
+
+    const sprite = this.add.circle(posX, posY, TILE_SIZE / 3, MONSTER_COLOR);
+    sprite.setStrokeStyle(2, 0xffffff);
+    sprite.setDepth(5);
+
+    // 몬스터 데이터 저장
+    sprite.setData('monster', monster);
+    sprite.setData('tileX', x);
+    sprite.setData('tileY', y);
+
+    this.monsterSprites.set(monster.id, sprite);
   }
 
   // 플레이어 생성
@@ -366,6 +426,63 @@ export class ExploreScene extends Phaser.Scene {
       this.dungeonTiles[tile.y][tile.x] = tile;
       this.exploredTiles.add(`${tile.x},${tile.y}`);
     }
+    this.renderDungeon();
+  }
+
+  // 몬스터 접촉 감지
+  private checkMonsterEncounter() {
+    if (!this.playerSprite || this.isCombatActive) return;
+
+    const playerTileX = Math.floor(this.playerSprite.x / GAME_CONFIG.TILE_SIZE);
+    const playerTileY = Math.floor(this.playerSprite.y / GAME_CONFIG.TILE_SIZE);
+
+    const tile = this.dungeonTiles[playerTileY]?.[playerTileX];
+    if (!tile || tile.content?.type !== 'monster') return;
+
+    const monster = tile.content.monster;
+
+    // 이미 조우한 몬스터인지 확인
+    if (this.encounteredMonsters.has(monster.id)) return;
+
+    // 몬스터 조우 처리
+    this.encounteredMonsters.add(monster.id);
+    console.log('Encountered monster:', monster.name);
+
+    // 서버에 전투 요청
+    if (this.onEncounterMonsterCallback) {
+      this.onEncounterMonsterCallback(monster.id, { x: playerTileX, y: playerTileY });
+    }
+  }
+
+  // 전투 상태 설정 (외부에서 호출)
+  public setCombatActive(active: boolean) {
+    this.isCombatActive = active;
+  }
+
+  // 몬스터 제거 (전투 후)
+  public removeMonster(monsterId: string) {
+    const sprite = this.monsterSprites.get(monsterId);
+    if (sprite) {
+      const tileX = sprite.getData('tileX');
+      const tileY = sprite.getData('tileY');
+
+      // 타일에서 몬스터 제거
+      if (this.dungeonTiles[tileY]?.[tileX]) {
+        const tile = this.dungeonTiles[tileY][tileX];
+        if (tile.content?.type === 'monster') {
+          tile.content = null;
+        }
+      }
+
+      // 스프라이트 제거
+      sprite.destroy();
+      this.monsterSprites.delete(monsterId);
+    }
+  }
+
+  // 던전 타일 업데이트 (전투 후 아이템 드랍 등)
+  public updateTile(x: number, y: number, tile: DungeonTile) {
+    this.dungeonTiles[y][x] = tile;
     this.renderDungeon();
   }
 }

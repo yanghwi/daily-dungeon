@@ -2,6 +2,8 @@ import { Server, Socket } from 'socket.io';
 import { roomManager } from '../game/Room.js';
 import { createPlayer } from '../game/Player.js';
 import { generateDungeon } from '../../../shared/dungeonGenerator.js';
+import { resolveCombat, getParticipantsInRange } from '../game/Combat.js';
+import { generateCombatNarrative } from '../ai/combatNarrator.js';
 import type {
   CreateRoomPayload,
   JoinRoomPayload,
@@ -13,7 +15,17 @@ import type {
   Position,
   Player,
   MapType,
+  Monster,
+  CombatResultResponse,
 } from '@daily-dungeon/shared';
+
+// 전투 중인 몬스터 추적 (중복 전투 방지)
+const activeMonsters = new Set<string>();
+
+interface EncounterMonsterPayload {
+  monsterId: string;
+  monsterPos: Position;
+}
 
 export function setupSocketHandlers(io: Server) {
   io.on('connection', (socket: Socket) => {
@@ -133,6 +145,101 @@ export function setupSocketHandlers(io: Server) {
       socket.to(room.code).emit('positions-update', {
         positions: [{ playerId: player.id, position: payload.position }],
       });
+    });
+
+    // 몬스터 조우
+    socket.on('encounter-monster', async (payload: EncounterMonsterPayload) => {
+      const room = roomManager.getPlayerRoom(socket.id);
+      if (!room || room.state !== 'playing' || !room.dungeon) return;
+
+      const player = room.players.find((p: Player) => p.socketId === socket.id);
+      if (!player || !player.isAlive) return;
+
+      // 이미 전투 중인 몬스터인지 확인
+      const monsterKey = `${room.code}-${payload.monsterId}`;
+      if (activeMonsters.has(monsterKey)) {
+        return; // 이미 전투 처리 중
+      }
+      activeMonsters.add(monsterKey);
+
+      try {
+        // 던전에서 몬스터 찾기
+        const { tiles } = room.dungeon;
+        const tile = tiles[payload.monsterPos.y]?.[payload.monsterPos.x];
+
+        if (!tile || tile.content?.type !== 'monster') {
+          activeMonsters.delete(monsterKey);
+          return;
+        }
+
+        const monster = tile.content.monster;
+
+        // 전투 판정
+        const { outcome, updatedPlayers } = resolveCombat({
+          allPlayers: room.players,
+          monster,
+          monsterPos: payload.monsterPos,
+          mapType: room.mapType,
+        });
+
+        // 참전자 정보
+        const participants = room.players.filter((p) =>
+          outcome.participants.includes(p.id)
+        );
+
+        // AI 전투 묘사 생성
+        try {
+          outcome.description = await generateCombatNarrative(outcome, participants);
+        } catch (err) {
+          console.error('Failed to generate narrative:', err);
+          outcome.description = '전투가 벌어졌다!';
+        }
+
+        // 플레이어 상태 업데이트
+        for (const updated of updatedPlayers) {
+          const idx = room.players.findIndex((p) => p.id === updated.id);
+          if (idx !== -1) {
+            room.players[idx] = updated;
+          }
+        }
+
+        // 몬스터 제거 (타일에서)
+        tile.content = null;
+
+        // 드랍 아이템이 있으면 타일에 배치
+        if (outcome.drops.length > 0) {
+          tile.content = { type: 'item', item: outcome.drops[0] };
+        }
+
+        // 전투 결과 브로드캐스트
+        const response: CombatResultResponse = {
+          outcome,
+          updatedPlayers: room.players,
+        };
+
+        io.to(room.code).emit('combat-result', response);
+
+        // 사망한 플레이어 처리
+        for (const p of room.players) {
+          if (!p.isAlive) {
+            io.to(room.code).emit('player-died', {
+              playerId: p.id,
+              playerName: p.name,
+              droppedItems: p.inventory,
+              position: p.position,
+            });
+          }
+        }
+
+        console.log(
+          `Combat in room ${room.code}: ${monster.name} vs ${participants.length} players - ${outcome.result}`
+        );
+      } finally {
+        // 전투 완료 후 잠금 해제
+        setTimeout(() => {
+          activeMonsters.delete(monsterKey);
+        }, 500); // 0.5초 후 해제 (중복 방지)
+      }
     });
 
     // 방 나가기

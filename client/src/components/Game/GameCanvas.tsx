@@ -1,26 +1,56 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import Phaser from 'phaser';
 import { createPhaserConfig } from '../../phaser/config';
 import { ExploreScene } from '../../phaser/scenes/ExploreScene';
-import type { Position, Player, DungeonTile } from '@daily-dungeon/shared';
+import type { Position, Player, DungeonTile, TileContent } from '@daily-dungeon/shared';
 
 interface GameCanvasProps {
   playerId: string;
   players: Player[];
   dungeonTiles: DungeonTile[][];
   onMove: (position: Position) => void;
+  onEncounterMonster: (monsterId: string, monsterPos: Position) => void;
+  isCombatActive: boolean;
   onPositionsUpdate?: (positions: { playerId: string; position: Position }[]) => void;
 }
 
-export function GameCanvas({
-  playerId,
-  players,
-  dungeonTiles,
-  onMove,
-}: GameCanvasProps) {
+// 외부에서 호출 가능한 메서드
+export interface GameCanvasHandle {
+  removeMonster: (monsterId: string) => void;
+  updateTileContent: (position: Position, content: TileContent | null) => void;
+}
+
+export const GameCanvas = forwardRef<GameCanvasHandle, GameCanvasProps>(function GameCanvas(
+  {
+    playerId,
+    players,
+    dungeonTiles,
+    onMove,
+    onEncounterMonster,
+    isCombatActive,
+  },
+  ref
+) {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const gameRef = useRef<Phaser.Game | null>(null);
   const sceneRef = useRef<ExploreScene | null>(null);
+
+  // 외부에서 호출 가능한 메서드 노출
+  useImperativeHandle(ref, () => ({
+    removeMonster: (monsterId: string) => {
+      sceneRef.current?.removeMonster(monsterId);
+    },
+    updateTileContent: (position: Position, content: TileContent | null) => {
+      const { x, y } = position;
+      if (sceneRef.current) {
+        // 타일 업데이트
+        sceneRef.current.updateTile(x, y, {
+          ...dungeonTiles[y][x],
+          content,
+        });
+      }
+    },
+  }), [dungeonTiles]);
 
   useEffect(() => {
     if (!gameContainerRef.current || gameRef.current) return;
@@ -38,6 +68,7 @@ export function GameCanvas({
         players,
         dungeonTiles,
         onMove,
+        onEncounterMonster,
       });
 
       // 씬 참조 저장
@@ -65,13 +96,20 @@ export function GameCanvas({
     }
   }, [players, playerId]);
 
+  // 전투 상태 동기화
+  useEffect(() => {
+    if (sceneRef.current) {
+      sceneRef.current.setCombatActive(isCombatActive);
+    }
+  }, [isCombatActive]);
+
   return (
     <div
       ref={gameContainerRef}
       style={styles.container}
     />
   );
-}
+});
 
 const styles: Record<string, React.CSSProperties> = {
   container: {

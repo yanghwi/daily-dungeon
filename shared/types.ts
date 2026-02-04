@@ -96,6 +96,7 @@ export type CombatResult = 'perfect' | 'victory' | 'narrow' | 'defeat' | 'wipe';
 export interface CombatOutcome {
   result: CombatResult;
   monster: Monster;
+  monsterPosition: Position;  // 몬스터 위치 (전투 후 타일 업데이트용)
   participants: string[];  // 참전한 플레이어 ID
   damages: { playerId: string; damage: number }[];
   drops: Item[];
