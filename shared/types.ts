@@ -274,6 +274,9 @@ export const SOCKET_EVENTS = {
   WAVE_END: 'wave-end',
   CONTINUE_OR_RETREAT: 'continue-or-retreat',
 
+  // Phase 전환 (서버 → 클라이언트)
+  PHASE_CHANGE: 'phase-change',
+
   // 런 종료
   RUN_END: 'run-end',
 

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -33,4 +35,30 @@ body {
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
   }
+}
+
+/* ===== EarthBound UI 윈도우 ===== */
+@layer components {
+  .eb-window {
+    background: #101028;
+    border: 3px solid #f8f8f8;
+    border-radius: 6px;
+    padding: 12px 16px;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ===== 스캔라인 오버레이 ===== */
+.scanlines {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 0, 0, 0.08) 3px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
 }

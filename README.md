@@ -98,4 +98,5 @@ round-midnight/
 ## 문서
 
 - [CLAUDE.md](CLAUDE.md) - 개발 가이드 및 시스템 설계
-- [CLAUDE_CODE_PROMPT.md](CLAUDE_CODE_PROMPT.md) - 코어 루프 리팩토링 설계서
+- [docs/GAME-DESIGN.md](docs/GAME-DESIGN.md) - 게임 설계서
+- [docs/design-system/](docs/design-system/) - Mother/Earthbound 디자인 시스템

@@ -99,10 +99,13 @@ round-midnight/
 │       └── index.ts
 ├── shared/                         # @round-midnight/shared
 │   └── types.ts                       # 모든 타입 + GAME_CONSTANTS + SOCKET_EVENTS
-├── capture-poster.mjs                 # poster.gif 생성 스크립트
-├── round-midnight-poster.html         # 포스터 HTML 원본
-├── CLAUDE.md
-└── CLAUDE_CODE_PROMPT.md              # 코어 루프 리팩토링 설계서
+├── docs/
+│   ├── GAME-DESIGN.md                 # 게임 설계서 (타입, 코어 루프, 데미지 공식)
+│   └── design-system/
+│       ├── STYLE-GUIDE.md             # Mother/Earthbound 디자인 시스템
+│       ├── assets/                    # HTML 에셋 (earthbound-assets, poster)
+│       └── references/                # 토큰, UI 컴포넌트, 픽셀아트, 배경
+└── CLAUDE.md
 ```
 
 ## Socket 이벤트
@@ -154,6 +157,22 @@ round-midnight/
 - Tailwind 테마: `client/tailwind.config.js`
 - 게임 데이터 (배경/티어): `client/src/styles/theme.ts`
 - 패턴 예시: `client/src/components/Lobby/LobbyScreen.tsx`
+
+### 디자인 시스템 (필수 참조)
+모든 UI, 에셋, 디자인 작업 시 반드시 `docs/design-system/`을 참조할 것.
+
+- **총괄**: `docs/design-system/STYLE-GUIDE.md` — 미적 방향, 핵심 기법
+- **토큰**: `docs/design-system/references/tokens.md` — CSS 변수 (색상, 간격, 폰트)
+- **UI**: `docs/design-system/references/ui-components.md` — 윈도우, HP바, 메뉴
+- **스프라이트**: `docs/design-system/references/pixel-art.md` — box-shadow 픽셀아트
+- **배경**: `docs/design-system/references/backgrounds.md` — 사이키델릭 레이어 조합
+- **에셋**: `docs/design-system/assets/` — 참조 HTML (몬스터, 포스터)
+
+핵심 원칙:
+- 폰트: Press Start 2P (제목) + Silkscreen (본문)
+- 스프라이트: box-shadow 4px 그리드
+- 배경: CSS gradient 레이어 조합 (사이키델릭)
+- 애니메이션: steps(N) 레트로 느낌
 
 ### 규칙
 ```tsx
@@ -212,4 +231,5 @@ npm run build --workspace=@round-midnight/server
 
 ## 문서
 
-- [CLAUDE_CODE_PROMPT.md](CLAUDE_CODE_PROMPT.md) - 코어 루프 리팩토링 설계서 (타입 정의, LLM 프롬프트, 데미지 공식, 구현 순서)
+- [docs/GAME-DESIGN.md](docs/GAME-DESIGN.md) - 게임 설계서 (타입 정의, LLM 프롬프트, 데미지 공식, 구현 순서)
+- [docs/design-system/](docs/design-system/) - Mother/Earthbound 디자인 시스템

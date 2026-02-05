@@ -1,4 +1,4 @@
-# Round Midnight - 코어 루프 리팩토링 태스크
+# Round Midnight - Game Design Document
 
 ## 배경
 

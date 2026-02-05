@@ -40,12 +40,16 @@ export default {
       },
       fontFamily: {
         sans: ['Noto Sans KR', 'sans-serif'],
+        title: ['"Press Start 2P"', 'cursive'],
+        body: ['Silkscreen', 'sans-serif'],
       },
       animation: {
         'dice-spin': 'diceSpin 0.6s ease-out',
         'slide-up': 'slideUp 0.3s ease-out',
         'fade-in': 'fadeIn 0.3s ease-out',
         'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+        'typewriter': 'typewriter 0.05s steps(1) infinite',
+        'shake': 'shake 0.3s ease-in-out',
       },
       keyframes: {
         diceSpin: {
@@ -63,6 +67,16 @@ export default {
         pulseGlow: {
           '0%, 100%': { boxShadow: '0 0 5px rgba(124, 58, 237, 0.3)' },
           '50%': { boxShadow: '0 0 20px rgba(124, 58, 237, 0.6)' },
+        },
+        scrollBg: {
+          '0%': { backgroundPosition: '0 0' },
+          '100%': { backgroundPosition: '0 -32px' },
+        },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-4px)' },
+          '50%': { transform: 'translateX(4px)' },
+          '75%': { transform: 'translateX(-2px)' },
         },
       },
     },

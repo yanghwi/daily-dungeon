@@ -9,6 +9,8 @@ import type {
   PlayerAction,
   DamageResult,
   LootItem,
+  WaveEndPayload,
+  RunEndPayload,
 } from '@round-midnight/shared';
 
 interface GameStore {
@@ -43,12 +45,24 @@ interface GameStore {
   damageResult: DamageResult | null;
   loot: LootItem[];
 
+  // 웨이브 종료 상태
+  canContinue: boolean;
+  partyStatus: WaveEndPayload['partyStatus'];
+  hasVoted: boolean;
+  nextWavePreview: string;
+
+  // 런 종료 상태
+  runEndResult: RunEndPayload | null;
+
   // 전투 setter
   setWaveIntro: (wave: number, enemy: Enemy, situation: string, choices: PlayerChoiceSet) => void;
   setMyChoice: (choiceId: string) => void;
   setAllActions: (actions: PlayerAction[]) => void;
   setNarrative: (narrative: string, damageResult: DamageResult) => void;
   setLoot: (loot: LootItem[]) => void;
+  setWaveEnd: (payload: WaveEndPayload) => void;
+  setRunEnd: (payload: RunEndPayload) => void;
+  setHasVoted: (voted: boolean) => void;
 
   // 에러
   error: string | null;
@@ -85,6 +99,15 @@ export const useGameStore = create<GameStore>((set) => ({
   damageResult: null,
   loot: [],
 
+  // 웨이브 종료 상태
+  canContinue: false,
+  partyStatus: [],
+  hasVoted: false,
+  nextWavePreview: '',
+
+  // 런 종료 상태
+  runEndResult: null,
+
   setWaveIntro: (currentWave, enemy, situation, myChoices) =>
     set({
       currentWave,
@@ -96,6 +119,7 @@ export const useGameStore = create<GameStore>((set) => ({
       narrative: '',
       damageResult: null,
       loot: [],
+      hasVoted: false,
     }),
 
   setMyChoice: (choiceId) => set({ mySelectedChoiceId: choiceId }),
@@ -105,6 +129,19 @@ export const useGameStore = create<GameStore>((set) => ({
   setNarrative: (narrative, damageResult) => set({ narrative, damageResult }),
 
   setLoot: (loot) => set({ loot }),
+
+  setWaveEnd: (payload) =>
+    set({
+      canContinue: payload.canContinue,
+      partyStatus: payload.partyStatus,
+      loot: payload.loot,
+      nextWavePreview: payload.nextWavePreview ?? '',
+      hasVoted: false,
+    }),
+
+  setRunEnd: (payload) => set({ runEndResult: payload }),
+
+  setHasVoted: (voted) => set({ hasVoted: voted }),
 
   error: null,
   setError: (error) => set({ error }),
@@ -124,6 +161,11 @@ export const useGameStore = create<GameStore>((set) => ({
       narrative: '',
       damageResult: null,
       loot: [],
+      canContinue: false,
+      partyStatus: [],
+      hasVoted: false,
+      nextWavePreview: '',
+      runEndResult: null,
       error: null,
     }),
 }));

@@ -3,10 +3,17 @@ import { useSocket } from './hooks/useSocket';
 import { useGameStore } from './stores/gameStore';
 import LobbyScreen from './components/Lobby/LobbyScreen';
 import CharacterSetup from './components/Lobby/CharacterSetup';
+import BattleScreen from './components/Battle/BattleScreen';
+import RunResult from './components/Battle/RunResult';
+
+const BATTLE_PHASES = new Set(['wave_intro', 'choosing', 'rolling', 'narrating', 'wave_result']);
 
 function App() {
-  const { createRoom, joinRoom, startGame, leaveRoom, submitCharacterSetup } = useSocket();
-  const { phase, room, player, connected, error, setError } = useGameStore();
+  const {
+    createRoom, joinRoom, startGame, leaveRoom,
+    submitCharacterSetup, submitChoice, rollDice, voteContinueOrRetreat,
+  } = useSocket();
+  const { phase, room, player, connected, error, setError, resetGame } = useGameStore();
 
   // 에러 토스트 자동 제거
   useEffect(() => {
@@ -16,7 +23,6 @@ function App() {
     }
   }, [error, setError]);
 
-  // 로비에 있는지 (방이 있고 waiting 상태)
   const isInLobby = room !== null && phase === 'waiting';
 
   return (
@@ -62,10 +68,16 @@ function App() {
         />
       )}
 
-      {phase === 'wave_intro' && (
-        <div className="flex-1 flex items-center justify-center text-slate-400 text-lg">
-          전투 준비 중... (Phase 2에서 구현)
-        </div>
+      {BATTLE_PHASES.has(phase) && (
+        <BattleScreen
+          onSubmitChoice={submitChoice}
+          onRoll={rollDice}
+          onVote={voteContinueOrRetreat}
+        />
+      )}
+
+      {phase === 'run_end' && (
+        <RunResult onReturnToLobby={resetGame} />
       )}
     </div>
   );

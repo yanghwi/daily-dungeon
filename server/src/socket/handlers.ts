@@ -1,13 +1,19 @@
 import { Server, Socket } from 'socket.io';
 import { roomManager } from '../game/Room.js';
 import { createCharacter, applyBackground } from '../game/Player.js';
+import { WaveManager } from '../game/WaveManager.js';
 import type {
   CreateRoomPayload,
   JoinRoomPayload,
   CharacterSetupPayload,
+  PlayerChoicePayload,
+  ContinueOrRetreatPayload,
   Character,
 } from '@round-midnight/shared';
 import { SOCKET_EVENTS } from '@round-midnight/shared';
+
+/** 방별 WaveManager 인스턴스 */
+const waveManagers: Map<string, WaveManager> = new Map();
 
 export function setupSocketHandlers(io: Server) {
   io.on('connection', (socket: Socket) => {
@@ -103,8 +109,57 @@ export function setupSocketHandlers(io: Server) {
         if (gameRoom) {
           io.to(room.code).emit(SOCKET_EVENTS.ALL_CHARACTERS_READY, { room: gameRoom });
           console.log(`All characters ready in room ${room.code}, game starting!`);
+
+          // WaveManager 생성 + 첫 웨이브 시작
+          const wm = new WaveManager(room.code, io);
+          waveManagers.set(room.code, wm);
+          wm.startWave(gameRoom);
         }
       }
+    });
+
+    // ===== 전투 =====
+
+    // 선택지 선택
+    socket.on(SOCKET_EVENTS.PLAYER_CHOICE, (payload: PlayerChoicePayload) => {
+      const room = roomManager.getPlayerRoom(socket.id);
+      if (!room || room.phase !== 'choosing') return;
+
+      const player = room.players.find((p: Character) => p.socketId === socket.id);
+      if (!player) return;
+
+      const wm = waveManagers.get(room.code);
+      if (!wm) return;
+
+      wm.handlePlayerChoice(player.id, payload.choiceId, room);
+    });
+
+    // 주사위 굴림
+    socket.on(SOCKET_EVENTS.DICE_ROLL, () => {
+      const room = roomManager.getPlayerRoom(socket.id);
+      if (!room || room.phase !== 'rolling') return;
+
+      const player = room.players.find((p: Character) => p.socketId === socket.id);
+      if (!player) return;
+
+      const wm = waveManagers.get(room.code);
+      if (!wm) return;
+
+      wm.handleDiceRoll(player.id, room);
+    });
+
+    // 계속/철수 투표
+    socket.on(SOCKET_EVENTS.CONTINUE_OR_RETREAT, (payload: ContinueOrRetreatPayload) => {
+      const room = roomManager.getPlayerRoom(socket.id);
+      if (!room || room.phase !== 'wave_result') return;
+
+      const player = room.players.find((p: Character) => p.socketId === socket.id);
+      if (!player) return;
+
+      const wm = waveManagers.get(room.code);
+      if (!wm) return;
+
+      wm.handleVote(player.id, payload.decision, room);
     });
 
     // ===== 연결 관리 =====
@@ -123,11 +178,22 @@ export function setupSocketHandlers(io: Server) {
 }
 
 function handleDisconnect(socket: Socket, io: Server) {
+  const room = roomManager.getPlayerRoom(socket.id);
   const result = roomManager.removePlayerBySocketId(socket.id);
+
   if (result) {
     io.to(result.room.code).emit(SOCKET_EVENTS.PLAYER_LEFT, {
       playerId: result.playerId,
       room: result.room,
     });
+
+    // 방에 아무도 없으면 WaveManager 정리
+    if (result.room.players.length === 0) {
+      const wm = waveManagers.get(result.room.code);
+      if (wm) {
+        wm.cleanup();
+        waveManagers.delete(result.room.code);
+      }
+    }
   }
 }

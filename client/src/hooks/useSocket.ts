@@ -6,6 +6,13 @@ import type {
   RoomJoinedResponse,
   Room,
   Character,
+  RunPhase,
+  WaveIntroPayload,
+  AllChoicesReadyPayload,
+  RollResultsPayload,
+  WaveNarrativePayload,
+  WaveEndPayload,
+  RunEndPayload,
 } from '@round-midnight/shared';
 import { SOCKET_EVENTS } from '@round-midnight/shared';
 
@@ -19,6 +26,11 @@ export function useSocket() {
     setConnected,
     setError,
     setPhase,
+    setWaveIntro,
+    setAllActions,
+    setNarrative,
+    setWaveEnd,
+    setRunEnd,
     resetGame,
   } = useGameStore();
 
@@ -76,7 +88,6 @@ export function useSocket() {
 
     socket.on(SOCKET_EVENTS.CHARACTER_READY, (data: { player: Character; room: Room }) => {
       setRoom(data.room);
-      // 자기 자신의 캐릭터가 업데이트된 경우
       const store = useGameStore.getState();
       if (store.player?.id === data.player.id) {
         setPlayer(data.player);
@@ -86,7 +97,41 @@ export function useSocket() {
     socket.on(SOCKET_EVENTS.ALL_CHARACTERS_READY, (data: { room: Room }) => {
       setRoom(data.room);
       setPhase('wave_intro');
-      // Phase 2에서 wave-intro 이벤트 처리 추가
+    });
+
+    // ===== 전투 =====
+
+    socket.on(SOCKET_EVENTS.WAVE_INTRO, (data: WaveIntroPayload) => {
+      const store = useGameStore.getState();
+      const myChoices = data.playerChoices.find((pc) => pc.playerId === store.player?.id)
+        ?? data.playerChoices[0];
+      if (myChoices) {
+        setWaveIntro(data.waveNumber, data.enemy, data.situation, myChoices);
+      }
+    });
+
+    socket.on(SOCKET_EVENTS.PHASE_CHANGE, (data: { phase: RunPhase }) => {
+      setPhase(data.phase);
+    });
+
+    socket.on(SOCKET_EVENTS.ALL_CHOICES_READY, (_data: AllChoicesReadyPayload) => {
+      // phase는 PHASE_CHANGE 이벤트로 처리됨
+    });
+
+    socket.on(SOCKET_EVENTS.ROLL_RESULTS, (data: RollResultsPayload) => {
+      setAllActions(data.actions);
+    });
+
+    socket.on(SOCKET_EVENTS.WAVE_NARRATIVE, (data: WaveNarrativePayload) => {
+      setNarrative(data.narrative, data.damageResult);
+    });
+
+    socket.on(SOCKET_EVENTS.WAVE_END, (data: WaveEndPayload) => {
+      setWaveEnd(data);
+    });
+
+    socket.on(SOCKET_EVENTS.RUN_END, (data: RunEndPayload) => {
+      setRunEnd(data);
     });
 
     // ===== 에러 =====
@@ -123,6 +168,18 @@ export function useSocket() {
     socketRef.current?.emit(SOCKET_EVENTS.CHARACTER_SETUP, { name, background });
   };
 
+  const submitChoice = (choiceId: string) => {
+    socketRef.current?.emit(SOCKET_EVENTS.PLAYER_CHOICE, { choiceId });
+  };
+
+  const rollDice = () => {
+    socketRef.current?.emit(SOCKET_EVENTS.DICE_ROLL, {});
+  };
+
+  const voteContinueOrRetreat = (decision: 'continue' | 'retreat') => {
+    socketRef.current?.emit(SOCKET_EVENTS.CONTINUE_OR_RETREAT, { decision });
+  };
+
   return {
     socket: socketRef.current,
     createRoom,
@@ -130,5 +187,8 @@ export function useSocket() {
     startGame,
     leaveRoom,
     submitCharacterSetup,
+    submitChoice,
+    rollDice,
+    voteContinueOrRetreat,
   };
 }
