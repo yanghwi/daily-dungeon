@@ -14,7 +14,6 @@ import { roomManager } from './Room.js';
 import { rollDice, calculateBonus, determineTier } from './DiceEngine.js';
 import { calculateDamage, applyDamageToPlayers } from './DamageCalculator.js';
 import {
-  WAVE_TEMPLATES,
   NEXT_WAVE_PREVIEWS,
 } from './data/hardcodedData.js';
 import { generateSituation } from '../ai/situationGenerator.js';
@@ -54,7 +53,7 @@ export class WaveManager {
   /**
    * 웨이브 시작: LLM으로 상황 생성 → 선택지 배분 → wave_intro emit → 2초 후 choosing
    */
-  async startWave(room: Room): Promise<void> {
+  async startWave(room: Room, retryEnemy?: Enemy): Promise<void> {
     const waveNumber = room.run?.currentWave ?? 1;
     const alivePlayers = room.players.filter((p) => p.isAlive);
 
@@ -75,7 +74,8 @@ export class WaveManager {
       alivePlayers,
     );
 
-    this.currentEnemy = result.enemy;
+    // retry 시 기존 적 유지, 새 상황/선택지만 재생성
+    this.currentEnemy = retryEnemy ?? result.enemy;
     this.currentSituation = result.situation;
     this.playerChoiceSets = result.playerChoiceSets;
 
@@ -261,7 +261,7 @@ export class WaveManager {
     const alivePlayers = refreshedRoom.players.filter((p) => p.isAlive);
     const allDead = alivePlayers.length === 0;
     const waveNumber = refreshedRoom.run?.currentWave ?? 1;
-    const isLastWave = waveNumber >= WAVE_TEMPLATES.length;
+    const isLastWave = waveNumber >= (refreshedRoom.run?.maxWaves ?? GAME_CONSTANTS.MAX_WAVES);
 
     // 전멸 → 바로 run_end
     if (allDead) {
@@ -324,9 +324,9 @@ export class WaveManager {
     if (majority) {
       this.endRun(refreshedRoom, 'retreat').catch((err) => console.error('[WaveManager] endRun 에러:', err));
     } else {
-      // 적이 살아있으면 같은 웨이브 다시, 죽었으면 다음 웨이브
+      // 적이 살아있으면 같은 웨이브 다시 (기존 적 전달), 죽었으면 다음 웨이브
       if (this.currentEnemy && this.currentEnemy.hp > 0) {
-        this.startWave(refreshedRoom).catch((err) => console.error('[WaveManager] startWave 에러:', err));
+        this.startWave(refreshedRoom, this.currentEnemy).catch((err) => console.error('[WaveManager] startWave 에러:', err));
       } else {
         const runState = roomManager.advanceWave(this.roomCode);
         if (runState) {

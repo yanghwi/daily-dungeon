@@ -1,30 +1,3 @@
-// Tailwind 커스텀 테마 값 참조용
-// tailwind.config.js에 정의된 색상을 JS에서 사용할 때 참조
-
-export const tierColors: Record<string, string> = {
-  nat20: 'text-tier-nat20',
-  critical: 'text-tier-critical',
-  normal: 'text-tier-normal',
-  fail: 'text-tier-fail',
-  nat1: 'text-tier-nat1',
-};
-
-export const tierBgColors: Record<string, string> = {
-  nat20: 'bg-tier-nat20',
-  critical: 'bg-tier-critical',
-  normal: 'bg-tier-normal',
-  fail: 'bg-tier-fail',
-  nat1: 'bg-tier-nat1',
-};
-
-export const tierLabels: Record<string, string> = {
-  nat20: 'NAT 20!',
-  critical: '크리티컬',
-  normal: '성공',
-  fail: '실패',
-  nat1: 'NAT 1...',
-};
-
 // 배경 선택지 데이터
 export const BACKGROUNDS = [
   {

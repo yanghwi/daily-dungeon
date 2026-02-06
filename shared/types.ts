@@ -232,7 +232,7 @@ export const GAME_CONSTANTS = {
   VOTE_TIMEOUT: 30000,        // 계속/철수 30초
 
   // 데미지 계산
-  BASE_DAMAGE: 10,
+  BASE_DAMAGE: 15,
 
   // 인원별 난이도
   DIFFICULTY_SCALE: {

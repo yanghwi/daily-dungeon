@@ -42,7 +42,7 @@ waiting → character_setup → wave_intro → choosing → rolling → narratin
 |-------|------|----|
 | `waiting` | 로비 대기 | LobbyScreen (home/room) |
 | `character_setup` | 캐릭터 이름/배경 선택 | CharacterSetup |
-| `wave_intro` | LLM이 상황 + 선택지 생성 중 | (Phase 2에서 구현) |
+| `wave_intro` | LLM이 상황 + 선택지 생성 중 | BattleScreen (로딩) |
 | `choosing` | 4명이 선택지 고르는 중 | ChoiceCards |
 | `rolling` | 4명이 주사위 굴리는 중 | DiceRoll |
 | `narrating` | LLM이 결과 서술 중 | NarrationBox |
@@ -74,7 +74,22 @@ waiting → character_setup → wave_intro → choosing → rolling → narratin
 round-midnight/
 ├── client/                         # @round-midnight/client
 │   ├── src/
+│   │   ├── assets/
+│   │   │   ├── backgrounds/           # 전투 배경 (CSS gradient 레이어)
+│   │   │   ├── effects/               # 전투 이펙트 (히트/미스/크리)
+│   │   │   ├── sprites/               # 적 스프라이트 (box-shadow 픽셀아트)
+│   │   │   └── index.ts
 │   │   ├── components/
+│   │   │   ├── Battle/
+│   │   │   │   ├── BattleBg.tsx       # 전투 배경 컨테이너
+│   │   │   │   ├── BattleScreen.tsx   # 전투 메인 (phase 라우팅)
+│   │   │   │   ├── ChoiceCards.tsx     # 선택지 카드 UI
+│   │   │   │   ├── DiceRoll.tsx       # 주사위 굴리기 (탭 인터랙션)
+│   │   │   │   ├── NarrationBox.tsx   # LLM 내러티브 표시
+│   │   │   │   ├── PartyStatus.tsx    # 파티 HP 바
+│   │   │   │   ├── RollResults.tsx    # 4인 주사위 결과 그리드
+│   │   │   │   ├── RunResult.tsx      # 런 종료 화면
+│   │   │   │   └── WaveEndChoice.tsx  # 계속/철수 투표
 │   │   │   └── Lobby/
 │   │   │       ├── LobbyScreen.tsx    # 홈(방 생성/참가) + 대기실
 │   │   │       └── CharacterSetup.tsx # 캐릭터 이름/배경 선택
@@ -83,17 +98,27 @@ round-midnight/
 │   │   ├── stores/
 │   │   │   └── gameStore.ts           # Zustand (RunPhase 기반 라우팅)
 │   │   ├── styles/
-│   │   │   └── theme.ts              # tierColors, BACKGROUNDS 데이터
-│   │   ├── index.css                  # Tailwind 디렉티브
+│   │   │   └── theme.ts              # BACKGROUNDS 데이터
+│   │   ├── index.css                  # Tailwind + 디자인 토큰 + 가로모드 차단
 │   │   ├── App.tsx                    # RunPhase 기반 라우팅
 │   │   └── main.tsx
-│   ├── tailwind.config.js             # 커스텀 테마 (midnight, arcane, tier)
+│   ├── tailwind.config.js             # 커스텀 테마 (midnight, arcane, tier, xs breakpoint)
 │   └── postcss.config.js
 ├── server/                         # @round-midnight/server
 │   └── src/
+│       ├── ai/
+│       │   ├── client.ts             # Anthropic API 클라이언트 (폴백 지원)
+│       │   ├── highlightsGenerator.ts # 런 하이라이트 생성
+│       │   ├── narrativeGenerator.ts  # 전투 내러티브 생성
+│       │   ├── prompts.ts            # LLM 시스템 프롬프트
+│       │   └── situationGenerator.ts  # 상황/선택지 생성
 │       ├── game/
-│       │   ├── Room.ts                # RoomManager (phase 상태 머신)
-│       │   └── Player.ts             # createCharacter + applyBackground
+│       │   ├── data/hardcodedData.ts  # LLM 폴백 하드코딩 데이터
+│       │   ├── DamageCalculator.ts    # 데미지 계산 엔진
+│       │   ├── DiceEngine.ts          # d20 주사위 + 보정 계산
+│       │   ├── Player.ts             # createCharacter + applyBackground
+│       │   ├── Room.ts               # RoomManager (phase 상태 머신)
+│       │   └── WaveManager.ts        # 웨이브 진행 관리
 │       ├── socket/
 │       │   └── handlers.ts           # 소켓 이벤트 핸들러
 │       └── index.ts
@@ -105,6 +130,8 @@ round-midnight/
 │       ├── STYLE-GUIDE.md             # Mother/Earthbound 디자인 시스템
 │       ├── assets/                    # HTML 에셋 (earthbound-assets, poster)
 │       └── references/                # 토큰, UI 컴포넌트, 픽셀아트, 배경
+├── vercel.json                        # Vercel 배포 설정 (SPA 리라이트)
+├── Dockerfile                         # 멀티스테이지 빌드 (서버)
 └── CLAUDE.md
 ```
 
@@ -132,7 +159,7 @@ round-midnight/
 | `character-ready` | S→C | 캐릭터 설정 완료 알림 |
 | `all-characters-ready` | S→C | 전원 설정 완료 → wave_intro 진입 |
 
-### 전투 (Phase 2에서 구현)
+### 전투
 | 이벤트 | 방향 | 설명 |
 |--------|------|------|
 | `wave-intro` | S→C | 상황 묘사 + 선택지 |
@@ -151,11 +178,12 @@ round-midnight/
 - 커스텀 테마: `tailwind.config.js`에 정의
 - 색상 그룹: `midnight-*` (배경), `arcane-*` (보라색 포인트), `tier-*` (주사위 결과), `gold`
 - 커스텀 애니메이션: `dice-spin`, `slide-up`, `fade-in`, `pulse-glow`
-- 폰트: Noto Sans KR
+- 폰트: Press Start 2P (제목) + Silkscreen (본문) + Noto Sans KR (기본)
 
 ### 참고 파일
 - Tailwind 테마: `client/tailwind.config.js`
-- 게임 데이터 (배경/티어): `client/src/styles/theme.ts`
+- 디자인 토큰 (CSS 변수): `client/src/index.css` `:root`
+- 게임 데이터 (배경): `client/src/styles/theme.ts`
 - 패턴 예시: `client/src/components/Lobby/LobbyScreen.tsx`
 
 ### 디자인 시스템 (필수 참조)
@@ -210,7 +238,7 @@ npm run build --workspace=@round-midnight/server
 
 ### LLM 의존 시스템 설계
 - 반드시 폴백 로직 구현 (API 키 없을 때, API 실패 시)
-- Phase 2는 하드코딩 데이터로 전체 흐름 확인 후 LLM 연동
+- 하드코딩 폴백: `server/src/game/data/hardcodedData.ts`
 
 ### 플랫폼 제약
 - 아이폰 사파리 세로 화면
@@ -220,14 +248,12 @@ npm run build --workspace=@round-midnight/server
 ## 구현 진행 상황
 
 - [x] **Phase 1**: 프로젝트 셋업 + 로비 + 캐릭터 설정
-  - shared/types.ts 전면 교체 (Character, Equipment, RunPhase, SOCKET_EVENTS 등)
-  - 패키지명 @round-midnight/* 로 변경
-  - Tailwind CSS 도입 + 커스텀 테마
-  - 서버: RoomManager (phase 상태 머신), Player (createCharacter + applyBackground)
-  - 클라이언트: Zustand store, useSocket, LobbyScreen, CharacterSetup
-- [ ] **Phase 2**: 전투 코어 루프 (LLM 없이 하드코딩 데이터로)
-- [ ] **Phase 3**: LLM 연동
-- [ ] **Phase 4**: 게임 완성 + 모바일 최적화 + 배포
+- [x] **Phase 2**: 전투 코어 루프 (하드코딩 데이터)
+- [x] **Phase 3**: LLM 연동 (상황/선택지/내러티브/하이라이트)
+- [x] **Phase 4**: 배포 + 모바일 최적화
+  - Vercel SPA 리라이트, Dockerfile 멀티스테이지 빌드
+  - Vite chunk splitting, 반응형 폰트, 가로 모드 차단
+  - 디자인 토큰 CSS 변수, OG 메타 태그
 
 ## 문서
 

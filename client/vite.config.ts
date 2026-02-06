@@ -12,4 +12,17 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    target: 'es2020',
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          socket: ['socket.io-client'],
+          state: ['zustand'],
+        },
+      },
+    },
+  },
 });

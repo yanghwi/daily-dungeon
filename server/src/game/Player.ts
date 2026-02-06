@@ -27,9 +27,9 @@ const BACKGROUND_PRESETS: Record<string, {
       weapon: '식칼',
       armor: '앞치마',
       accessory: '손목시계',
-      weaponBonus: 1,
-      armorBonus: 0,
-      accessoryEffect: { type: 'none' },
+      weaponBonus: 2,
+      armorBonus: 1,
+      accessoryEffect: { type: 'min_raise', minValue: 3 },
     },
   },
   '개발자': {
@@ -39,9 +39,9 @@ const BACKGROUND_PRESETS: Record<string, {
       weapon: '노트북',
       armor: '후디',
       accessory: '보조배터리',
-      weaponBonus: 0,
-      armorBonus: 0,
-      accessoryEffect: { type: 'min_raise', minValue: 3 },
+      weaponBonus: 1,
+      armorBonus: 1,
+      accessoryEffect: { type: 'min_raise', minValue: 5 },
     },
   },
   '영업사원': {
@@ -51,9 +51,9 @@ const BACKGROUND_PRESETS: Record<string, {
       weapon: '명함',
       armor: '정장',
       accessory: '고급 볼펜',
-      weaponBonus: 0,
-      armorBonus: 0,
-      accessoryEffect: { type: 'none' },
+      weaponBonus: 1,
+      armorBonus: 1,
+      accessoryEffect: { type: 'min_raise', minValue: 4 },
     },
   },
 };
@@ -99,4 +99,3 @@ export function applyBackground(character: Character, background: string): Chara
   };
 }
 
-export { BACKGROUND_PRESETS };

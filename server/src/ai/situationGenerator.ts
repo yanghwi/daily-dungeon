@@ -138,5 +138,5 @@ function validateCategory(cat: string): ChoiceOption['category'] {
 }
 
 function clampDC(dc: number): number {
-  return Math.max(8, Math.min(18, Math.round(dc)));
+  return Math.max(8, Math.min(15, Math.round(dc)));
 }

@@ -9,7 +9,7 @@ let client: Anthropic | null = null;
 /**
  * Anthropic 클라이언트 반환. API 키 없으면 null (→ 폴백 트리거)
  */
-export function getClient(): Anthropic | null {
+function getClient(): Anthropic | null {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
 

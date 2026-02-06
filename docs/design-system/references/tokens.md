@@ -1,6 +1,10 @@
 # Design Tokens
 
-모든 CSS 파일 상단에 이 변수 블록을 포함하거나 공용 토큰 파일에서 import할 것.
+이 토큰들은 `client/src/index.css`의 `:root`에 정의되어 있다.
+스프라이트(box-shadow 픽셀아트), UI 크롬 등에서 CSS 변수로 참조한다.
+
+> **Note**: 컴포넌트 색상(midnight, arcane, tier 등)은 `client/tailwind.config.js`가 source of truth이다.
+> 이 토큰은 Tailwind로 표현하기 어려운 픽셀아트/박스셰도우 전용이다.
 
 ```css
 :root {

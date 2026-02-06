@@ -40,7 +40,7 @@ export default function CharacterSetup({ room, player, onSubmit }: CharacterSetu
     <div className="flex-1 flex flex-col px-6 py-6 gap-5">
       {/* 헤더 */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-white">캐릭터 설정</h2>
+        <h2 className="font-title text-sm sm:text-base text-white">캐릭터 설정</h2>
         <p className="text-slate-400 text-sm mt-1">
           당신은 누구입니까?
         </p>
