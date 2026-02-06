@@ -48,14 +48,14 @@ export default function ChoiceCards({ onSubmitChoice }: Props) {
     <div className="flex-1 flex flex-col justify-end px-3 pb-4 gap-2">
       {/* 카운트다운 */}
       <div className="flex items-center gap-2 px-1 mb-1">
-        <div className="font-title text-[10px] text-gold">어떻게 할까?</div>
+        <div className="font-title text-sm text-gold">어떻게 할까?</div>
         <div className="flex-1 h-1.5 bg-midnight-900 rounded-full overflow-hidden">
           <div
             className="h-full bg-arcane transition-all duration-1000 ease-linear"
             style={{ width: `${(countdown / (GAME_CONSTANTS.CHOICE_TIMEOUT / 1000)) * 100}%` }}
           />
         </div>
-        <div className="font-body text-xs text-slate-400">{countdown}s</div>
+        <div className="font-body text-sm text-slate-400">{countdown}s</div>
       </div>
 
       {/* 선택지 카드들 */}
@@ -79,10 +79,10 @@ export default function ChoiceCards({ onSubmitChoice }: Props) {
             `}
           >
             <div className="flex items-start gap-2">
-              <span className="font-title text-[8px] text-arcane-light bg-midnight-900 px-1.5 py-0.5 rounded">
+              <span className="font-title text-xs text-arcane-light bg-midnight-900 px-1.5 py-0.5 rounded">
                 {categoryIcon[option.category] ?? '???'}
               </span>
-              <span className="font-body text-sm text-slate-100 leading-snug">
+              <span className="font-body text-base text-slate-100 leading-snug">
                 {option.text}
               </span>
             </div>
@@ -91,7 +91,7 @@ export default function ChoiceCards({ onSubmitChoice }: Props) {
       })}
 
       {mySelectedChoiceId && (
-        <div className="text-center font-body text-xs text-slate-500 animate-pulse">
+        <div className="text-center font-body text-sm text-slate-500 animate-pulse">
           다른 플레이어를 기다리는 중...
         </div>
       )}

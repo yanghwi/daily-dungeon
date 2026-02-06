@@ -76,8 +76,8 @@ export default function DiceRoll({ onRoll }: Props) {
       <div className="mt-6 text-center">
         {!hasRolled ? (
           <>
-            <div className="font-title text-sm text-gold animate-pulse">탭하여 굴리기!</div>
-            <div className="font-body text-xs text-slate-500 mt-1">{countdown}초 남음</div>
+            <div className="font-title text-base text-gold animate-pulse">탭하여 굴리기!</div>
+            <div className="font-body text-sm text-slate-500 mt-1">{countdown}초 남음</div>
           </>
         ) : (
           <div className="font-body text-sm text-slate-400 animate-pulse">

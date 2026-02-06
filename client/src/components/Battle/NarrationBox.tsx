@@ -47,7 +47,7 @@ export default function NarrationBox() {
     <div className="flex-1 flex flex-col justify-center px-3" onClick={handleTap}>
       {/* 내러티브 텍스트 */}
       <div className="eb-window">
-        <pre className="font-body text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
+        <pre className="font-body text-base text-slate-200 whitespace-pre-wrap leading-relaxed">
           {displayedText}
           {!isComplete && <span className="animate-pulse">|</span>}
         </pre>
@@ -57,15 +57,15 @@ export default function NarrationBox() {
       {isComplete && damageResult && (
         <div className="eb-window mt-2 !border-arcane animate-fade-in">
           <div className="flex justify-between items-center">
-            <span className="font-body text-xs text-slate-400">
+            <span className="font-body text-sm text-slate-400">
               {enemy?.name}에게 준 데미지
             </span>
-            <span className="font-title text-sm text-tier-critical">
+            <span className="font-title text-base text-tier-critical">
               {damageResult.enemyDamage}
             </span>
           </div>
           {damageResult.enemyDefeated && (
-            <div className="font-title text-xs text-gold mt-1 text-center animate-pulse">
+            <div className="font-title text-sm text-gold mt-1 text-center animate-pulse">
               DEFEATED!
             </div>
           )}
@@ -73,7 +73,7 @@ export default function NarrationBox() {
       )}
 
       {isComplete && (
-        <div className="text-center font-body text-[10px] text-slate-600 mt-2">
+        <div className="text-center font-body text-sm text-slate-600 mt-2">
           잠시 후 다음 단계로...
         </div>
       )}

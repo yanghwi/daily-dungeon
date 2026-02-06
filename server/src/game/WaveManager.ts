@@ -5,6 +5,7 @@ import type {
   PlayerChoiceSet,
   ChoiceOption,
   Enemy,
+  WaveTurn,
   WaveEndPayload,
   RunEndPayload,
   Room,
@@ -19,6 +20,7 @@ import {
 import { generateSituation } from '../ai/situationGenerator.js';
 import { generateNarrative } from '../ai/narrativeGenerator.js';
 import { generateHighlights } from '../ai/highlightsGenerator.js';
+import { logger } from '../logger.js';
 
 interface PendingChoice {
   playerId: string;
@@ -49,6 +51,7 @@ export class WaveManager {
 
   // 현재 웨이브의 상황 묘사 (내러티브 생성 시 재사용)
   private currentSituation: string = '';
+  private lastNarrative: string = '';
 
   /**
    * 웨이브 시작: LLM으로 상황 생성 → 선택지 배분 → wave_intro emit → 2초 후 choosing
@@ -90,7 +93,7 @@ export class WaveManager {
       });
     }
 
-    // 2초 후 choosing phase로 전환
+    // 1초 후 choosing phase로 전환
     this.introTimer = setTimeout(() => {
       roomManager.setPhase(this.roomCode, 'choosing');
       this.io.to(this.roomCode).emit(SOCKET_EVENTS.PHASE_CHANGE, { phase: 'choosing' });
@@ -99,7 +102,7 @@ export class WaveManager {
       this.choiceTimer = setTimeout(() => {
         this.autoFillChoices(room);
       }, GAME_CONSTANTS.CHOICE_TIMEOUT);
-    }, 2000);
+    }, 1000);
   }
 
   /**
@@ -165,7 +168,7 @@ export class WaveManager {
     const alivePlayers = room.players.filter((p) => p.isAlive);
     if (this.pendingRolls.size >= alivePlayers.length) {
       this.clearTimer('roll');
-      this.resolveWave(room).catch((err) => console.error('[WaveManager] resolveWave 에러:', err));
+      this.resolveWave(room).catch((err) => logger.error('resolveWave failed', { room: this.roomCode, error: err instanceof Error ? err.message : String(err) }));
     }
   }
 
@@ -237,19 +240,29 @@ export class WaveManager {
       generateNarrative(
         this.currentSituation, this.currentEnemy.name, this.actions, damageResult.enemyDefeated,
       ),
-      new Promise<void>((resolve) => setTimeout(resolve, 2000)),
+      new Promise<void>((resolve) => setTimeout(resolve, 1000)),
     ]);
 
-    // 6. WAVE_NARRATIVE emit
+    // 6. WAVE_NARRATIVE emit (HP 데이터 포함 → 클라이언트 즉시 반영)
+    this.lastNarrative = narrative;
+    const refreshedRoom = roomManager.getRoom(this.roomCode);
+    const partyStatus = (refreshedRoom ?? room).players.map((p) => ({
+      playerId: p.id,
+      name: p.name,
+      hp: p.hp,
+      maxHp: p.maxHp,
+    }));
     this.io.to(this.roomCode).emit(SOCKET_EVENTS.WAVE_NARRATIVE, {
       narrative,
       damageResult,
+      partyStatus,
+      enemyHp: this.currentEnemy!.hp,
     });
 
-    // 7. 3초 후 WAVE_END → wave_result
+    // 7. 1.5초 후 WAVE_END → wave_result
     setTimeout(() => {
       this.emitWaveEnd(room, damageResult);
-    }, 3000);
+    }, 1500);
   }
 
   private emitWaveEnd(room: Room, damageResult: import('@round-midnight/shared').DamageResult): void {
@@ -258,6 +271,24 @@ export class WaveManager {
     const refreshedRoom = roomManager.getRoom(this.roomCode);
     if (!refreshedRoom) return;
 
+    // 루트 누적
+    if (damageResult.loot.length > 0 && refreshedRoom.run) {
+      refreshedRoom.run.accumulatedLoot.push(...damageResult.loot);
+    }
+
+    // 웨이브 히스토리 기록
+    if (refreshedRoom.run && this.currentEnemy) {
+      refreshedRoom.run.waveHistory.push({
+        waveNumber: refreshedRoom.run.currentWave,
+        situation: this.currentSituation,
+        enemy: { ...this.currentEnemy },
+        playerChoices: Array.from(this.playerChoiceSets.values()),
+        playerActions: [...this.actions],
+        narrative: this.lastNarrative,
+        damageResult,
+      });
+    }
+
     const alivePlayers = refreshedRoom.players.filter((p) => p.isAlive);
     const allDead = alivePlayers.length === 0;
     const waveNumber = refreshedRoom.run?.currentWave ?? 1;
@@ -265,13 +296,13 @@ export class WaveManager {
 
     // 전멸 → 바로 run_end
     if (allDead) {
-      this.endRun(refreshedRoom, 'wipe').catch((err) => console.error('[WaveManager] endRun 에러:', err));
+      this.endRun(refreshedRoom, 'wipe').catch((err) => logger.error('endRun failed', { room: this.roomCode, error: err instanceof Error ? err.message : String(err) }));
       return;
     }
 
     // 클리어 (마지막 웨이브 + 적 격파)
     if (isLastWave && damageResult.enemyDefeated) {
-      this.endRun(refreshedRoom, 'clear').catch((err) => console.error('[WaveManager] endRun 에러:', err));
+      this.endRun(refreshedRoom, 'clear').catch((err) => logger.error('endRun failed', { room: this.roomCode, error: err instanceof Error ? err.message : String(err) }));
       return;
     }
 
@@ -297,16 +328,13 @@ export class WaveManager {
     this.io.to(this.roomCode).emit(SOCKET_EVENTS.WAVE_END, payload);
     this.io.to(this.roomCode).emit(SOCKET_EVENTS.PHASE_CHANGE, { phase: 'wave_result' });
 
-    // 적을 못 잡았으면 같은 웨이브 다시 (계속 투표 시)
-    // 잡았으면 다음 웨이브로 진행
     if (!canContinue) {
-      // 적이 안 죽음 → 같은 웨이브 재시도 (계속만 가능)
-      // 30초 후 자동 계속
+      // 적 생존 → 5초 후 자동 계속 (같은 적 재도전)
       this.voteTimer = setTimeout(() => {
         this.autoVoteContinue(refreshedRoom);
-      }, GAME_CONSTANTS.VOTE_TIMEOUT);
+      }, 5000);
     } else {
-      // 30초 투표 타이머
+      // 적 격파 → 30초 투표 타이머
       this.voteTimer = setTimeout(() => {
         this.autoVoteContinue(refreshedRoom);
       }, GAME_CONSTANTS.VOTE_TIMEOUT);
@@ -322,15 +350,15 @@ export class WaveManager {
     const majority = retreatCount > total / 2; // 과반수 철수 시 철수, 동률은 계속
 
     if (majority) {
-      this.endRun(refreshedRoom, 'retreat').catch((err) => console.error('[WaveManager] endRun 에러:', err));
+      this.endRun(refreshedRoom, 'retreat').catch((err) => logger.error('endRun failed', { room: this.roomCode, error: err instanceof Error ? err.message : String(err) }));
     } else {
       // 적이 살아있으면 같은 웨이브 다시 (기존 적 전달), 죽었으면 다음 웨이브
       if (this.currentEnemy && this.currentEnemy.hp > 0) {
-        this.startWave(refreshedRoom, this.currentEnemy).catch((err) => console.error('[WaveManager] startWave 에러:', err));
+        this.startWave(refreshedRoom, this.currentEnemy).catch((err) => logger.error('startWave failed', { room: this.roomCode, error: err instanceof Error ? err.message : String(err) }));
       } else {
         const runState = roomManager.advanceWave(this.roomCode);
         if (runState) {
-          this.startWave(roomManager.getRoom(this.roomCode)!).catch((err) => console.error('[WaveManager] startWave 에러:', err));
+          this.startWave(roomManager.getRoom(this.roomCode)!).catch((err) => logger.error('startWave failed', { room: this.roomCode, error: err instanceof Error ? err.message : String(err) }));
         }
       }
     }

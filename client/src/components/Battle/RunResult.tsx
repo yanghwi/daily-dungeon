@@ -52,9 +52,9 @@ export default function RunResult({ onReturnToLobby }: Props) {
 
       {/* 하이라이트 */}
       <div className="eb-window w-full max-w-sm animate-slide-up" style={{ animationDelay: '200ms', animationFillMode: 'both' }}>
-        <div className="font-title text-[10px] text-arcane-light mb-2">하이라이트</div>
+        <div className="font-title text-sm text-arcane-light mb-2">하이라이트</div>
         {runEndResult.highlights.map((line, i) => (
-          <div key={i} className="font-body text-xs text-slate-300 leading-relaxed">
+          <div key={i} className="font-body text-sm text-slate-300 leading-relaxed">
             {line}
           </div>
         ))}
@@ -63,9 +63,9 @@ export default function RunResult({ onReturnToLobby }: Props) {
       {/* 전리품 */}
       {runEndResult.totalLoot.length > 0 && (
         <div className="eb-window !border-gold w-full max-w-sm animate-slide-up" style={{ animationDelay: '400ms', animationFillMode: 'both' }}>
-          <div className="font-title text-[10px] text-gold mb-1">획득 전리품</div>
+          <div className="font-title text-sm text-gold mb-1">획득 전리품</div>
           {runEndResult.totalLoot.map((item, i) => (
-            <div key={i} className="font-body text-xs text-slate-200">
+            <div key={i} className="font-body text-sm text-slate-200">
               {item.name}
             </div>
           ))}
@@ -78,7 +78,7 @@ export default function RunResult({ onReturnToLobby }: Props) {
         className="eb-window !border-arcane text-center w-full max-w-sm active:scale-[0.97] transition-transform animate-slide-up"
         style={{ animationDelay: '600ms', animationFillMode: 'both' }}
       >
-        <div className="font-title text-sm text-arcane-light">로비로 돌아가기</div>
+        <div className="font-title text-base text-arcane-light">로비로 돌아가기</div>
       </button>
     </div>
   );

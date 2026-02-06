@@ -21,7 +21,7 @@ export default function PartyStatus() {
   if (players.length === 0) return null;
 
   return (
-    <div className="flex gap-1.5 px-3 py-2" style={{ zIndex: 10 }}>
+    <div className="flex gap-1.5 px-3 py-2 z-10">
       {players.map((p) => {
         const ratio = p.maxHp > 0 ? p.hp / p.maxHp : 0;
         const barColor =
@@ -31,17 +31,17 @@ export default function PartyStatus() {
         const isLow = ratio <= 0.25 && ratio > 0;
 
         return (
-          <div key={p.playerId} className="flex-1 eb-window !p-2">
-            <div className="font-title text-[8px] text-slate-200 truncate mb-1">
+          <div key={p.playerId} className="flex-1 eb-window !px-2 !py-1.5">
+            <div className="font-title text-sm text-slate-200 truncate mb-1">
               {p.name || '???'}
             </div>
-            <div className="h-2 bg-midnight-900 border border-slate-600 rounded-sm overflow-hidden">
+            <div className="h-3 bg-midnight-900 border border-slate-600 rounded-sm overflow-hidden">
               <div
                 className={`h-full transition-all duration-1000 ease-out ${barColor} ${isLow ? 'animate-pulse' : ''}`}
                 style={{ width: `${Math.max(0, ratio * 100)}%` }}
               />
             </div>
-            <div className="font-body text-[8px] text-slate-400 mt-0.5 text-right">
+            <div className="font-body text-sm text-slate-400 mt-0.5 text-right">
               {p.hp}/{p.maxHp}
             </div>
           </div>

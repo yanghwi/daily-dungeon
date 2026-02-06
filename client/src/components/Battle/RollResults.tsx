@@ -28,10 +28,10 @@ export default function RollResults() {
               className={`eb-window !p-3 border-2 ${style.bg} animate-slide-up`}
               style={{ animationDelay: `${i * 150}ms`, animationFillMode: 'both' }}
             >
-              <div className="font-title text-[9px] text-slate-300 truncate">
+              <div className="font-title text-xs text-slate-300 truncate">
                 {action.playerName}
               </div>
-              <div className="font-body text-[10px] text-slate-500 truncate mt-0.5">
+              <div className="font-body text-sm text-slate-500 truncate mt-0.5">
                 {action.choiceText}
               </div>
               <div className="flex items-baseline gap-1.5 mt-2">
@@ -39,10 +39,10 @@ export default function RollResults() {
                   {action.roll}
                 </span>
                 {action.bonus > 0 && (
-                  <span className="font-body text-xs text-arcane-light">+{action.bonus}</span>
+                  <span className="font-body text-sm text-arcane-light">+{action.bonus}</span>
                 )}
               </div>
-              <div className={`font-title text-[10px] mt-1 ${style.text}`}>
+              <div className={`font-title text-sm mt-1 ${style.text}`}>
                 {style.label}
               </div>
             </div>

@@ -58,7 +58,7 @@ interface GameStore {
   setWaveIntro: (wave: number, enemy: Enemy, situation: string, choices: PlayerChoiceSet) => void;
   setMyChoice: (choiceId: string) => void;
   setAllActions: (actions: PlayerAction[]) => void;
-  setNarrative: (narrative: string, damageResult: DamageResult) => void;
+  setNarrative: (narrative: string, damageResult: DamageResult, partyStatus?: WaveEndPayload['partyStatus'], enemyHp?: number) => void;
   setLoot: (loot: LootItem[]) => void;
   setWaveEnd: (payload: WaveEndPayload) => void;
   setRunEnd: (payload: RunEndPayload) => void;
@@ -126,7 +126,15 @@ export const useGameStore = create<GameStore>((set) => ({
 
   setAllActions: (actions) => set({ allActions: actions }),
 
-  setNarrative: (narrative, damageResult) => set({ narrative, damageResult }),
+  setNarrative: (narrative, damageResult, partyStatus, enemyHp) =>
+    set((state) => ({
+      narrative,
+      damageResult,
+      partyStatus: partyStatus ?? state.partyStatus,
+      enemy: state.enemy && enemyHp !== undefined
+        ? { ...state.enemy, hp: enemyHp }
+        : state.enemy,
+    })),
 
   setLoot: (loot) => set({ loot }),
 

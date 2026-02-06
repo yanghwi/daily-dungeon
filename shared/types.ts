@@ -154,6 +154,8 @@ export interface RollResultsPayload {
 export interface WaveNarrativePayload {
   narrative: string;                  // LLM 결과 서술 (스트리밍 또는 전체)
   damageResult: DamageResult;
+  partyStatus: { playerId: string; name: string; hp: number; maxHp: number }[];
+  enemyHp: number;
 }
 
 export interface WaveEndPayload {
@@ -279,6 +281,11 @@ export const SOCKET_EVENTS = {
 
   // 런 종료
   RUN_END: 'run-end',
+
+  // 재접속
+  RECONNECT_ATTEMPT: 'reconnect-attempt',
+  RECONNECT_SUCCESS: 'reconnect-success',
+  RECONNECT_FAILED: 'reconnect-failed',
 
   // 에러
   ERROR: 'error',

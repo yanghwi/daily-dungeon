@@ -9,6 +9,7 @@ import DiceRoll from './DiceRoll';
 import RollResults from './RollResults';
 import NarrationBox from './NarrationBox';
 import WaveEndChoice from './WaveEndChoice';
+import SituationBox from './SituationBox';
 
 interface Props {
   onSubmitChoice: (choiceId: string) => void;
@@ -24,8 +25,6 @@ export default function BattleScreen({ onSubmitChoice, onRoll, onVote }: Props) 
   const phase = useGameStore((s) => s.phase);
   const currentWave = useGameStore((s) => s.currentWave);
   const enemy = useGameStore((s) => s.enemy);
-  const situation = useGameStore((s) => s.situation);
-
   const [activeEffect, setActiveEffect] = useState<EffectType>(null);
   const clearEffect = useCallback(() => setActiveEffect(null), []);
 
@@ -58,16 +57,34 @@ export default function BattleScreen({ onSubmitChoice, onRoll, onVote }: Props) 
       <BattleBg waveNumber={currentWave} />
 
       {/* 컨텐츠 레이어 */}
-      <div className="relative flex-1 flex flex-col" style={{ zIndex: 1 }}>
-        {/* 웨이브 번호 + 적 정보 */}
+      <div className="relative flex-1 flex flex-col z-[1]">
+        {/* 웨이브 번호 + 적 HP 바 */}
         <div className="px-3 pt-3">
-          <div className="flex items-center justify-between">
-            <span className="font-title text-[10px] text-arcane-light">WAVE {currentWave}</span>
-            {enemy && (
-              <span className="font-title text-[10px] text-slate-400">
-                {enemy.name} HP {enemy.hp}/{enemy.maxHp}
-              </span>
-            )}
+          <div className="flex flex-col items-center gap-1">
+            <span className="font-title text-xs text-arcane-light">WAVE {currentWave}</span>
+            {enemy && (() => {
+              const ratio = enemy.maxHp > 0 ? enemy.hp / enemy.maxHp : 0;
+              const barColor =
+                ratio > 0.5 ? 'bg-tier-critical' :
+                ratio > 0.25 ? 'bg-gold' :
+                'bg-tier-nat1';
+              return (
+                <div className="w-48 eb-window !px-2 !py-1.5">
+                  <div className="font-title text-sm text-slate-200 text-center mb-1 truncate">
+                    {enemy.name}
+                  </div>
+                  <div className="h-2.5 bg-midnight-900 border border-slate-600 rounded-sm overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 ease-out ${barColor}`}
+                      style={{ width: `${Math.max(0, ratio * 100)}%` }}
+                    />
+                  </div>
+                  <div className="font-body text-sm text-slate-400 mt-0.5 text-center">
+                    {enemy.hp}/{enemy.maxHp}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -76,19 +93,8 @@ export default function BattleScreen({ onSubmitChoice, onRoll, onVote }: Props) 
           <EnemySprite imageTag={enemy.imageTag} />
         )}
 
-        {/* 파티 HP */}
-        <PartyStatus />
-
-        {/* 상황 묘사 (wave_intro, choosing) */}
-        {(phase === 'wave_intro' || phase === 'choosing') && situation && (
-          <div className="px-3 mt-2">
-            <div className="eb-window">
-              <p className="font-body text-sm text-slate-200 leading-relaxed">
-                {situation}
-              </p>
-            </div>
-          </div>
-        )}
+        {/* 상황 묘사 (wave_intro, choosing) — 타이프라이터 효과 */}
+        {(phase === 'wave_intro' || phase === 'choosing') && <SituationBox />}
 
         {/* wave_intro: 로딩 표시 */}
         {phase === 'wave_intro' && (
@@ -121,6 +127,9 @@ export default function BattleScreen({ onSubmitChoice, onRoll, onVote }: Props) 
         {phase === 'wave_result' && (
           <WaveEndChoice onVote={onVote} />
         )}
+
+        {/* 파티 HP (하단) */}
+        <PartyStatus />
       </div>
 
       {/* 이펙트 오버레이 */}

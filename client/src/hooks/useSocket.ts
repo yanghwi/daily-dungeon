@@ -41,6 +41,9 @@ export function useSocket() {
   useEffect(() => {
     const socket = io(SOCKET_URL, {
       transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
     });
 
     socketRef.current = socket;
@@ -48,6 +51,13 @@ export function useSocket() {
     socket.on('connect', () => {
       console.log('Connected to server');
       setConnected(true);
+
+      // 재접속 시도: 이전 세션이 있으면 playerId로 복원 시도
+      const savedPlayerId = sessionStorage.getItem('rm-player-id');
+      const store = useGameStore.getState();
+      if (savedPlayerId && store.phase !== 'waiting') {
+        socket.emit(SOCKET_EVENTS.RECONNECT_ATTEMPT, { playerId: savedPlayerId });
+      }
     });
 
     socket.on('disconnect', () => {
@@ -55,10 +65,25 @@ export function useSocket() {
       setConnected(false);
     });
 
+    // ===== 재접속 =====
+
+    socket.on(SOCKET_EVENTS.RECONNECT_SUCCESS, (data: { room: Room; player: Character; phase: RunPhase }) => {
+      setPlayer(data.player);
+      setRoom(data.room);
+      setPhase(data.phase);
+      console.log('Reconnected successfully');
+    });
+
+    socket.on(SOCKET_EVENTS.RECONNECT_FAILED, () => {
+      sessionStorage.removeItem('rm-player-id');
+      resetGame();
+    });
+
     // ===== 로비 =====
 
     socket.on(SOCKET_EVENTS.ROOM_CREATED, (data: RoomCreatedResponse) => {
       setPlayer(data.player);
+      sessionStorage.setItem('rm-player-id', data.player.id);
       setRoom({
         code: data.roomCode,
         players: [data.player],
@@ -71,6 +96,7 @@ export function useSocket() {
 
     socket.on(SOCKET_EVENTS.ROOM_JOINED, (data: RoomJoinedResponse) => {
       setPlayer(data.player);
+      sessionStorage.setItem('rm-player-id', data.player.id);
       setRoom(data.room);
       setPhase('waiting');
     });
@@ -127,7 +153,7 @@ export function useSocket() {
     });
 
     socket.on(SOCKET_EVENTS.WAVE_NARRATIVE, (data: WaveNarrativePayload) => {
-      setNarrative(data.narrative, data.damageResult);
+      setNarrative(data.narrative, data.damageResult, data.partyStatus, data.enemyHp);
     });
 
     socket.on(SOCKET_EVENTS.WAVE_END, (data: WaveEndPayload) => {
@@ -165,6 +191,7 @@ export function useSocket() {
 
   const leaveRoom = () => {
     socketRef.current?.emit(SOCKET_EVENTS.LEAVE_ROOM);
+    sessionStorage.removeItem('rm-player-id');
     resetGame();
   };
 
