@@ -18,6 +18,10 @@ import { SOCKET_EVENTS } from '@round-midnight/shared';
 
 const SOCKET_URL = import.meta.env.VITE_SERVER_URL ?? (import.meta.env.DEV ? 'http://localhost:3000' : '');
 
+if (import.meta.env.PROD && !SOCKET_URL) {
+  console.error('[Round Midnight] VITE_SERVER_URL이 설정되지 않았습니다. 서버에 연결할 수 없습니다.');
+}
+
 export function useSocket() {
   const socketRef = useRef<Socket | null>(null);
   const {

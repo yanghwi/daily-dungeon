@@ -63,7 +63,7 @@ function HomeView({
     <div className="flex-1 flex flex-col items-center justify-center px-6 gap-8">
       {/* 타이틀 */}
       <div className="text-center">
-        <h1 className="text-4xl font-bold text-white tracking-tight">
+        <h1 className="font-title text-xl sm:text-2xl text-white tracking-tight">
           Round Midnight
         </h1>
         <p className="mt-2 text-slate-400 text-sm">
@@ -146,7 +146,7 @@ function RoomView({
       {/* 방 코드 */}
       <div className="text-center">
         <p className="text-slate-400 text-sm mb-1">방 코드</p>
-        <p className="text-4xl font-bold text-gold tracking-[0.3em]">
+        <p className="font-title text-2xl sm:text-3xl text-gold tracking-[0.2em] sm:tracking-[0.3em]">
           {room.code}
         </p>
         <p className="text-slate-500 text-xs mt-1">친구에게 이 코드를 알려주세요</p>

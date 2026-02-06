@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -9,12 +9,32 @@ COPY shared/package.json ./shared/
 
 RUN npm ci
 
-# 소스 복사
+# 소스 복사 & 빌드
 COPY shared/ ./shared/
 COPY server/ ./server/
 
 RUN npm run build --workspace=@round-midnight/server
 
+# --- Production stage ---
+FROM node:20-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY package.json package-lock.json ./
+COPY server/package.json ./server/
+COPY shared/package.json ./shared/
+
+RUN npm ci --omit=dev
+
+# 빌드 결과물과 shared 소스 복사
+COPY shared/ ./shared/
+COPY --from=builder /app/server/dist ./server/dist
+
 EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1
 
 CMD ["npm", "run", "start", "--workspace=@round-midnight/server"]

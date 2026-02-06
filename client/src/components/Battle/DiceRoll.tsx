@@ -64,7 +64,7 @@ export default function DiceRoll({ onRoll }: Props) {
       >
         <span
           className={`
-            font-title text-4xl
+            font-title text-2xl xs:text-3xl sm:text-4xl
             ${hasRolled ? 'text-gold' : 'text-arcane-light'}
           `}
         >

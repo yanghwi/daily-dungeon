@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>Daily Dungeon</title>
-    <!-- Google Fonts: Noto Sans KR (모바일 가독성 최우선) -->
+    <title>Round Midnight</title>
+    <meta name="description" content="자정이 지나면, 이상한 일이 시작된다. 4인 협동 웹 로그라이트." />
+    <meta name="theme-color" content="#0f0f1a" />
+    <!-- Open Graph -->
+    <meta property="og:title" content="Round Midnight" />
+    <meta property="og:description" content="자정이 지나면, 이상한 일이 시작된다. 4인 협동 웹 로그라이트." />
+    <meta property="og:type" content="website" />
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
     <style>
       * {
         margin: 0;
@@ -33,6 +39,10 @@
   </head>
   <body>
     <div id="root"></div>
+    <div id="landscape-block">
+      <p>📱</p>
+      <p>세로 모드로 플레이해주세요</p>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
