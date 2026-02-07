@@ -44,7 +44,7 @@ const SPRITES: Record<string, SpriteConfig> = {
     idleAnimation: 'idle-bounce',
     idleDuration: '1s',
     idleSteps: 2,
-    scale: 3,
+    scale: 5,
   },
 
   /**
@@ -76,7 +76,7 @@ const SPRITES: Record<string, SpriteConfig> = {
     idleAnimation: 'idle-wobble',
     idleDuration: '1.2s',
     idleSteps: 2,
-    scale: 3,
+    scale: 5,
   },
 
   /**
@@ -109,7 +109,7 @@ const SPRITES: Record<string, SpriteConfig> = {
     idleAnimation: 'idle-float',
     idleDuration: '2s',
     idleSteps: null,
-    scale: 3,
+    scale: 5,
   },
 
   /**
@@ -139,7 +139,7 @@ const SPRITES: Record<string, SpriteConfig> = {
     idleAnimation: 'idle-pulse',
     idleDuration: '0.8s',
     idleSteps: 2,
-    scale: 3,
+    scale: 6,
   },
 
   /**
@@ -172,7 +172,7 @@ const SPRITES: Record<string, SpriteConfig> = {
     idleAnimation: 'idle-float',
     idleDuration: '3s',
     idleSteps: null,
-    scale: 3,
+    scale: 7,
   },
 };
 

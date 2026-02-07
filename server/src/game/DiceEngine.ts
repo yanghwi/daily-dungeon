@@ -45,13 +45,15 @@ export function calculateBonus(character: Character, category: ActionCategory): 
  * nat1:     roll === 1 (항상 실패)
  * nat20:    roll === 20 (항상 성공)
  * fail:     effectiveRoll < dc
- * normal:   effectiveRoll >= dc && effectiveRoll < dc + 5
- * critical: effectiveRoll >= dc + 5
+ * normal:   effectiveRoll >= dc && effectiveRoll < dc + critMin
+ * critical: effectiveRoll >= dc + critMin
+ *
+ * @param critMin critical 판정에 필요한 DC 초과량 (기본 5, crit_expand 효과로 감소)
  */
-export function determineTier(roll: number, effectiveRoll: number, dc: number): RollTier {
+export function determineTier(roll: number, effectiveRoll: number, dc: number, critMin: number = 5): RollTier {
   if (roll === 1) return 'nat1';
   if (roll === 20) return 'nat20';
   if (effectiveRoll < dc) return 'fail';
-  if (effectiveRoll >= dc + 5) return 'critical';
+  if (effectiveRoll >= dc + critMin) return 'critical';
   return 'normal';
 }

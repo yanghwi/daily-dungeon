@@ -35,6 +35,7 @@ export function useSocket() {
     setNarrative,
     setWaveEnd,
     setRunEnd,
+    setVoteStatus,
     resetGame,
   } = useGameStore();
 
@@ -53,7 +54,7 @@ export function useSocket() {
       setConnected(true);
 
       // 재접속 시도: 이전 세션이 있으면 playerId로 복원 시도
-      const savedPlayerId = sessionStorage.getItem('rm-player-id');
+      const savedPlayerId = localStorage.getItem('rm-player-id');
       const store = useGameStore.getState();
       if (savedPlayerId && store.phase !== 'waiting') {
         socket.emit(SOCKET_EVENTS.RECONNECT_ATTEMPT, { playerId: savedPlayerId });
@@ -75,7 +76,7 @@ export function useSocket() {
     });
 
     socket.on(SOCKET_EVENTS.RECONNECT_FAILED, () => {
-      sessionStorage.removeItem('rm-player-id');
+      localStorage.removeItem('rm-player-id');
       resetGame();
     });
 
@@ -83,7 +84,7 @@ export function useSocket() {
 
     socket.on(SOCKET_EVENTS.ROOM_CREATED, (data: RoomCreatedResponse) => {
       setPlayer(data.player);
-      sessionStorage.setItem('rm-player-id', data.player.id);
+      localStorage.setItem('rm-player-id', data.player.id);
       setRoom({
         code: data.roomCode,
         players: [data.player],
@@ -96,7 +97,7 @@ export function useSocket() {
 
     socket.on(SOCKET_EVENTS.ROOM_JOINED, (data: RoomJoinedResponse) => {
       setPlayer(data.player);
-      sessionStorage.setItem('rm-player-id', data.player.id);
+      localStorage.setItem('rm-player-id', data.player.id);
       setRoom(data.room);
       setPhase('waiting');
     });
@@ -160,6 +161,10 @@ export function useSocket() {
       setWaveEnd(data);
     });
 
+    socket.on(SOCKET_EVENTS.VOTE_UPDATE, (data: { continueCount: number; retreatCount: number; total: number }) => {
+      setVoteStatus(data);
+    });
+
     socket.on(SOCKET_EVENTS.RUN_END, (data: RunEndPayload) => {
       setRunEnd(data);
     });
@@ -191,7 +196,7 @@ export function useSocket() {
 
   const leaveRoom = () => {
     socketRef.current?.emit(SOCKET_EVENTS.LEAVE_ROOM);
-    sessionStorage.removeItem('rm-player-id');
+    localStorage.removeItem('rm-player-id');
     resetGame();
   };
 

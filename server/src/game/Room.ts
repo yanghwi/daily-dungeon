@@ -180,6 +180,18 @@ export class RoomManager {
     return undefined;
   }
 
+  /**
+   * playerId로 방 찾기 (재접속용)
+   */
+  findRoomByPlayerId(playerId: string): Room | undefined {
+    for (const room of this.rooms.values()) {
+      if (room.players.some((p) => p.id === playerId)) {
+        return room;
+      }
+    }
+    return undefined;
+  }
+
   removePlayerBySocketId(socketId: string): { room: Room; playerId: string } | null {
     for (const room of this.rooms.values()) {
       const player = room.players.find((p) => p.socketId === socketId);

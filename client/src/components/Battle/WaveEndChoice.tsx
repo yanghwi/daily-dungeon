@@ -14,6 +14,7 @@ export default function WaveEndChoice({ onVote }: Props) {
   const setHasVoted = useGameStore((s) => s.setHasVoted);
   const nextWavePreview = useGameStore((s) => s.nextWavePreview);
   const partyStatus = useGameStore((s) => s.partyStatus);
+  const voteStatus = useGameStore((s) => s.voteStatus);
 
   const handleVote = (decision: 'continue' | 'retreat') => {
     if (hasVoted) return;
@@ -90,8 +91,15 @@ export default function WaveEndChoice({ onVote }: Props) {
           )}
         </div>
       ) : (
-        <div className="text-center font-body text-sm text-slate-400 animate-pulse">
-          투표 완료! 결과를 기다리는 중...
+        <div className="text-center space-y-1">
+          <div className="font-body text-sm text-slate-400 animate-pulse">
+            투표 완료! 결과를 기다리는 중...
+          </div>
+          {voteStatus && (
+            <div className="font-body text-sm text-slate-500">
+              전진 {voteStatus.continueCount} / 철수 {voteStatus.retreatCount} ({voteStatus.total}명 중 {voteStatus.continueCount + voteStatus.retreatCount}명 투표)
+            </div>
+          )}
         </div>
       )}
     </div>

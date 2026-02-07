@@ -163,6 +163,7 @@ export interface WaveEndPayload {
   partyStatus: { playerId: string; name: string; hp: number; maxHp: number }[];
   loot: LootItem[];
   nextWavePreview?: string;           // "다음: 더 깊은 곳에서 이상한 소리가..."
+  voteStatus?: { continueCount: number; retreatCount: number; total: number };
 }
 
 export interface RunEndPayload {
@@ -281,6 +282,9 @@ export const SOCKET_EVENTS = {
 
   // 런 종료
   RUN_END: 'run-end',
+
+  // 투표 현황
+  VOTE_UPDATE: 'vote-update',
 
   // 재접속
   RECONNECT_ATTEMPT: 'reconnect-attempt',

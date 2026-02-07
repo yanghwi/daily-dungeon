@@ -50,6 +50,8 @@ interface GameStore {
   partyStatus: WaveEndPayload['partyStatus'];
   hasVoted: boolean;
   nextWavePreview: string;
+  voteStatus: { continueCount: number; retreatCount: number; total: number } | null;
+  setVoteStatus: (status: { continueCount: number; retreatCount: number; total: number }) => void;
 
   // 런 종료 상태
   runEndResult: RunEndPayload | null;
@@ -104,6 +106,8 @@ export const useGameStore = create<GameStore>((set) => ({
   partyStatus: [],
   hasVoted: false,
   nextWavePreview: '',
+  voteStatus: null,
+  setVoteStatus: (status) => set({ voteStatus: status }),
 
   // 런 종료 상태
   runEndResult: null,
@@ -120,6 +124,7 @@ export const useGameStore = create<GameStore>((set) => ({
       damageResult: null,
       loot: [],
       hasVoted: false,
+      voteStatus: null,
     }),
 
   setMyChoice: (choiceId) => set({ mySelectedChoiceId: choiceId }),
@@ -173,6 +178,7 @@ export const useGameStore = create<GameStore>((set) => ({
       partyStatus: [],
       hasVoted: false,
       nextWavePreview: '',
+      voteStatus: null,
       runEndResult: null,
       error: null,
     }),

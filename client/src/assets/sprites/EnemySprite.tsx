@@ -5,6 +5,8 @@ interface Props {
   imageTag: string;
   /** 'idle' | 'hit' | 'defeat' */
   state?: 'idle' | 'hit' | 'defeat';
+  /** 보스 여부 — true 시 scale 오버라이드 (7~8) */
+  isBoss?: boolean;
 }
 
 /**
@@ -15,11 +17,12 @@ interface Props {
  *   mid:   idle/hit/defeat 애니메이션
  *   inner: box-shadow 렌더링 (4px base element)
  */
-export default function EnemySprite({ imageTag, state = 'idle' }: Props) {
+export default function EnemySprite({ imageTag, state = 'idle', isBoss = false }: Props) {
   const sprite = SPRITES[imageTag];
   if (!sprite) return null;
 
-  const { boxShadow, idleAnimation, idleDuration, idleSteps, scale } = sprite;
+  const { boxShadow, idleAnimation, idleDuration, idleSteps, scale: baseScale } = sprite;
+  const scale = isBoss ? Math.max(baseScale, 7) : baseScale;
 
   // 애니메이션 결정
   let animation: string;

@@ -25,17 +25,17 @@
 
 | 배경 | 특성 | 약점 | 보정 |
 |------|------|------|------|
-| 전직 경비원 | 용감한 | 어둠을 무서워함 | 물리/방어 +2/+1 |
-| 요리사 | 호기심 많은 | 거미 공포증 | 창의 행동 보정 |
-| 개발자 | 겁 많은 | 사회적 상황에 약함 | 기술 행동 보정 |
-| 영업사원 | 말빨 좋은 | 체력이 약함 | 사회 행동 보정 |
+| 전직 경비원 | 용감한 | 어둠을 무서워함 | physical/defensive +2 |
+| 요리사 | 호기심 많은 | 거미 공포증 | creative +2 |
+| 개발자 | 겁 많은 | 사회적 상황에 약함 | technical +2 |
+| 영업사원 | 말빨 좋은 | 체력이 약함 | social +2 |
 
 ## 주사위 시스템
 
 | d20 결과 | 판정 | 설명 |
 |----------|------|------|
 | 20 (nat20) | 영웅적 순간 | 항상 성공, 적에게 3배 데미지 |
-| DC+5 이상 | 크리티컬 | 강력한 성공, 2배 데미지 |
+| DC+critMin 이상 | 크리티컬 | 강력한 성공, 2배 데미지 (critMin 기본 5, crit_expand로 감소) |
 | DC 이상 | 성공 | 보통 성공 |
 | DC 미만 | 실패 | 실패, 약간의 피해 |
 | 1 (nat1) | 황당한 재앙 | 항상 실패, 풀 데미지 |
@@ -82,8 +82,8 @@ round-midnight/
 │   │   ├── Lobby/             # LobbyScreen, CharacterSetup
 │   │   └── Battle/            # BattleScreen, SituationBox, DiceRoll, NarrationBox 등 10개
 │   ├── assets/
-│   │   ├── sprites/           # box-shadow 픽셀아트 (5종)
-│   │   ├── backgrounds/       # CSS gradient 배경 (5종)
+│   │   ├── sprites/           # box-shadow 픽셀아트 (5종, scale 5~7)
+│   │   ├── backgrounds/       # 스테이지 기반 CSS gradient 배경 (기본+중보스+최종보스)
 │   │   └── effects/           # 전투 이펙트 (5종)
 │   ├── hooks/useSocket.ts
 │   ├── stores/gameStore.ts    # Zustand (RunPhase 기반)
@@ -115,6 +115,12 @@ round-midnight/
 - [x] **Phase 3**: LLM 연동 (상황/내러티브/하이라이트 동적 생성 + 폴백)
 - [x] **Phase 4**: 비주얼 에셋 + 배포 + 모바일 최적화
 - [x] **Phase 5**: 전투 화면 가독성 + UX 개선
+- [x] **Phase A**: 기반 정비 (장비 효과, 재접속, 투표 UI, 스프라이트/배경 개편)
+- [ ] **Phase B**: 아이템 시스템 (100종 카탈로그 + 인벤토리)
+- [ ] **Phase C**: 보스 몬스터 시스템 (Wave 5 중보스, Wave 10 최종보스)
+- [ ] **Phase D**: DB + 영속성 (Prisma + PostgreSQL)
+- [ ] **Phase E**: Discord OAuth2 인증
+- [ ] **Phase F**: 캐릭터 생성 리뉴얼 (픽셀아트 조합)
 
 ## 문서
 

@@ -138,7 +138,14 @@ export class WaveManager {
 
     this.pendingRolls.set(playerId, true);
 
-    const roll = rollDice();
+    // 악세서리 효과: reroll — N번 굴려서 최고값 사용
+    let roll = rollDice();
+    if (player.equipment.accessoryEffect.type === 'reroll') {
+      for (let i = 0; i < player.equipment.accessoryEffect.count; i++) {
+        roll = Math.max(roll, rollDice());
+      }
+    }
+
     const bonus = calculateBonus(player, pending.choice.category);
 
     // 악세서리 효과: min_raise
@@ -148,7 +155,12 @@ export class WaveManager {
     }
 
     const effectiveRoll = finalRoll + bonus;
-    const tier = determineTier(finalRoll, effectiveRoll, pending.choice.baseDC);
+
+    // 악세서리 효과: crit_expand — critical 판정 기준 감소 (기본 5 → critMin)
+    const critMin = player.equipment.accessoryEffect.type === 'crit_expand'
+      ? player.equipment.accessoryEffect.critMin
+      : 5;
+    const tier = determineTier(finalRoll, effectiveRoll, pending.choice.baseDC, critMin);
 
     const action: PlayerAction = {
       playerId: player.id,
@@ -180,7 +192,16 @@ export class WaveManager {
 
     this.votes.set(playerId, decision);
 
+    // 투표 현황 브로드캐스트
     const alivePlayers = room.players.filter((p) => p.isAlive);
+    const retreatCount = Array.from(this.votes.values()).filter((v) => v === 'retreat').length;
+    const continueCount = this.votes.size - retreatCount;
+    this.io.to(this.roomCode).emit(SOCKET_EVENTS.VOTE_UPDATE, {
+      continueCount,
+      retreatCount,
+      total: alivePlayers.length,
+    });
+
     if (this.votes.size >= alivePlayers.length) {
       this.clearTimer('vote');
       this.resolveVote(room);

@@ -162,6 +162,41 @@ export function setupSocketHandlers(io: Server) {
       wm.handleVote(player.id, payload.decision, room);
     });
 
+    // ===== 재접속 =====
+
+    socket.on(SOCKET_EVENTS.RECONNECT_ATTEMPT, (payload: { playerId: string }) => {
+      const { playerId } = payload;
+      if (!playerId) {
+        socket.emit(SOCKET_EVENTS.RECONNECT_FAILED, {});
+        return;
+      }
+
+      // playerId로 방 찾기
+      const room = roomManager.findRoomByPlayerId(playerId);
+      if (!room) {
+        socket.emit(SOCKET_EVENTS.RECONNECT_FAILED, {});
+        return;
+      }
+
+      // socketId 교체
+      const player = room.players.find((p: Character) => p.id === playerId);
+      if (!player) {
+        socket.emit(SOCKET_EVENTS.RECONNECT_FAILED, {});
+        return;
+      }
+
+      player.socketId = socket.id;
+      socket.join(room.code);
+
+      socket.emit(SOCKET_EVENTS.RECONNECT_SUCCESS, {
+        room,
+        player,
+        phase: room.phase,
+      });
+
+      console.log(`Player ${player.name} reconnected to room ${room.code}`);
+    });
+
     // ===== 연결 관리 =====
 
     // 방 나가기
