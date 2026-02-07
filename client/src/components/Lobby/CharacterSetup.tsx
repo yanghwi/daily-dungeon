@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { Room, Character } from '@round-midnight/shared';
 import { BACKGROUNDS } from '../../styles/theme';
 import LobbyBg from './LobbyBg';
+import CharacterCreator from './CharacterCreator';
+import type { CharacterAppearance } from '../../assets/sprites/characterParts';
 
 interface CharacterSetupProps {
   room: Room;
@@ -12,6 +14,8 @@ interface CharacterSetupProps {
 export default function CharacterSetup({ room, player, onSubmit }: CharacterSetupProps) {
   const [name, setName] = useState(player.name);
   const [selectedBg, setSelectedBg] = useState<string | null>(null);
+  const [showCreator, setShowCreator] = useState(false);
+  const [_appearance, setAppearance] = useState<CharacterAppearance | null>(null);
   const hasSubmitted = player.background !== '';
 
   // 다른 플레이어가 이미 선택한 배경
@@ -146,6 +150,27 @@ export default function CharacterSetup({ room, player, onSubmit }: CharacterSetu
       <p className="text-center font-body text-slate-500 text-xs relative z-10">
         {readyPlayers.length}/{room.players.length} 준비 완료
       </p>
+
+      {/* 외형 커스텀 */}
+      {!hasSubmitted && selectedBg && (
+        <div className="relative z-10">
+          {showCreator ? (
+            <CharacterCreator
+              onConfirm={(app) => {
+                setAppearance(app);
+                setShowCreator(false);
+              }}
+            />
+          ) : (
+            <button
+              onClick={() => setShowCreator(true)}
+              className="w-full eb-window !border-slate-500 text-center active:scale-95 transition-transform"
+            >
+              <span className="font-title text-xs text-slate-300">외형 커스텀</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* 확인 버튼 */}
       {!hasSubmitted && (

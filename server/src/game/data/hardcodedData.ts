@@ -386,6 +386,15 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
   },
 ];
 
+/**
+ * 웨이브 번호에 해당하는 템플릿 반환
+ * waveNumber: 1~10 (1-indexed)
+ */
+export function getWaveTemplate(waveNumber: number): WaveTemplate {
+  const idx = Math.max(0, Math.min(waveNumber - 1, WAVE_TEMPLATES.length - 1));
+  return WAVE_TEMPLATES[idx];
+}
+
 // ===== 적 스케일링 =====
 
 /**

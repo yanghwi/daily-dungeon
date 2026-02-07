@@ -4,6 +4,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import { setupSocketHandlers } from './socket/handlers.js';
+import apiRoutes from './api/routes.js';
+import discordRoutes from './auth/discord.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -32,6 +34,10 @@ app.use(express.json());
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', game: 'Round Midnight' });
 });
+
+// REST API
+app.use('/api', apiRoutes);
+app.use('/api/auth', discordRoutes);
 
 // Socket.io 핸들러 설정
 setupSocketHandlers(io);

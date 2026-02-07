@@ -1,4 +1,4 @@
-import type { Room, Character, RunState, RunPhase } from '@round-midnight/shared';
+import type { Room, Character, RunState, RunPhase, RoomMode } from '@round-midnight/shared';
 import { GAME_CONSTANTS } from '@round-midnight/shared';
 
 const ROOM_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -14,7 +14,7 @@ function generateRoomCode(): string {
 export class RoomManager {
   private rooms: Map<string, Room> = new Map();
 
-  createRoom(host: Character): Room {
+  createRoom(host: Character, options?: { mode?: RoomMode; dailySeedId?: string; seed?: string }): Room {
     let code: string;
     do {
       code = generateRoomCode();
@@ -26,6 +26,9 @@ export class RoomManager {
       hostId: host.id,
       run: null,
       phase: 'waiting',
+      mode: options?.mode ?? 'custom',
+      dailySeedId: options?.dailySeedId,
+      seed: options?.seed,
     };
 
     this.rooms.set(code, room);
@@ -122,6 +125,8 @@ export class RoomManager {
       accumulatedLoot: [],
       phase: 'wave_intro',
       waveHistory: [],
+      dailySeedId: room.dailySeedId,
+      seed: room.seed,
     };
 
     return room;

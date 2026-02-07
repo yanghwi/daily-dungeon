@@ -45,8 +45,10 @@
 
 - **Frontend**: React + TypeScript + Tailwind CSS + Zustand
 - **Backend**: Node.js + Express + Socket.io
+- **Database**: PostgreSQL + Prisma ORM
+- **Auth**: Discord OAuth2 + PIN 간이 인증 + JWT
 - **AI**: Claude API (선택지 생성 + 전투 판정 + 내러티브)
-- **Deploy**: Vercel (클라이언트) + Railway (서버)
+- **Deploy**: Vercel (클라이언트) + Railway (서버 + PostgreSQL)
 - **CI**: GitHub Actions (타입체크 + 빌드)
 
 ## 로컬 실행
@@ -69,6 +71,11 @@ npm run build --workspace=@round-midnight/server
 ANTHROPIC_API_KEY=your_api_key    # Claude API (없으면 하드코딩 폴백)
 CLIENT_URL=https://your.domain    # CORS 허용 origin (없으면 localhost)
 PORT=3000                         # 서버 포트 (Railway 자동 주입)
+DATABASE_URL=postgresql://...     # PostgreSQL 연결 URL
+JWT_SECRET=your_secret            # JWT 서명 키
+DISCORD_CLIENT_ID=...             # Discord OAuth2 앱 ID
+DISCORD_CLIENT_SECRET=...         # Discord OAuth2 시크릿
+DISCORD_REDIRECT_URI=...          # Discord 콜백 URL
 
 # client/.env
 VITE_SERVER_URL=https://server.domain  # 서버 URL (없으면 localhost:3000)
@@ -91,21 +98,20 @@ round-midnight/
 │   └── styles/theme.ts
 ├── server/src/
 │   ├── ai/                    # LLM 연동 (5 모듈)
-│   │   ├── client.ts          # Anthropic SDK + callClaude<T>()
-│   │   ├── prompts.ts         # 시스템 프롬프트 3종
-│   │   ├── situationGenerator.ts
-│   │   ├── narrativeGenerator.ts
-│   │   └── highlightsGenerator.ts
+│   ├── api/routes.ts          # REST API (인증, 런 히스토리, 데일리, 해금)
+│   ├── auth/
+│   │   ├── jwt.ts             # JWT 발급/검증/미들웨어
+│   │   └── discord.ts         # Discord OAuth2 플로우
+│   ├── db/
+│   │   ├── client.ts          # Prisma 클라이언트 싱글턴
+│   │   └── runSaver.ts        # 런 결과 DB 저장 + 해금 체크
 │   ├── game/
 │   │   ├── data/items/        # 아이템 카탈로그 (106종, 6 파일)
-│   │   ├── Room.ts            # 방 관리 + phase 상태 머신
-│   │   ├── Player.ts          # Character 생성 + 배경 적용
-│   │   ├── WaveManager.ts     # 웨이브 진행 (per-room)
-│   │   ├── DiceEngine.ts      # d20 주사위 + DC 판정
-│   │   ├── DamageCalculator.ts
-│   │   ├── InventoryManager.ts # 장착/해제/사용/버리기
-│   │   ├── ItemEffectResolver.ts # 장비+버프 효과 집계
-│   │   └── LootEngine.ts      # 가중 랜덤 드랍 생성
+│   │   ├── progression/       # 해금 시스템 (6종 정의 + 조건 체크)
+│   │   ├── DailyDungeon.ts    # 데일리 시드 + Seeded PRNG
+│   │   ├── Room.ts            # 방 관리 + phase 상태 머신 (daily/custom 모드)
+│   │   ├── WaveManager.ts     # 웨이브 진행 + 런 결과 DB 저장
+│   │   └── ...                # DiceEngine, DamageCalculator, LootEngine 등
 │   └── socket/handlers.ts
 ├── shared/types.ts            # 공유 타입 + 상수 + 소켓 이벤트
 ├── Dockerfile                 # Railway 서버 배포
@@ -124,9 +130,9 @@ round-midnight/
 - [x] **Phase B**: 아이템 시스템 (106종 카탈로그 + 인벤토리 + 임시 버프)
 - [x] **Phase B-feedback**: 전투 흐름 개편 (멀티라운드 전투, 정비 세션, HP 밸런스, 스프라이트 센터링)
 - [x] **Phase C**: 보스 몬스터 시스템 (Wave 6~10 적 + 최종보스 + 보스 드랍 + 스프라이트)
-- [ ] **Phase D**: DB + 영속성 (Prisma + PostgreSQL)
-- [ ] **Phase E**: Discord OAuth2 인증
-- [ ] **Phase F**: 캐릭터 생성 리뉴얼 (픽셀아트 조합)
+- [x] **Phase D**: DB + 영속성 + 데일리 던전 (Prisma + PostgreSQL + Seeded PRNG)
+- [x] **Phase E**: Discord OAuth2 인증 (PIN + Discord 이중 체계)
+- [x] **Phase F**: 캐릭터 생성 리뉴얼 + 메타 프로그레션 (픽셀아트 파츠 조합 + 영구 해금)
 
 ## 문서
 

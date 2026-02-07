@@ -26,3 +26,7 @@ Thumbs.db
 
 # Test coverage
 coverage/
+
+# Prisma generated client
+generated/
+server/src/generated/

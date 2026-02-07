@@ -72,11 +72,23 @@ export default function RunResult({ onReturnToLobby }: Props) {
         </div>
       )}
 
+      {/* 새 해금 알림 */}
+      {runEndResult.newUnlocks && runEndResult.newUnlocks.length > 0 && (
+        <div className="eb-window !border-gold w-full max-w-sm animate-slide-up" style={{ animationDelay: '600ms', animationFillMode: 'both' }}>
+          <div className="font-title text-sm text-gold mb-1">NEW UNLOCK!</div>
+          {runEndResult.newUnlocks.map((id, i) => (
+            <div key={i} className="font-body text-sm text-arcane-light">
+              {id}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* 로비 복귀 */}
       <button
         onClick={onReturnToLobby}
         className="eb-window !border-arcane text-center w-full max-w-sm active:scale-[0.97] transition-transform animate-slide-up"
-        style={{ animationDelay: '600ms', animationFillMode: 'both' }}
+        style={{ animationDelay: '800ms', animationFillMode: 'both' }}
       >
         <div className="font-title text-base text-arcane-light">로비로 돌아가기</div>
       </button>

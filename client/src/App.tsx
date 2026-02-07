@@ -15,6 +15,27 @@ function App() {
     equipItem, unequipItem, useConsumable, discardItem,
   } = useSocket();
   const { phase, room, player, connected, error, setError, resetGame } = useGameStore();
+  const setAuth = useGameStore((s) => s.setAuth);
+
+  // Discord OAuth 콜백 처리 (URL에서 토큰 파싱)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const userJson = params.get('user');
+    if (token && userJson) {
+      try {
+        const user = JSON.parse(decodeURIComponent(userJson));
+        setAuth(token, user);
+      } catch { /* ignore parse error */ }
+      // URL 정리
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    const authError = params.get('auth_error');
+    if (authError) {
+      setError(`Discord 로그인 실패: ${authError}`);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   // 에러 토스트 자동 제거
   useEffect(() => {

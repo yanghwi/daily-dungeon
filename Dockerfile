@@ -9,6 +9,10 @@ COPY shared/package.json ./shared/
 
 RUN npm ci
 
+# Prisma 스키마 복사 + 클라이언트 생성
+COPY server/prisma/ ./server/prisma/
+RUN cd server && npx prisma generate
+
 # 소스 복사 & 빌드
 COPY shared/ ./shared/
 COPY server/ ./server/
@@ -27,6 +31,10 @@ COPY server/package.json ./server/
 COPY shared/package.json ./shared/
 
 RUN npm ci --omit=dev
+
+# Prisma 스키마 복사 & 클라이언트 생성
+COPY server/prisma/ ./server/prisma/
+RUN cd server && npx prisma generate
 
 # 빌드 결과물과 shared 소스 복사
 COPY shared/ ./shared/

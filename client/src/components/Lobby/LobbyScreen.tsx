@@ -1,13 +1,14 @@
-import { useState } from 'react';
-import type { Room, Character, InventoryItemDisplay, ItemRarity } from '@round-midnight/shared';
+import { useState, useEffect } from 'react';
+import type { Room, Character, InventoryItemDisplay, ItemRarity, RoomMode } from '@round-midnight/shared';
 import { GAME_CONSTANTS } from '@round-midnight/shared';
 import { useGameStore } from '../../stores/gameStore';
+import { apiRegister, apiLoginPin, apiGetRuns, apiGetDailyToday, getDiscordLoginUrl } from '../../hooks/useApi';
 import LobbyBg from './LobbyBg';
 
 type LobbyProps =
   | {
       mode: 'home';
-      onCreateRoom: (name: string) => void;
+      onCreateRoom: (name: string, roomMode?: RoomMode, dailySeedId?: string, seed?: string) => void;
       onJoinRoom: (code: string, name: string) => void;
       room?: never;
       player?: never;
@@ -44,16 +45,72 @@ function HomeView({
   onCreateRoom,
   onJoinRoom,
 }: {
-  onCreateRoom: (name: string) => void;
+  onCreateRoom: (name: string, roomMode?: RoomMode, dailySeedId?: string, seed?: string) => void;
   onJoinRoom: (code: string, name: string) => void;
 }) {
-  const [name, setName] = useState('');
+  const authUser = useGameStore((s) => s.authUser);
+  const setAuth = useGameStore((s) => s.setAuth);
+  const runHistory = useGameStore((s) => s.runHistory);
+  const setRunHistory = useGameStore((s) => s.setRunHistory);
+  const clearAuth = useGameStore((s) => s.clearAuth);
+
+  const [name, setName] = useState(authUser?.displayName ?? '');
   const [joinCode, setJoinCode] = useState('');
   const [showJoin, setShowJoin] = useState(false);
+  const [showPin, setShowPin] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [showHistory, setShowHistory] = useState(false);
+
+  // 로그인 상태면 런 히스토리 로드
+  useEffect(() => {
+    if (authUser) {
+      apiGetRuns(10).then((data) => setRunHistory(data.runs)).catch(() => {});
+    }
+  }, [authUser]);
+
+  const handleRegister = async () => {
+    if (!name.trim()) return;
+    setAuthLoading(true);
+    setAuthError('');
+    try {
+      const data = await apiRegister(name.trim());
+      setAuth(data.token, data.user);
+    } catch (err: any) {
+      setAuthError(err.message || '등록 실패');
+    }
+    setAuthLoading(false);
+  };
+
+  const handlePinLogin = async () => {
+    if (!pinInput.trim()) return;
+    setAuthLoading(true);
+    setAuthError('');
+    try {
+      const data = await apiLoginPin(pinInput.trim());
+      setAuth(data.token, data.user);
+      setName(data.user.displayName);
+    } catch (err: any) {
+      setAuthError(err.message || 'PIN 인증 실패');
+    }
+    setAuthLoading(false);
+  };
 
   const handleCreate = () => {
     if (!name.trim()) return;
     onCreateRoom(name.trim());
+  };
+
+  const handleDaily = async () => {
+    if (!name.trim()) return;
+    try {
+      const daily = await apiGetDailyToday();
+      onCreateRoom(name.trim(), 'daily', daily.seedId);
+    } catch {
+      // DB 없으면 일반 모드로 폴백
+      onCreateRoom(name.trim());
+    }
   };
 
   const handleJoin = () => {
@@ -62,7 +119,7 @@ function HomeView({
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center px-6 gap-8 relative min-h-dvh">
+    <div className="flex-1 flex flex-col items-center justify-center px-6 gap-6 relative min-h-dvh">
       <LobbyBg />
 
       {/* 타이틀 */}
@@ -74,6 +131,64 @@ function HomeView({
           자정이 지나면, 이상한 일이 시작된다
         </p>
       </div>
+
+      {/* 인증 영역 */}
+      {authUser ? (
+        <div className="w-full max-w-xs relative z-10">
+          <div className="eb-window flex items-center justify-between">
+            <div>
+              <span className="font-body text-white text-sm">{authUser.displayName}</span>
+              <span className="font-body text-slate-500 text-xs ml-2">PIN: {authUser.pin}</span>
+            </div>
+            <button onClick={clearAuth} className="font-body text-xs text-tier-fail active:opacity-70">
+              로그아웃
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="w-full max-w-xs relative z-10 flex flex-col gap-2">
+          {showPin ? (
+            <div className="eb-window flex flex-col gap-2">
+              <input
+                type="text"
+                placeholder="6자리 PIN"
+                value={pinInput}
+                onChange={(e) => setPinInput(e.target.value)}
+                maxLength={6}
+                className="w-full px-4 py-2 bg-transparent text-white placeholder-slate-500 text-center font-body text-lg focus:outline-none border-b border-slate-700"
+              />
+              <div className="flex gap-2">
+                <button onClick={() => setShowPin(false)} className="flex-1 font-body text-xs text-slate-400 py-1">
+                  취소
+                </button>
+                <button
+                  onClick={handlePinLogin}
+                  disabled={pinInput.length < 6 || authLoading}
+                  className="flex-1 font-body text-xs text-arcane-light py-1 disabled:opacity-40"
+                >
+                  {authLoading ? '...' : 'PIN 로그인'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <a
+                href={getDiscordLoginUrl()}
+                className="w-full eb-window !border-[#5865F2] text-center active:scale-95 transition-transform block"
+              >
+                <span className="font-title text-xs text-[#5865F2]">Discord 로그인</span>
+              </a>
+              <button
+                onClick={() => setShowPin(true)}
+                className="w-full font-body text-xs text-slate-400 py-1 active:opacity-70"
+              >
+                기존 PIN으로 로그인
+              </button>
+            </>
+          )}
+          {authError && <p className="font-body text-xs text-tier-fail text-center">{authError}</p>}
+        </div>
+      )}
 
       {/* 이름 입력 */}
       <div className="w-full max-w-xs relative z-10">
@@ -91,8 +206,17 @@ function HomeView({
 
       {/* 버튼들 */}
       <div className="w-full max-w-xs flex flex-col gap-3 relative z-10">
+        {/* 데일리 던전 */}
         <button
-          onClick={handleCreate}
+          onClick={handleDaily}
+          disabled={!name.trim()}
+          className="w-full eb-window !border-gold text-center active:scale-95 transition-transform disabled:opacity-40 disabled:active:scale-100"
+        >
+          <span className="font-title text-sm text-gold">오늘의 던전</span>
+        </button>
+
+        <button
+          onClick={() => { handleCreate(); if (!authUser && name.trim()) handleRegister(); }}
           disabled={!name.trim()}
           className="w-full eb-window !border-arcane-light text-center active:scale-95 transition-transform disabled:opacity-40 disabled:active:scale-100"
         >
@@ -127,7 +251,40 @@ function HomeView({
             </button>
           </div>
         )}
+
+        {/* 런 히스토리 */}
+        {authUser && runHistory.length > 0 && (
+          <button
+            onClick={() => setShowHistory(!showHistory)}
+            className="w-full eb-window !border-slate-600 text-center active:scale-95 transition-transform"
+          >
+            <span className="font-title text-xs text-slate-400">
+              {showHistory ? '히스토리 닫기' : `런 히스토리 (${runHistory.length})`}
+            </span>
+          </button>
+        )}
       </div>
+
+      {/* 런 히스토리 패널 */}
+      {showHistory && runHistory.length > 0 && (
+        <div className="w-full max-w-xs relative z-10 eb-window max-h-48 overflow-y-auto animate-fade-in">
+          <div className="space-y-2">
+            {runHistory.map((run, i) => (
+              <div key={i} className="flex items-center justify-between font-body text-xs">
+                <span className={
+                  run.result === 'clear' ? 'text-gold' :
+                  run.result === 'retreat' ? 'text-slate-400' : 'text-tier-fail'
+                }>
+                  {run.result === 'clear' ? 'CLEAR' : run.result === 'retreat' ? 'RETREAT' : 'WIPE'}
+                </span>
+                <span className="text-slate-500">W{run.wavesCleared}/{run.totalWaves}</span>
+                <span className="text-slate-600">{run.characterName}</span>
+                {run.isDaily && <span className="text-gold text-[10px]">DAILY</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

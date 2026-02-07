@@ -7,6 +7,7 @@ import type {
   Room,
   Character,
   RunPhase,
+  RoomMode,
   WaveIntroPayload,
   AllChoicesReadyPayload,
   RollResultsPayload,
@@ -88,7 +89,7 @@ export function useSocket() {
 
     // ===== 로비 =====
 
-    socket.on(SOCKET_EVENTS.ROOM_CREATED, (data: RoomCreatedResponse) => {
+    socket.on(SOCKET_EVENTS.ROOM_CREATED, (data: RoomCreatedResponse & { mode?: RoomMode }) => {
       setPlayer(data.player);
       localStorage.setItem('rm-player-id', data.player.id);
       setRoom({
@@ -97,6 +98,7 @@ export function useSocket() {
         hostId: data.player.id,
         run: null,
         phase: 'waiting',
+        mode: data.mode ?? 'custom',
       });
       setPhase('waiting');
     });
@@ -207,8 +209,8 @@ export function useSocket() {
 
   // ===== Emitters =====
 
-  const createRoom = (playerName: string) => {
-    socketRef.current?.emit(SOCKET_EVENTS.CREATE_ROOM, { playerName });
+  const createRoom = (playerName: string, mode?: RoomMode, dailySeedId?: string, seed?: string) => {
+    socketRef.current?.emit(SOCKET_EVENTS.CREATE_ROOM, { playerName, mode, dailySeedId, seed });
   };
 
   const joinRoom = (roomCode: string, playerName: string) => {

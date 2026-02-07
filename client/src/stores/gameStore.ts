@@ -17,7 +17,39 @@ import type {
   TemporaryBuff,
 } from '@round-midnight/shared';
 
+// 인증 관련 타입
+export interface AuthUser {
+  id: string;
+  displayName: string;
+  pin: string;
+  authProvider?: string;
+  discordUsername?: string;
+}
+
+export interface RunHistoryEntry {
+  runId: string;
+  result: string;
+  wavesCleared: number;
+  totalWaves: number;
+  highlights: unknown;
+  isDaily: boolean;
+  characterName: string;
+  background: string;
+  survived: boolean;
+  damageDealt: number;
+  damageTaken: number;
+  createdAt: string;
+}
+
 interface GameStore {
+  // 인증 상태
+  authToken: string | null;
+  authUser: AuthUser | null;
+  runHistory: RunHistoryEntry[];
+  setAuth: (token: string, user: AuthUser) => void;
+  setRunHistory: (runs: RunHistoryEntry[]) => void;
+  clearAuth: () => void;
+
   // 연결 상태
   connected: boolean;
   setConnected: (connected: boolean) => void;
@@ -87,6 +119,27 @@ interface GameStore {
 }
 
 export const useGameStore = create<GameStore>((set) => ({
+  // 인증 상태
+  authToken: localStorage.getItem('rm-auth-token'),
+  authUser: (() => {
+    try {
+      const stored = localStorage.getItem('rm-auth-user');
+      return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
+  })(),
+  runHistory: [],
+  setAuth: (token, user) => {
+    localStorage.setItem('rm-auth-token', token);
+    localStorage.setItem('rm-auth-user', JSON.stringify(user));
+    set({ authToken: token, authUser: user });
+  },
+  setRunHistory: (runs) => set({ runHistory: runs }),
+  clearAuth: () => {
+    localStorage.removeItem('rm-auth-token');
+    localStorage.removeItem('rm-auth-user');
+    set({ authToken: null, authUser: null, runHistory: [] });
+  },
+
   connected: false,
   setConnected: (connected) => set({ connected }),
 

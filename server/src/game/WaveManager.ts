@@ -24,6 +24,7 @@ import { resolveEquippedEffects, getDcReduction } from './ItemEffectResolver.js'
 import { generateLootFromCatalog, itemDefToLootItem } from './LootEngine.js';
 import { addItemToInventory, toDisplayInventory } from './InventoryManager.js';
 import { logger } from '../logger.js';
+import { saveRunResult } from '../db/runSaver.js';
 
 interface PendingChoice {
   playerId: string;
@@ -521,6 +522,7 @@ export class WaveManager {
   private async endRun(room: Room, result: 'retreat' | 'wipe' | 'clear'): Promise<void> {
     const waveCount = room.run?.currentWave ?? 1;
     const players = room.players;
+    const dailySeedId = room.run?.dailySeedId;
     roomManager.endRun(this.roomCode);
 
     const highlights = await generateHighlights(result, players, waveCount);
@@ -535,6 +537,19 @@ export class WaveManager {
     this.io.to(this.roomCode).emit(SOCKET_EVENTS.RUN_END, payload);
     this.io.to(this.roomCode).emit(SOCKET_EVENTS.PHASE_CHANGE, { phase: 'run_end' });
     this.cleanup();
+
+    // DB 저장 (비동기, 게임 플로우 블로킹 안 함)
+    saveRunResult({
+      roomCode: this.roomCode,
+      result,
+      wavesCleared: waveCount,
+      highlights,
+      dailySeedId,
+      players,
+    }).catch((err) => logger.error('Failed to save run result', {
+      room: this.roomCode,
+      error: err instanceof Error ? err.message : String(err),
+    }));
   }
 
   // ── 타임아웃 자동 처리 ──

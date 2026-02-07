@@ -3,6 +3,7 @@
 export interface Character {
   id: string;
   socketId: string;
+  userId?: string;             // DB User ID (로그인 시)
   name: string;                // 플레이어 입력
   background: string;          // "전직 경비원", "요리사", "개발자", "영업사원"
   trait: string;               // "용감한", "겁 많은", "호기심 많은", "말빨 좋은"
@@ -173,6 +174,8 @@ export interface RunState {
   accumulatedLoot: LootItem[];
   phase: RunPhase;
   waveHistory: WaveTurn[];     // 이번 런의 모든 웨이브 기록
+  dailySeedId?: string;        // 데일리 던전 시드 ID (null이면 커스텀 모드)
+  seed?: string;               // 데일리 던전 PRNG 시드값
 }
 
 export type RunPhase =
@@ -188,12 +191,17 @@ export type RunPhase =
 
 // ===== 방 =====
 
+export type RoomMode = 'custom' | 'daily';
+
 export interface Room {
   code: string;
   players: Character[];
   hostId: string;
   run: RunState | null;
   phase: RunPhase;
+  mode: RoomMode;
+  dailySeedId?: string;
+  seed?: string;
 }
 
 // ===== 소켓 이벤트 페이로드 =====
@@ -244,11 +252,15 @@ export interface RunEndPayload {
   totalLoot: LootItem[];
   highlights: string[];               // LLM이 생성한 이번 런 하이라이트 3줄
   waveHistory: WaveTurn[];
+  newUnlocks?: string[];              // 새로 해금된 항목 ID (Phase F)
 }
 
 // Client → Server
 export interface CreateRoomPayload {
   playerName: string;
+  mode?: RoomMode;       // 'custom' (기본) | 'daily'
+  dailySeedId?: string;  // 데일리 모드 시 시드 ID
+  seed?: string;         // 데일리 모드 시 시드 값
 }
 
 export interface JoinRoomPayload {

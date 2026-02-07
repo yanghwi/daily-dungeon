@@ -1,5 +1,6 @@
 import type { ItemDefinition, ItemRarity, LootItem, ItemEffect } from '@round-midnight/shared';
 import { ALL_ITEMS } from './data/items/index.js';
+import type { SeededRandom } from './DailyDungeon.js';
 
 /** 레어리티별 드랍 확률 (가중치) */
 const RARITY_WEIGHTS: Record<string, Record<ItemRarity, number>> = {
@@ -11,10 +12,10 @@ const RARITY_WEIGHTS: Record<string, Record<ItemRarity, number>> = {
 /**
  * 가중 랜덤으로 레어리티 선택
  */
-export function rollRarity(isBossWave: boolean, isFinalBoss: boolean = false): ItemRarity {
+export function rollRarity(isBossWave: boolean, isFinalBoss: boolean = false, rng?: SeededRandom): ItemRarity {
   const weights = isFinalBoss ? RARITY_WEIGHTS.finalBoss : isBossWave ? RARITY_WEIGHTS.boss : RARITY_WEIGHTS.normal;
   const total = Object.values(weights).reduce((sum, w) => sum + w, 0);
-  let roll = Math.random() * total;
+  let roll = (rng ? rng.next() : Math.random()) * total;
 
   for (const [rarity, weight] of Object.entries(weights)) {
     roll -= weight;
@@ -27,9 +28,9 @@ export function rollRarity(isBossWave: boolean, isFinalBoss: boolean = false): I
 /**
  * 가중 랜덤으로 아이템 하나 선택
  */
-export function weightedRandom(items: ItemDefinition[]): ItemDefinition {
+export function weightedRandom(items: ItemDefinition[], rng?: SeededRandom): ItemDefinition {
   const totalWeight = items.reduce((sum, item) => sum + item.dropWeight, 0);
-  let roll = Math.random() * totalWeight;
+  let roll = (rng ? rng.next() : Math.random()) * totalWeight;
 
   for (const item of items) {
     roll -= item.dropWeight;
@@ -92,7 +93,7 @@ export function summarizeEffects(effects: ItemEffect[]): string {
  */
 export function generateLootFromCatalog(
   count: number,
-  opts: { waveNumber: number; isBossWave: boolean },
+  opts: { waveNumber: number; isBossWave: boolean; rng?: SeededRandom },
 ): ItemDefinition[] {
   const result: ItemDefinition[] = [];
   const usedIds = new Set<string>();
@@ -117,7 +118,7 @@ export function generateLootFromCatalog(
       // 보장 드랍: 해당 레어리티 이상만 허용
       rarity = guaranteedRarity;
     } else {
-      rarity = rollRarity(opts.isBossWave, isFinalBoss);
+      rarity = rollRarity(opts.isBossWave, isFinalBoss, opts.rng);
     }
 
     // 해당 레어리티 + 웨이브/보스 조건에 맞는 아이템 필터
@@ -139,11 +140,11 @@ export function generateLootFromCatalog(
       });
 
       if (fallback.length === 0) break;
-      const picked = weightedRandom(fallback);
+      const picked = weightedRandom(fallback, opts.rng);
       usedIds.add(picked.id);
       result.push(picked);
     } else {
-      const picked = weightedRandom(candidates);
+      const picked = weightedRandom(candidates, opts.rng);
       usedIds.add(picked.id);
       result.push(picked);
     }

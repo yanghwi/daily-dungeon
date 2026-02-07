@@ -120,6 +120,9 @@ round-midnight/
 │   ├── tailwind.config.js             # 커스텀 테마 (midnight, arcane, tier, xs breakpoint)
 │   └── postcss.config.js
 ├── server/                         # @round-midnight/server
+│   ├── prisma/
+│   │   └── schema.prisma            # Prisma 스키마 (User, RunResult, DailySeed 등)
+│   ├── prisma.config.ts              # Prisma 설정 (DATABASE_URL)
 │   └── src/
 │       ├── ai/
 │       │   ├── client.ts             # Anthropic API 클라이언트 (폴백 지원)
@@ -127,6 +130,14 @@ round-midnight/
 │       │   ├── narrativeGenerator.ts  # 전투 내러티브 생성
 │       │   ├── prompts.ts            # LLM 시스템 프롬프트
 │       │   └── situationGenerator.ts  # 상황/선택지 생성
+│       ├── api/
+│       │   └── routes.ts             # REST API (인증, 런 히스토리, 데일리, 해금)
+│       ├── auth/
+│       │   ├── jwt.ts                # JWT 발급/검증/미들웨어
+│       │   └── discord.ts            # Discord OAuth2 플로우
+│       ├── db/
+│       │   ├── client.ts             # Prisma 클라이언트 싱글턴
+│       │   └── runSaver.ts           # 런 결과 DB 저장 + 해금 체크
 │       ├── game/
 │       │   ├── data/
 │       │   │   ├── hardcodedData.ts   # LLM 폴백 하드코딩 데이터
@@ -138,14 +149,18 @@ round-midnight/
 │       │   │       ├── hats.ts        # 모자 8종
 │       │   │       ├── accessories.ts # 악세서리 25종
 │       │   │       └── consumables.ts # 소모품 20종
+│       │   ├── progression/
+│       │   │   ├── unlockables.ts     # 해금 가능 항목 정의 (6종)
+│       │   │   └── unlockChecker.ts   # 해금 조건 체크 + DB 저장
+│       │   ├── DailyDungeon.ts        # Seeded PRNG + 데일리 시드 관리
 │       │   ├── DamageCalculator.ts    # 데미지 계산 엔진
 │       │   ├── DiceEngine.ts          # d20 주사위 + 보정 계산
 │       │   ├── InventoryManager.ts    # 장착/해제/사용/버리기 + 20칸 제한
 │       │   ├── ItemEffectResolver.ts  # 장착 효과 + 임시 버프 집계
-│       │   ├── LootEngine.ts          # 가중 랜덤 드랍 생성
+│       │   ├── LootEngine.ts          # 가중 랜덤 드랍 생성 (시드 PRNG 지원)
 │       │   ├── Player.ts             # createCharacter + applyBackground
-│       │   ├── Room.ts               # RoomManager (phase 상태 머신)
-│       │   └── WaveManager.ts        # 웨이브 진행 관리
+│       │   ├── Room.ts               # RoomManager (phase 상태 머신, mode 지원)
+│       │   └── WaveManager.ts        # 웨이브 진행 관리 + 런 결과 DB 저장
 │       ├── socket/
 │       │   └── handlers.ts           # 소켓 이벤트 핸들러
 │       └── index.ts
@@ -291,6 +306,13 @@ npm run build --workspace=@round-midnight/server
 - **소모품 임시 버프**: `useConsumable()` → `activeBuffs`에 `remainingWaves: 1`로 추가 → `resolveEquippedEffects()`에서 집계 → 웨이브 종료 시 `expireBuffs()`로 만료
 - **인벤토리 제한**: `GAME_CONSTANTS.MAX_RUN_INVENTORY = 20`, 초과 시 `addItemToInventory()` 원래 객체 반환, `LootItem.inventoryFull` 플래그로 UI 알림
 
+### Prisma + Railway PostgreSQL
+- **로컬 개발**: Railway public proxy URL (`*.proxy.rlwy.net`) 사용
+- **프로덕션**: Railway internal URL (`*.railway.internal`) 사용 → 같은 프로젝트 내 private network 통신
+- **마이그레이션**: `cd server && npx prisma migrate dev --name <name>`
+- **Windows DLL 잠금**: 서버 실행 중 `prisma generate` 실패 → 서버 종료 후 실행
+- **`.env` 변경 후**: `tsx watch`는 `.env`를 감지하지 않으므로 서버 수동 재시작 필요
+
 ### 플랫폼 제약
 - 아이폰 사파리 세로 화면
 - 한 손 엄지 조작
@@ -336,9 +358,22 @@ npm run build --workspace=@round-midnight/server
   - 보스 드랍 보장 (중보스: rare+, 최종보스: legendary+, 보너스 드랍)
   - 보스 UI (BOSS/FINAL BOSS 표시, 보스 예고 텔레그래핑)
   - NEXT_WAVE_PREVIEWS 10웨이브 전체 확장
-- [ ] **Phase D**: DB + 영속성 (Prisma + PostgreSQL)
-- [ ] **Phase E**: Discord OAuth2 인증
-- [ ] **Phase F**: 캐릭터 생성 리뉴얼 (픽셀아트 조합)
+- [x] **Phase D**: DB + 영속성 + 데일리 던전
+  - Prisma + PostgreSQL (User, RunResult, RunParticipant, DailySeed, Unlockable, UserUnlock)
+  - REST API (/api/auth/register, /api/auth/pin, /api/me, /api/runs, /api/daily/today, /api/daily/leaderboard, /api/unlocks)
+  - 런 결과 DB 저장 (비동기, 게임 플로우 비블로킹)
+  - 데일리 던전 시드 (SeededRandom, KST 기준 자동 생성)
+  - 클라이언트: 인증 UI (PIN 등록/로그인), 런 히스토리, "오늘의 던전" 버튼
+- [x] **Phase E**: Discord OAuth2 인증
+  - Discord OAuth2 서버 플로우 (redirect 방식, 모바일 사파리 호환)
+  - JWT 토큰 발급 (서버 → 클라이언트)
+  - PIN 유저 ↔ Discord 계정 링크
+  - 클라이언트: Discord 로그인 버튼, URL 콜백 토큰 파싱
+- [x] **Phase F**: 캐릭터 생성 리뉴얼 + 메타 프로그레션
+  - box-shadow 4px 그리드 캐릭터 파츠 (머리 4종 + 몸 3종 + 팔레트 5종)
+  - CharacterCreator 조합 UI (프리뷰 + 탭 선택)
+  - 영구 해금 시스템 (6종 해금 조건: 클리어 횟수, 보스 처치, 데일리)
+  - unlockChecker: 런 종료 시 자동 해금 체크 + DB 저장
 
 ## 문서
 

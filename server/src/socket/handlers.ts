@@ -29,7 +29,11 @@ export function setupSocketHandlers(io: Server) {
     // 방 생성
     socket.on(SOCKET_EVENTS.CREATE_ROOM, (payload: CreateRoomPayload) => {
       const character = createCharacter(socket.id, payload.playerName);
-      const room = roomManager.createRoom(character);
+      const room = roomManager.createRoom(character, {
+        mode: payload.mode ?? 'custom',
+        dailySeedId: payload.dailySeedId,
+        seed: payload.seed,
+      });
 
       socket.join(room.code);
 
@@ -38,7 +42,7 @@ export function setupSocketHandlers(io: Server) {
         player: character,
       });
 
-      console.log(`Room created: ${room.code} by ${character.name}`);
+      console.log(`Room created: ${room.code} by ${character.name} (mode: ${room.mode})`);
     });
 
     // 방 참가
