@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { prisma } from '../db/client.js';
+import { prisma, getPrisma } from '../db/client.js';
 import { signToken, authMiddleware } from '../auth/jwt.js';
 
 const router = Router();
@@ -36,12 +36,12 @@ router.post('/auth/register', async (req, res) => {
     // 유니크 PIN 생성 (충돌 시 재시도)
     let pin = generatePin();
     for (let i = 0; i < 10; i++) {
-      const exists = await prisma.user.findUnique({ where: { pin } });
+      const exists = await getPrisma().user.findUnique({ where: { pin } });
       if (!exists) break;
       pin = generatePin();
     }
 
-    const user = await prisma.user.create({
+    const user = await getPrisma().user.create({
       data: { displayName: name, pin },
     });
 
@@ -62,14 +62,14 @@ router.post('/auth/pin', async (req, res) => {
       return;
     }
 
-    const user = await prisma.user.findUnique({ where: { pin } });
+    const user = await getPrisma().user.findUnique({ where: { pin } });
     if (!user) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
 
     // lastSeenAt 갱신
-    await prisma.user.update({ where: { id: user.id }, data: { lastSeenAt: new Date() } });
+    await getPrisma().user.update({ where: { id: user.id }, data: { lastSeenAt: new Date() } });
 
     const token = signToken({ userId: user.id, displayName: user.displayName });
     res.json({ token, user: { id: user.id, displayName: user.displayName, pin: user.pin } });
@@ -84,7 +84,7 @@ router.get('/me', authMiddleware, async (req, res) => {
   try {
     const { userId } = (req as any).user;
 
-    const user = await prisma.user.findUnique({
+    const user = await getPrisma().user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -101,13 +101,13 @@ router.get('/me', authMiddleware, async (req, res) => {
     }
 
     // 통계 집계
-    const stats = await prisma.runParticipant.aggregate({
+    const stats = await getPrisma().runParticipant.aggregate({
       where: { userId },
       _count: true,
       _sum: { damageDealt: true, damageTaken: true },
     });
 
-    const clears = await prisma.runResult.count({
+    const clears = await getPrisma().runResult.count({
       where: { participants: { some: { userId } }, result: 'clear' },
     });
 
@@ -132,7 +132,7 @@ router.get('/runs', authMiddleware, async (req, res) => {
     const { userId } = (req as any).user;
     const limit = Math.min(Number(req.query.limit) || 20, 50);
 
-    const participations = await prisma.runParticipant.findMany({
+    const participations = await getPrisma().runParticipant.findMany({
       where: { userId },
       orderBy: { run: { createdAt: 'desc' } },
       take: limit,
@@ -183,18 +183,18 @@ router.get('/daily/today', async (_req, res) => {
     const dateStr = kst.toISOString().split('T')[0];
     const todayKST = new Date(dateStr + 'T00:00:00.000Z');
 
-    let seed = await prisma.dailySeed.findUnique({ where: { date: todayKST } });
+    let seed = await getPrisma().dailySeed.findUnique({ where: { date: todayKST } });
 
     if (!seed) {
       // 시드 생성: 날짜 기반 deterministic seed
       const seedValue = `daily-${dateStr}-${Math.random().toString(36).slice(2, 10)}`;
-      seed = await prisma.dailySeed.create({
+      seed = await getPrisma().dailySeed.create({
         data: { date: todayKST, seed: seedValue },
       });
     }
 
     // 오늘의 참가 수
-    const runCount = await prisma.runResult.count({ where: { dailySeedId: seed.id } });
+    const runCount = await getPrisma().runResult.count({ where: { dailySeedId: seed.id } });
 
     res.json({ date: dateStr, seedId: seed.id, runCount });
   } catch (err) {
@@ -211,13 +211,13 @@ router.get('/daily/leaderboard', async (_req, res) => {
     const dateStr = kst.toISOString().split('T')[0];
     const todayKST = new Date(dateStr + 'T00:00:00.000Z');
 
-    const seed = await prisma.dailySeed.findUnique({ where: { date: todayKST } });
+    const seed = await getPrisma().dailySeed.findUnique({ where: { date: todayKST } });
     if (!seed) {
       res.json({ date: dateStr, runs: [] });
       return;
     }
 
-    const runs = await prisma.runResult.findMany({
+    const runs = await getPrisma().runResult.findMany({
       where: { dailySeedId: seed.id },
       orderBy: [{ wavesCleared: 'desc' }, { createdAt: 'asc' }],
       take: 20,
@@ -249,7 +249,7 @@ router.get('/unlocks', authMiddleware, async (req, res) => {
   try {
     const { userId } = (req as any).user;
 
-    const unlocks = await prisma.userUnlock.findMany({
+    const unlocks = await getPrisma().userUnlock.findMany({
       where: { userId },
       select: { unlockableId: true, unlockedAt: true },
     });

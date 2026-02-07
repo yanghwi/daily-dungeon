@@ -1,4 +1,4 @@
-import { prisma } from '../../db/client.js';
+import { prisma, getPrisma } from '../../db/client.js';
 import { UNLOCKABLES, type UnlockCondition } from './unlockables.js';
 
 /** 런 종료 후 해금 체크 — 새로 해금된 항목 ID 배열 반환 */
@@ -6,7 +6,7 @@ export async function checkAndGrantUnlocks(userId: string): Promise<string[]> {
   if (!prisma) return [];
 
   // 이미 해금된 항목
-  const existing = await prisma.userUnlock.findMany({
+  const existing = await getPrisma().userUnlock.findMany({
     where: { userId },
     select: { unlockableId: true },
   });
@@ -21,7 +21,7 @@ export async function checkAndGrantUnlocks(userId: string): Promise<string[]> {
     if (unlockedIds.has(unlockable.id)) continue;
 
     if (isConditionMet(unlockable.condition, stats)) {
-      await prisma.userUnlock.create({
+      await getPrisma().userUnlock.create({
         data: { userId, unlockableId: unlockable.id },
       });
       newUnlocks.push(unlockable.id);
@@ -40,12 +40,13 @@ interface UserStats {
 }
 
 async function getUserStats(userId: string): Promise<UserStats> {
+  const db = getPrisma();
   const [totalRuns, clears, dailyClears] = await Promise.all([
-    prisma.runParticipant.count({ where: { userId } }),
-    prisma.runResult.count({
+    db.runParticipant.count({ where: { userId } }),
+    db.runResult.count({
       where: { participants: { some: { userId } }, result: 'clear' },
     }),
-    prisma.runResult.count({
+    db.runResult.count({
       where: {
         participants: { some: { userId } },
         result: 'clear',

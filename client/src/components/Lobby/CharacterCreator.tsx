@@ -21,10 +21,6 @@ export default function CharacterCreator({ onConfirm, initialAppearance }: Props
 
   const sprite = buildCharacterSprite(appearance);
 
-  // TODO(human): renderPartSelector 함수 구현
-  // 현재 탭(activeTab)에 따라 머리/몸/색상 선택 UI를 렌더링하는 함수
-  // 각 파츠를 탭하면 appearance 상태가 업데이트되어 프리뷰에 반영됨
-
   return (
     <div className="eb-window animate-fade-in">
       <div className="font-title text-sm text-arcane-light mb-3">캐릭터 외형</div>

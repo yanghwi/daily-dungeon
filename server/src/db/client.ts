@@ -21,3 +21,11 @@ export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
+
+/** null-safe Prisma 접근 — requireDb 미들웨어 뒤에서 사용 */
+export function getPrisma(): PrismaClient {
+  if (!prisma) {
+    throw new Error('Database not available (DATABASE_URL not set)');
+  }
+  return prisma;
+}
