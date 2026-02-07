@@ -15,6 +15,7 @@ COPY server/prisma/ ./server/prisma/
 RUN cd server && npx prisma generate
 
 # 소스 복사 & 빌드
+COPY tsconfig.json ./
 COPY shared/ ./shared/
 COPY server/ ./server/
 COPY client/ ./client/
