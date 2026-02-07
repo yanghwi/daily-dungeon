@@ -63,7 +63,7 @@ waiting → character_setup → wave_intro → choosing → rolling → narratin
 | d20 결과 | RollTier | 설명 |
 |----------|----------|------|
 | 20 (nat20) | `nat20` | 항상 성공, 적에게 3배 데미지 |
-| DC+5 이상 | `critical` | 강력한 성공, 2배 데미지 |
+| DC+critMin 이상 | `critical` | 강력한 성공, 2배 데미지 (기본 critMin=5, crit_expand 효과로 감소) |
 | DC 이상 | `normal` | 보통 성공 |
 | DC 미만 | `fail` | 실패, 약간의 피해 |
 | 1 (nat1) | `nat1` | 항상 실패, 풀 데미지 |
@@ -170,6 +170,7 @@ round-midnight/
 | `roll-results` | S→C | 4명 주사위 결과 |
 | `wave-narrative` | S→C | LLM 결과 서술 + partyStatus + enemyHp |
 | `wave-end` | S→C | 결과 + 계속/철수 |
+| `vote-update` | S→C | 투표 현황 (continueCount, retreatCount, total) |
 | `continue-or-retreat` | C→S | 계속 or 철수 |
 | `run-end` | S→C | 런 종료 결과 |
 
@@ -241,6 +242,12 @@ npm run build --workspace=@round-midnight/server
 - 반드시 폴백 로직 구현 (API 키 없을 때, API 실패 시)
 - 하드코딩 폴백: `server/src/game/data/hardcodedData.ts`
 
+### 코드 작성 규칙 (Phase A 교훈)
+- **Props/함수를 만들면 반드시 연결할 것**: props를 컴포넌트에 추가하면 호출하는 쪽에서도 전달해야 함. "나중에 쓸 거니까 미리 만들어두자"는 dead code를 만듦
+- **중복 데이터 소스 금지**: 같은 로직을 함수(`getWaveBackground()`)와 Record(`WAVE_BACKGROUNDS`)로 이중 구현하지 말 것. 하나만 유지
+- **새 파일 import 확인**: 기존 코드가 존재하지 않는 모듈을 import하고 있을 수 있음 (예: `logger.ts` 누락). 빌드 검증 필수
+- **배경 데이터**: `getWaveBackground(waveNumber, isBoss, bossType)`으로 배경 선택. `client/src/assets/backgrounds/backgroundData.ts`
+
 ### 플랫폼 제약
 - 아이폰 사파리 세로 화면
 - 한 손 엄지 조작
@@ -259,6 +266,17 @@ npm run build --workspace=@round-midnight/server
   - 폰트 사이즈 전면 확대 (레트로 픽셀 폰트 가독성)
   - SituationBox 타이프라이터 연출 (한 글자씩 출력 + 탭 스킵)
   - 체력 실시간 반영 (WAVE_NARRATIVE에서 즉시 HP 갱신)
+- [x] **Phase A**: 기반 정비
+  - 장비 효과 구현 (reroll, crit_expand)
+  - 재접속 핸들러 (playerId 기반 socketId 교체)
+  - 투표 현황 실시간 표시 (VOTE_UPDATE 이벤트)
+  - 몬스터 스프라이트 확대 (scale 3→5~6, 보스 7+)
+  - 스테이지 배경 시스템 개편 (통일 배경 + 보스 전용 배경)
+- [ ] **Phase B**: 아이템 시스템 + 루트 메카닉 (100종 아이템 카탈로그)
+- [ ] **Phase C**: 보스 몬스터 시스템 (Wave 5 중보스 + Wave 10 최종보스)
+- [ ] **Phase D**: DB + 영속성 (Prisma + PostgreSQL)
+- [ ] **Phase E**: Discord OAuth2 인증
+- [ ] **Phase F**: 캐릭터 생성 리뉴얼 (픽셀아트 조합)
 
 ## 문서
 
