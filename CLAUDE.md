@@ -329,7 +329,13 @@ npm run build --workspace=@round-midnight/server
   - 배경 톤 다운 (opacity/speed 대폭 감소)
   - 로비 캐릭터 패널 (인벤토리/장비 조회)
   - 적 사망 시 즉시 스프라이트 소멸
-- [ ] **Phase C**: 보스 몬스터 시스템 (Wave 5 중보스 + Wave 10 최종보스)
+- [x] **Phase C**: 보스 몬스터 시스템 (Wave 6~10 적 + 최종보스 + 보스 드랍 + 스프라이트)
+  - Wave 6~9 일반 적 4종 (배달 오토바이, 마네킹, 네온사인 요괴, 안테나)
+  - Wave 10 최종보스 "자정의 시계" (HP 150, ATK 25, DEF 12)
+  - 5종 box-shadow 스프라이트 + 5종 idle 애니메이션
+  - 보스 드랍 보장 (중보스: rare+, 최종보스: legendary+, 보너스 드랍)
+  - 보스 UI (BOSS/FINAL BOSS 표시, 보스 예고 텔레그래핑)
+  - NEXT_WAVE_PREVIEWS 10웨이브 전체 확장
 - [ ] **Phase D**: DB + 영속성 (Prisma + PostgreSQL)
 - [ ] **Phase E**: Discord OAuth2 인증
 - [ ] **Phase F**: 캐릭터 생성 리뉴얼 (픽셀아트 조합)
