@@ -3,15 +3,16 @@ import { ALL_ITEMS } from './data/items/index.js';
 
 /** 레어리티별 드랍 확률 (가중치) */
 const RARITY_WEIGHTS: Record<string, Record<ItemRarity, number>> = {
-  normal: { common: 50, uncommon: 30, rare: 15, legendary: 5 },
-  boss:   { common: 30, uncommon: 30, rare: 25, legendary: 15 },
+  normal:     { common: 50, uncommon: 30, rare: 15, legendary: 5 },
+  boss:       { common: 30, uncommon: 30, rare: 25, legendary: 15 },
+  finalBoss:  { common: 10, uncommon: 25, rare: 35, legendary: 30 },
 };
 
 /**
  * 가중 랜덤으로 레어리티 선택
  */
-export function rollRarity(isBossWave: boolean): ItemRarity {
-  const weights = isBossWave ? RARITY_WEIGHTS.boss : RARITY_WEIGHTS.normal;
+export function rollRarity(isBossWave: boolean, isFinalBoss: boolean = false): ItemRarity {
+  const weights = isFinalBoss ? RARITY_WEIGHTS.finalBoss : isBossWave ? RARITY_WEIGHTS.boss : RARITY_WEIGHTS.normal;
   const total = Object.values(weights).reduce((sum, w) => sum + w, 0);
   let roll = Math.random() * total;
 
@@ -84,6 +85,10 @@ export function summarizeEffects(effects: ItemEffect[]): string {
 
 /**
  * 카탈로그 기반 루트 생성
+ *
+ * 보스 전용 보장:
+ * - 중보스 (Wave 5): 1개 rare 이상 보장 + 보너스 드랍 1개
+ * - 최종보스 (Wave 10): 1개 legendary 보장 + 보너스 드랍 2개
  */
 export function generateLootFromCatalog(
   count: number,
@@ -91,9 +96,29 @@ export function generateLootFromCatalog(
 ): ItemDefinition[] {
   const result: ItemDefinition[] = [];
   const usedIds = new Set<string>();
+  const isFinalBoss = opts.isBossWave && opts.waveNumber >= 10;
 
-  for (let i = 0; i < count; i++) {
-    const rarity = rollRarity(opts.isBossWave);
+  // 보스 보장 드랍: 첫 번째 아이템은 최소 레어리티 보장
+  let guaranteedRarity: ItemRarity | null = null;
+  if (isFinalBoss) {
+    guaranteedRarity = 'legendary';
+  } else if (opts.isBossWave) {
+    guaranteedRarity = 'rare';
+  }
+
+  // 보스 보너스 드랍 수 추가
+  const bonusCount = isFinalBoss ? 2 : opts.isBossWave ? 1 : 0;
+  const totalCount = count + bonusCount;
+
+  for (let i = 0; i < totalCount; i++) {
+    let rarity: ItemRarity;
+
+    if (i === 0 && guaranteedRarity) {
+      // 보장 드랍: 해당 레어리티 이상만 허용
+      rarity = guaranteedRarity;
+    } else {
+      rarity = rollRarity(opts.isBossWave, isFinalBoss);
+    }
 
     // 해당 레어리티 + 웨이브/보스 조건에 맞는 아이템 필터
     const candidates = ALL_ITEMS.filter((item) => {

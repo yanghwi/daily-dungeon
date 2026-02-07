@@ -205,6 +205,185 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       { text: '동료 뒤에서 지원한다', category: 'defensive', baseDC: 11 },
     ],
   },
+
+  // ── Wave 6: 폭주 배달 오토바이 ──
+  {
+    enemy: {
+      name: '폭주 배달 오토바이',
+      description: '주문이 999건 밀린 배달 오토바이. 배달통에서 김이 모락모락 난다.',
+      defense: 7,
+      imageTag: 'delivery-bike',
+    },
+    baseHp: 85,
+    baseAttack: 16,
+    situation: '야시장을 벗어나 큰 도로에 접어들었다. 갑자기 뒤에서 미친 듯한 경적이 울린다. 배달통을 세 개나 단 오토바이가 빨간 눈을 번쩍이며 돌진해온다! 배달통에서 뜨거운 국물이 쏟아지고 있다.',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 바퀴를 노린다', category: 'physical', baseDC: 10 },
+        { text: '가드레일 뒤로 몸을 숨긴다', category: 'defensive', baseDC: 11 },
+      ],
+      '요리사': [
+        { text: '기름을 도로에 뿌려 미끄러뜨린다', category: 'creative', baseDC: 10 },
+        { text: '배달통의 음식 냄새로 유인한다', category: 'creative', baseDC: 12 },
+      ],
+      '개발자': [
+        { text: '배달 앱을 해킹해 경로를 변경한다', category: 'technical', baseDC: 10 },
+        { text: '신호등 시스템을 조작한다', category: 'technical', baseDC: 13 },
+      ],
+      '영업사원': [
+        { text: '"배달 완료 처리해 드릴게요!" 설득한다', category: 'social', baseDC: 10 },
+        { text: '가짜 배달 주소를 불러준다', category: 'social', baseDC: 12 },
+      ],
+    },
+    defaultChoices: [
+      { text: '옆으로 뛰어 피한다', category: 'defensive', baseDC: 10 },
+      { text: '물건을 던져 방향을 틀게 한다', category: 'creative', baseDC: 11 },
+    ],
+  },
+
+  // ── Wave 7: 지하상가 마네킹 무리 ──
+  {
+    enemy: {
+      name: '지하상가 마네킹 무리',
+      description: '폐점한 지하상가의 마네킹들. 눈이 없는데 분명 이쪽을 보고 있다.',
+      defense: 8,
+      imageTag: 'mannequins',
+    },
+    baseHp: 95,
+    baseAttack: 18,
+    situation: '지하상가 계단을 내려가니 폐점한 옷가게들이 줄지어 있다. 형광등이 깜빡이자 마네킹들이 일제히 고개를 돌린다. 딸깍, 딸깍. 관절 꺾이는 소리와 함께 마네킹 떼가 다가온다. 미소가 새겨진 얼굴이 형광등 아래서 섬뜩하게 빛난다.',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 선두 마네킹을 쳐서 무너뜨린다', category: 'physical', baseDC: 11 },
+        { text: '옷걸이로 바리케이드를 만든다', category: 'defensive', baseDC: 12 },
+      ],
+      '요리사': [
+        { text: '향신료 가루를 뿌려 시야를 가린다', category: 'creative', baseDC: 11 },
+        { text: '뜨거운 소스를 관절에 부어 굳힌다', category: 'creative', baseDC: 13 },
+      ],
+      '개발자': [
+        { text: '형광등 전력을 끊어 멈추게 한다', category: 'technical', baseDC: 11 },
+        { text: '스마트폰 초음파로 관절을 교란한다', category: 'technical', baseDC: 13 },
+      ],
+      '영업사원': [
+        { text: '"오늘 세일이에요!" 주의를 돌린다', category: 'social', baseDC: 11 },
+        { text: '마네킹에게 패션 컨설팅을 제안한다', category: 'social', baseDC: 14 },
+      ],
+    },
+    defaultChoices: [
+      { text: '가게 셔터를 내려 길을 막는다', category: 'defensive', baseDC: 11 },
+      { text: '진열대를 밀어 도미노처럼 쓰러뜨린다', category: 'physical', baseDC: 12 },
+    ],
+  },
+
+  // ── Wave 8: 네온사인 요괴 ──
+  {
+    enemy: {
+      name: '네온사인 요괴',
+      description: '야시장 간판 글씨들이 빠져나와 합체한 빛의 괴물. 몸에서 "영업중"이 깜빡인다.',
+      defense: 9,
+      imageTag: 'neon-ghost',
+    },
+    baseHp: 105,
+    baseAttack: 20,
+    situation: '다시 야시장으로 돌아왔는데 뭔가 이상하다. 모든 간판의 글씨가 사라져 있다. 하늘을 올려다보니 "떡볶이", "호떡", "타코야키" 글씨들이 뭉쳐서 거대한 빛의 형체를 만들고 있다! "영.업.중..." 으스스한 목소리가 울려 퍼진다.',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트에 절연 테이프를 감고 돌진한다', category: 'physical', baseDC: 12 },
+        { text: '패딩으로 빛을 차단하며 접근한다', category: 'defensive', baseDC: 13 },
+      ],
+      '요리사': [
+        { text: '물을 끼얹어 합선시킨다', category: 'creative', baseDC: 11 },
+        { text: '"진짜 맛있는 건 글씨가 아니라 요리!" 도발한다', category: 'creative', baseDC: 14 },
+      ],
+      '개발자': [
+        { text: '전력 차단기를 찾아 내린다', category: 'technical', baseDC: 11 },
+        { text: '주파수 간섭으로 네온을 분산시킨다', category: 'technical', baseDC: 14 },
+      ],
+      '영업사원': [
+        { text: '"당신은 더 좋은 간판이 될 수 있어요" 협상한다', category: 'social', baseDC: 12 },
+        { text: '폐업 신고서를 들이밀어 공포를 준다', category: 'social', baseDC: 14 },
+      ],
+    },
+    defaultChoices: [
+      { text: '어두운 골목으로 유인해 약화시킨다', category: 'creative', baseDC: 12 },
+      { text: '건물 뒤에 숨어 통로를 확보한다', category: 'defensive', baseDC: 12 },
+    ],
+  },
+
+  // ── Wave 9: 전파 먹는 안테나 ──
+  {
+    enemy: {
+      name: '전파 먹는 안테나',
+      description: '옥상 안테나가 변이해 촉수처럼 움직인다. 주변의 전자기기가 미쳐 날뛴다.',
+      defense: 10,
+      imageTag: 'antenna-monster',
+    },
+    baseHp: 115,
+    baseAttack: 22,
+    situation: '건물 옥상으로 올라가니 거대한 통신 안테나가 촉수처럼 구불거리고 있다. 주변 스마트폰이 저절로 켜지고 이상한 주파수가 울린다. 안테나 끝에서 보라색 전기가 사방으로 튄다. 옥상 바닥이 전자기장으로 진동한다!',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '고무장갑을 끼고 안테나 기둥을 공격한다', category: 'physical', baseDC: 12 },
+        { text: '금속이 아닌 것으로 방어막을 만든다', category: 'defensive', baseDC: 13 },
+        { text: '옥상 구조물을 이용해 안테나를 쓰러뜨린다', category: 'physical', baseDC: 14 },
+      ],
+      '요리사': [
+        { text: '알루미늄 호일로 전파를 반사시킨다', category: 'creative', baseDC: 12 },
+        { text: '물을 뿌려 합선을 유도한다', category: 'creative', baseDC: 14 },
+      ],
+      '개발자': [
+        { text: '제어 시스템에 접근해 주파수를 교란한다', category: 'technical', baseDC: 12 },
+        { text: '안테나의 전원 케이블을 추적해 차단한다', category: 'technical', baseDC: 14 },
+      ],
+      '영업사원': [
+        { text: '확성기로 주파수를 상쇄시킨다', category: 'social', baseDC: 12 },
+        { text: '"5G 요금제로 업그레이드 해드릴게요!" 교란한다', category: 'social', baseDC: 15 },
+      ],
+    },
+    defaultChoices: [
+      { text: '전기가 닿지 않는 곳에서 물건을 던진다', category: 'creative', baseDC: 12 },
+      { text: '동료들과 합심해 안테나 기둥을 밀어낸다', category: 'physical', baseDC: 13 },
+    ],
+  },
+
+  // ── Wave 10 (최종보스): 자정의 시계 ──
+  {
+    enemy: {
+      name: '자정의 시계',
+      description: '야시장 시계탑이 자정에 깨어난 존재. 시간이 뒤틀리고, 종소리가 현실을 찢는다.',
+      defense: 12,
+      imageTag: 'midnight-clock',
+    },
+    baseHp: 150,
+    baseAttack: 25,
+    situation: '모든 전투를 뚫고 야시장 끝에 도착했다. 거대한 시계탑이 서 있다. 시침이 12를 가리키는 순간, 종소리와 함께 시계탑이 일어선다. 주변의 시간이 뒤틀리기 시작한다. 떨어진 캔이 거꾸로 솟아오르고, 비가 위로 내린다. "땡... 땡... 자정이야. 아무도 여기서 나갈 수 없어."',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '전력으로 돌진해 시계 문자판을 공격한다', category: 'physical', baseDC: 13 },
+        { text: '동료들을 지키며 시간 왜곡을 버텨낸다', category: 'defensive', baseDC: 12 },
+        { text: '시계추를 잡아 흔들림을 멈추게 한다', category: 'physical', baseDC: 15 },
+      ],
+      '요리사': [
+        { text: '뜨거운 요리로 시계 톱니바퀴를 녹인다', category: 'creative', baseDC: 12 },
+        { text: '시간이 멈춘 음식으로 약점을 찾는다', category: 'creative', baseDC: 14 },
+        { text: '폭죽과 화약으로 시계탑을 공격한다', category: 'creative', baseDC: 15 },
+      ],
+      '개발자': [
+        { text: '시계의 내부 메커니즘을 분석해 약점을 파악한다', category: 'technical', baseDC: 12 },
+        { text: '시간 왜곡 패턴을 역이용해 루프를 만든다', category: 'technical', baseDC: 15 },
+      ],
+      '영업사원': [
+        { text: '"시간은 금이에요! 거래합시다!" 협상한다', category: 'social', baseDC: 13 },
+        { text: '동료들의 의지를 모아 시간 왜곡을 거부한다', category: 'social', baseDC: 12 },
+        { text: '"자정이 지나면 당신도 끝이에요" 심리전을 건다', category: 'social', baseDC: 15 },
+      ],
+    },
+    defaultChoices: [
+      { text: '모두 합심해 시계 기둥을 밀어낸다', category: 'physical', baseDC: 13 },
+      { text: '시간 왜곡을 피하며 약점을 찾는다', category: 'defensive', baseDC: 12 },
+    ],
+  },
 ];
 
 // ===== 적 스케일링 =====
@@ -298,6 +477,11 @@ export const NEXT_WAVE_PREVIEWS: string[] = [
   '더 깊은 곳에서 기계음이 들린다...',
   '그림자가 점점 짙어진다...',
   '지면이 미세하게 흔들리고 있다...',
-  '어디선가 으르렁거리는 소리가...',
-  '', // 마지막 웨이브 후에는 미리보기 없음
+  '어디선가 으르렁거리는 소리가...',               // Wave 1 끝 → 2 예고
+  '⚠ 야시장의 진짜 주인이 오고 있다...',           // Wave 4 끝 → 5(중보스) 예고
+  '도로 너머에서 배달 오토바이 소리가...',          // Wave 5 끝 → 6 예고
+  '지하에서 딸깍딸깍 관절 소리가...',              // Wave 6 끝 → 7 예고
+  '간판 글씨들이 희미하게 떨리고 있다...',          // Wave 7 끝 → 8 예고
+  '옥상에서 이상한 주파수가 들린다...',             // Wave 8 끝 → 9 예고
+  '⚠ 시계탑의 종소리가 울려 퍼진다... 자정이 다가온다.',  // Wave 9 끝 → 10(최종보스) 예고
 ];

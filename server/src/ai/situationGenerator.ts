@@ -187,7 +187,10 @@ export async function generateCombatChoices(
   return choiceSets;
 }
 
-const VALID_IMAGE_TAGS = new Set(['raccoon', 'vending-machine', 'shadow-cats', 'cleaning-robot', 'market-boss']);
+const VALID_IMAGE_TAGS = new Set([
+  'raccoon', 'vending-machine', 'shadow-cats', 'cleaning-robot', 'market-boss',
+  'delivery-bike', 'mannequins', 'neon-ghost', 'antenna-monster', 'midnight-clock',
+]);
 
 const VALID_CATEGORIES = new Set(['physical', 'social', 'technical', 'defensive', 'creative']);
 

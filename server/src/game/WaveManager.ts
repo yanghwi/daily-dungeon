@@ -381,10 +381,11 @@ export class WaveManager {
     const waveNumber = refreshedRoom.run?.currentWave ?? 1;
     const isBoss = waveNumber % 5 === 0;
 
-    // 루트 생성 + 자동 분배
+    // 루트 생성 + 자동 분배 (보스는 더 많이)
     if (refreshedRoom.run) {
       const alivePlrs = refreshedRoom.players.filter((p) => p.isAlive);
-      const lootItems = generateLootFromCatalog(alivePlrs.length, { waveNumber, isBossWave: isBoss });
+      const lootCount = isBoss ? alivePlrs.length + 1 : alivePlrs.length;
+      const lootItems = generateLootFromCatalog(lootCount, { waveNumber, isBossWave: isBoss });
       const lootList = lootItems.map(itemDefToLootItem);
       damageResult.loot = lootList;
       refreshedRoom.run.accumulatedLoot.push(...lootList);

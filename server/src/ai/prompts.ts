@@ -15,7 +15,7 @@ export const SITUATION_SYSTEM = `너는 EarthBound/Mother 시리즈의 톤을 �
   "enemy": {
     "name": "string",
     "description": "string (1줄)",
-    "imageTag": "raccoon | vending-machine | shadow-cats | cleaning-robot | market-boss 중 가장 가까운 것"
+    "imageTag": "raccoon | vending-machine | shadow-cats | cleaning-robot | market-boss | delivery-bike | mannequins | neon-ghost | antenna-monster | midnight-clock 중 가장 가까운 것"
   },
   "playerChoices": [
     {

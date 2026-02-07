@@ -58,6 +58,9 @@ export default function BattleScreen({ onSubmitChoice, onRoll, onVote, onEquipIt
     }
   }, [phase, enemy]);
 
+  const isBossWave = currentWave > 0 && currentWave % 5 === 0;
+  const isFinalBoss = currentWave >= 10;
+
   return (
     <div className="flex-1 flex flex-col relative min-h-dvh">
       <BattleBg waveNumber={currentWave} />
@@ -67,7 +70,10 @@ export default function BattleScreen({ onSubmitChoice, onRoll, onVote, onEquipIt
         {/* 웨이브 번호 + 적 HP 바 */}
         <div className="px-3 pt-3">
           <div className="flex flex-col items-center gap-1">
-            <span className="font-title text-xs text-arcane-light">WAVE {currentWave}</span>
+            <span className={`font-title text-xs ${isBossWave ? 'text-tier-nat20 animate-pulse' : 'text-arcane-light'}`}>
+              {isBossWave && (isFinalBoss ? 'FINAL BOSS - ' : 'BOSS - ')}
+              WAVE {currentWave}
+            </span>
             {enemy && (() => {
               const ratio = enemy.maxHp > 0 ? enemy.hp / enemy.maxHp : 0;
               const barColor =
@@ -75,7 +81,7 @@ export default function BattleScreen({ onSubmitChoice, onRoll, onVote, onEquipIt
                 ratio > 0.25 ? 'bg-gold' :
                 'bg-tier-nat1';
               return (
-                <div className="w-48 eb-window !px-2 !py-1.5">
+                <div className={`w-48 eb-window !px-2 !py-1.5 ${isBossWave ? 'border-tier-nat20' : ''}`}>
                   <div className="font-title text-sm text-slate-200 text-center mb-1 truncate">
                     {enemy.name}
                   </div>
@@ -96,7 +102,7 @@ export default function BattleScreen({ onSubmitChoice, onRoll, onVote, onEquipIt
 
         {/* 적 스프라이트 — hp > 0일 때만 */}
         {enemy && enemy.hp > 0 && (
-          <EnemySprite imageTag={enemy.imageTag} />
+          <EnemySprite imageTag={enemy.imageTag} isBoss={isBossWave} />
         )}
 
         {/* 상황 묘사 (첫 라운드에서만, 이후 라운드는 선택지만) */}
