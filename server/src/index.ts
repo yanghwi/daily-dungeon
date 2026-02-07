@@ -3,6 +3,7 @@ import express from 'express';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
+import path from 'path';
 import { setupSocketHandlers } from './socket/handlers.js';
 import apiRoutes from './api/routes.js';
 import discordRoutes from './auth/discord.js';
@@ -41,6 +42,14 @@ app.use('/api/auth', discordRoutes);
 
 // Socket.io 핸들러 설정
 setupSocketHandlers(io);
+
+// 프로덕션: 클라이언트 정적 파일 서빙
+const clientDist = path.resolve('client/dist');
+app.use(express.static(clientDist));
+// SPA 폴백: API/소켓이 아닌 모든 GET → index.html
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(clientDist, 'index.html'));
+});
 
 const PORT = process.env.PORT || 3000;
 

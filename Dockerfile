@@ -5,6 +5,7 @@ WORKDIR /app
 # 패키지 매니페스트만 먼저 복사 (레이어 캐시 활용)
 COPY package.json package-lock.json ./
 COPY server/package.json ./server/
+COPY client/package.json ./client/
 COPY shared/package.json ./shared/
 
 RUN npm ci
@@ -16,8 +17,10 @@ RUN cd server && npx prisma generate
 # 소스 복사 & 빌드
 COPY shared/ ./shared/
 COPY server/ ./server/
+COPY client/ ./client/
 
 RUN npm run build --workspace=@round-midnight/server
+RUN npm run build --workspace=@round-midnight/client
 
 # --- Production stage ---
 FROM node:20-alpine
@@ -38,6 +41,7 @@ RUN cd server && npx prisma generate
 
 # 빌드 결과물 복사
 COPY --from=builder /app/server/dist ./server/dist
+COPY --from=builder /app/client/dist ./client/dist
 # shared: 컴파일된 JS를 사용 (Node.js는 .ts를 직접 실행 불가)
 COPY --from=builder /app/server/dist/shared/ ./shared/
 # shared/package.json의 main을 .js로 변경
