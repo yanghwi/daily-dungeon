@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { Room, Character } from '@round-midnight/shared';
 import { BACKGROUNDS } from '../../styles/theme';
+import { useGameStore } from '../../stores/gameStore';
 import LobbyBg from './LobbyBg';
 import CharacterCreator from './CharacterCreator';
 import type { CharacterAppearance } from '../../assets/sprites/characterParts';
@@ -12,16 +13,32 @@ interface CharacterSetupProps {
 }
 
 export default function CharacterSetup({ room, player, onSubmit }: CharacterSetupProps) {
+  const characterConfig = useGameStore((s) => s.characterConfig);
+  const autoSubmitted = useRef(false);
+
   const [name, setName] = useState(player.name);
   const [selectedBg, setSelectedBg] = useState<string | null>(null);
   const [showCreator, setShowCreator] = useState(false);
   const [_appearance, setAppearance] = useState<CharacterAppearance | null>(null);
   const hasSubmitted = player.background !== '';
 
-  // 다른 플레이어가 이미 선택한 배경
-  const takenBackgrounds = room.players
-    .filter((p) => p.id !== player.id && p.background !== '')
-    .map((p) => p.background);
+  // 자동제출: characterConfig가 있으면 즉시 제출
+  useEffect(() => {
+    if (characterConfig && !hasSubmitted && !autoSubmitted.current) {
+      autoSubmitted.current = true;
+      onSubmit(characterConfig.name, characterConfig.background);
+    }
+  }, [characterConfig, hasSubmitted, onSubmit]);
+
+  // 자동제출 중이면 로딩 UI
+  if (characterConfig && !hasSubmitted) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center px-6 gap-5 relative min-h-dvh">
+        <LobbyBg />
+        <p className="font-body text-arcane-light text-sm animate-pulse relative z-10">준비 중...</p>
+      </div>
+    );
+  }
 
   const handleSubmit = () => {
     if (!name.trim() || !selectedBg) return;
@@ -74,20 +91,16 @@ export default function CharacterSetup({ room, player, onSubmit }: CharacterSetu
         <div className="flex-1 flex flex-col gap-3 relative z-10">
           <p className="font-body text-sm text-slate-400">배경을 선택하세요</p>
           {BACKGROUNDS.map((bg) => {
-            const isTaken = takenBackgrounds.includes(bg.label);
             const isSelected = selectedBg === bg.label;
 
             return (
               <button
                 key={bg.id}
-                onClick={() => !isTaken && setSelectedBg(bg.label)}
-                disabled={isTaken}
+                onClick={() => setSelectedBg(bg.label)}
                 className={`w-full text-left eb-window transition-all active:scale-[0.98] ${
                   isSelected
                     ? '!border-arcane-light !shadow-[4px_4px_0_rgba(108,92,231,0.5)]'
-                    : isTaken
-                      ? '!border-slate-700 opacity-40'
-                      : '!border-slate-600'
+                    : '!border-slate-600'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -95,7 +108,6 @@ export default function CharacterSetup({ room, player, onSubmit }: CharacterSetu
                   <div className="flex-1">
                     <p className="font-body text-white font-bold">
                       {bg.label}
-                      {isTaken && <span className="text-slate-500 text-xs ml-2">(선택됨)</span>}
                     </p>
                     <p className="font-body text-slate-400 text-xs mt-0.5">{bg.description}</p>
                     {isSelected && (

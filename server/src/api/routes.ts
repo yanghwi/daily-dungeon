@@ -111,6 +111,24 @@ router.get('/me', authMiddleware, async (req, res) => {
       where: { participants: { some: { userId } }, result: 'clear' },
     });
 
+    // XP 계산: 참가한 런들의 wavesCleared 기반
+    const participations = await getPrisma().runParticipant.findMany({
+      where: { userId },
+      include: { run: { select: { wavesCleared: true, result: true } } },
+    });
+
+    let totalXp = 0;
+    for (const p of participations) {
+      totalXp += (p.run.wavesCleared ?? 0) * 10;
+      if (p.run.result === 'clear') totalXp += 50;
+    }
+
+    const level = Math.floor(Math.sqrt(totalXp / 50)) + 1;
+    const currentLevelXp = (level - 1) * (level - 1) * 50;
+    const nextLevelXp = level * level * 50;
+    const xp = totalXp - currentLevelXp;
+    const xpToNext = nextLevelXp - currentLevelXp;
+
     res.json({
       user,
       stats: {
@@ -119,6 +137,7 @@ router.get('/me', authMiddleware, async (req, res) => {
         totalDamageDealt: stats._sum.damageDealt ?? 0,
         totalDamageTaken: stats._sum.damageTaken ?? 0,
       },
+      level: { level, xp, xpToNext, totalXp },
     });
   } catch (err) {
     console.error('Profile error:', err);

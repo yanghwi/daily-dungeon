@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useSocket } from './hooks/useSocket';
 import { useGameStore } from './stores/gameStore';
+import LoginScreen from './components/Hub/LoginScreen';
+import CharacterHub from './components/Hub/CharacterHub';
 import LobbyScreen from './components/Lobby/LobbyScreen';
 import CharacterSetup from './components/Lobby/CharacterSetup';
 import BattleScreen from './components/Battle/BattleScreen';
@@ -14,7 +16,7 @@ function App() {
     submitCharacterSetup, submitChoice, rollDice, voteContinueOrRetreat,
     equipItem, unequipItem, useConsumable, discardItem,
   } = useSocket();
-  const { phase, room, player, connected, error, setError, resetGame } = useGameStore();
+  const { phase, room, player, connected, error, setError, resetGame, authUser } = useGameStore();
   const setAuth = useGameStore((s) => s.setAuth);
 
   // Discord OAuth 콜백 처리 (URL에서 토큰 파싱)
@@ -45,8 +47,6 @@ function App() {
     }
   }, [error, setError]);
 
-  const isInLobby = room !== null && phase === 'waiting';
-
   return (
     <div className="min-h-dvh bg-midnight-900 flex flex-col">
       {/* 연결 상태 */}
@@ -64,15 +64,18 @@ function App() {
       )}
 
       {/* 메인 콘텐츠 */}
-      {!room && phase === 'waiting' && (
-        <LobbyScreen
-          mode="home"
+      {!authUser && phase === 'waiting' && (
+        <LoginScreen />
+      )}
+
+      {authUser && !room && phase === 'waiting' && (
+        <CharacterHub
           onCreateRoom={createRoom}
           onJoinRoom={joinRoom}
         />
       )}
 
-      {isInLobby && player && (
+      {authUser && room && phase === 'waiting' && player && (
         <LobbyScreen
           mode="room"
           room={room}

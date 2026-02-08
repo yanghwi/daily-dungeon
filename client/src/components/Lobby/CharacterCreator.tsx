@@ -10,10 +10,11 @@ import {
 
 interface Props {
   onConfirm: (appearance: CharacterAppearance) => void;
+  onCancel?: () => void;
   initialAppearance?: CharacterAppearance;
 }
 
-export default function CharacterCreator({ onConfirm, initialAppearance }: Props) {
+export default function CharacterCreator({ onConfirm, onCancel, initialAppearance }: Props) {
   const [appearance, setAppearance] = useState<CharacterAppearance>(
     initialAppearance ?? DEFAULT_APPEARANCE
   );
@@ -63,13 +64,23 @@ export default function CharacterCreator({ onConfirm, initialAppearance }: Props
       {/* 파츠 선택 — renderPartSelector */}
       {renderPartSelector(activeTab, appearance, setAppearance)}
 
-      {/* 확인 */}
-      <button
-        onClick={() => onConfirm(appearance)}
-        className="w-full mt-3 eb-window !border-gold text-center active:scale-95 transition-transform"
-      >
-        <span className="font-title text-sm text-gold">확인</span>
-      </button>
+      {/* 확인 / 취소 */}
+      <div className="flex gap-2 mt-3">
+        {onCancel && (
+          <button
+            onClick={onCancel}
+            className="flex-1 eb-window !border-slate-600 text-center active:scale-95 transition-transform"
+          >
+            <span className="font-title text-sm text-slate-400">취소</span>
+          </button>
+        )}
+        <button
+          onClick={() => onConfirm(appearance)}
+          className="flex-1 eb-window !border-gold text-center active:scale-95 transition-transform"
+        >
+          <span className="font-title text-sm text-gold">확인</span>
+        </button>
+      </div>
     </div>
   );
 }

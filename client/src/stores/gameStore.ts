@@ -16,6 +16,7 @@ import type {
   InventoryUpdatedPayload,
   TemporaryBuff,
 } from '@round-midnight/shared';
+import type { CharacterAppearance } from '../assets/sprites/characterParts';
 
 // 인증 관련 타입
 export interface AuthUser {
@@ -24,6 +25,17 @@ export interface AuthUser {
   pin: string;
   authProvider?: string;
   discordUsername?: string;
+  level?: number;
+  xp?: number;
+  xpToNext?: number;
+  totalRuns?: number;
+}
+
+// 캐릭터 설정 (허브에서 설정 → character_setup에서 자동제출)
+export interface CharacterConfig {
+  name: string;
+  background: string;
+  appearance: CharacterAppearance;
 }
 
 export interface RunHistoryEntry {
@@ -49,6 +61,14 @@ interface GameStore {
   setAuth: (token: string, user: AuthUser) => void;
   setRunHistory: (runs: RunHistoryEntry[]) => void;
   clearAuth: () => void;
+
+  // 캐릭터 설정 (허브에서 영속)
+  characterConfig: CharacterConfig | null;
+  setCharacterConfig: (config: CharacterConfig) => void;
+
+  // 솔로 자동시작 플래그
+  pendingAction: 'solo_start' | null;
+  setPendingAction: (action: 'solo_start' | null) => void;
 
   // 연결 상태
   connected: boolean;
@@ -139,6 +159,22 @@ export const useGameStore = create<GameStore>((set) => ({
     localStorage.removeItem('rm-auth-user');
     set({ authToken: null, authUser: null, runHistory: [] });
   },
+
+  // 캐릭터 설정 (localStorage 영속)
+  characterConfig: (() => {
+    try {
+      const stored = localStorage.getItem('rm-character-config');
+      return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
+  })(),
+  setCharacterConfig: (config) => {
+    localStorage.setItem('rm-character-config', JSON.stringify(config));
+    set({ characterConfig: config });
+  },
+
+  // 솔로 자동시작 플래그
+  pendingAction: null,
+  setPendingAction: (action) => set({ pendingAction: action }),
 
   connected: false,
   setConnected: (connected) => set({ connected }),
