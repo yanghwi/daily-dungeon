@@ -11,9 +11,11 @@ export interface Character {
   hp: number;
   maxHp: number;
   isAlive: boolean;
+  level: number;               // 유저 레벨 (비로그인: 1)
   equipment: Equipment;
   inventory: InventoryItem[];  // 런 중 획득한 아이템
   activeBuffs: TemporaryBuff[];  // 소모품 임시 버프
+  unlockedPassives: ItemEffect[];  // 해금된 패시브 효과
 }
 
 export interface TemporaryBuff {
@@ -258,6 +260,7 @@ export interface RunEndPayload {
 // Client → Server
 export interface CreateRoomPayload {
   playerName: string;
+  userId?: string;       // DB User ID (로그인 시)
   mode?: RoomMode;       // 'custom' (기본) | 'daily'
   dailySeedId?: string;  // 데일리 모드 시 시드 ID
   seed?: string;         // 데일리 모드 시 시드 값
@@ -266,6 +269,7 @@ export interface CreateRoomPayload {
 export interface JoinRoomPayload {
   roomCode: string;
   playerName: string;
+  userId?: string;       // DB User ID (로그인 시)
 }
 
 export interface PlayerChoicePayload {
@@ -315,6 +319,17 @@ export interface InventoryUpdatedPayload {
   hp: number;
   maxHp: number;
   activeBuffs?: TemporaryBuff[];
+  activeSynergies?: ActiveSynergy[];
+}
+
+// ===== 시너지 =====
+
+export interface ActiveSynergy {
+  tag: string;
+  name: string;
+  count: number;          // 현재 장착 태그 수
+  threshold: number;      // 발동에 필요한 수
+  bonusDescription: string;  // 보너스 요약 (예: "wave_heal +5")
 }
 
 export interface DiscardItemPayload {
@@ -356,6 +371,15 @@ export const GAME_CONSTANTS = {
     3: { hpMod: 0.85, atkMod: 0.9 },
     2: { hpMod: 0.7, atkMod: 0.8 },
     1: { hpMod: 0.5, atkMod: 0.6 },
+  },
+
+  // 레벨 보너스
+  LEVEL_BONUSES: {
+    HP_PER_LEVEL: 3,
+    HP_CAP: 27,
+    DC_REDUCTION_LEVELS: [5, 10] as readonly number[],
+    DC_REDUCTION_VALUE: 1,
+    MAX_LEVEL: 10,
   },
 } as const;
 

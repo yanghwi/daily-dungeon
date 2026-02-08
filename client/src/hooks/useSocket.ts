@@ -212,11 +212,13 @@ export function useSocket() {
   // ===== Emitters =====
 
   const createRoom = (playerName: string, mode?: RoomMode, dailySeedId?: string, seed?: string) => {
-    socketRef.current?.emit(SOCKET_EVENTS.CREATE_ROOM, { playerName, mode, dailySeedId, seed });
+    const userId = useGameStore.getState().authUser?.id;
+    socketRef.current?.emit(SOCKET_EVENTS.CREATE_ROOM, { playerName, userId, mode, dailySeedId, seed });
   };
 
   const joinRoom = (roomCode: string, playerName: string) => {
-    socketRef.current?.emit(SOCKET_EVENTS.JOIN_ROOM, { roomCode, playerName });
+    const userId = useGameStore.getState().authUser?.id;
+    socketRef.current?.emit(SOCKET_EVENTS.JOIN_ROOM, { roomCode, playerName, userId });
   };
 
   const startGame = () => {

@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import { roomManager } from '../game/Room.js';
-import { createCharacter, applyBackground } from '../game/Player.js';
+import { createCharacter, applyBackground, getUserLevel } from '../game/Player.js';
 import { WaveManager } from '../game/WaveManager.js';
 import type {
   CreateRoomPayload,
@@ -16,6 +16,8 @@ import type {
 } from '@round-midnight/shared';
 import { SOCKET_EVENTS } from '@round-midnight/shared';
 import { equipItem, unequipItem, useConsumable, discardItem, toDisplayInventory } from '../game/InventoryManager.js';
+import { getActiveSynergies } from '../game/SynergyResolver.js';
+import { getUnlockedPassives } from '../game/progression/unlockChecker.js';
 
 /** 방별 WaveManager 인스턴스 */
 const waveManagers: Map<string, WaveManager> = new Map();
@@ -27,8 +29,18 @@ export function setupSocketHandlers(io: Server) {
     // ===== 로비 =====
 
     // 방 생성
-    socket.on(SOCKET_EVENTS.CREATE_ROOM, (payload: CreateRoomPayload) => {
-      const character = createCharacter(socket.id, payload.playerName);
+    socket.on(SOCKET_EVENTS.CREATE_ROOM, async (payload: CreateRoomPayload) => {
+      // DB에서 레벨 + 패시브 조회 (비로그인 시 기본값)
+      let level = 1;
+      let passives: import('@round-midnight/shared').ItemEffect[] = [];
+      if (payload.userId) {
+        [level, passives] = await Promise.all([
+          getUserLevel(payload.userId).catch(() => 1),
+          getUnlockedPassives(payload.userId).catch(() => []),
+        ]);
+      }
+
+      const character = createCharacter(socket.id, payload.playerName, payload.userId, level, passives);
       const room = roomManager.createRoom(character, {
         mode: payload.mode ?? 'custom',
         dailySeedId: payload.dailySeedId,
@@ -42,12 +54,22 @@ export function setupSocketHandlers(io: Server) {
         player: character,
       });
 
-      console.log(`Room created: ${room.code} by ${character.name} (mode: ${room.mode})`);
+      console.log(`Room created: ${room.code} by ${character.name} (mode: ${room.mode}, lv: ${level})`);
     });
 
     // 방 참가
-    socket.on(SOCKET_EVENTS.JOIN_ROOM, (payload: JoinRoomPayload) => {
-      const character = createCharacter(socket.id, payload.playerName);
+    socket.on(SOCKET_EVENTS.JOIN_ROOM, async (payload: JoinRoomPayload) => {
+      // DB에서 레벨 + 패시브 조회
+      let level = 1;
+      let passives: import('@round-midnight/shared').ItemEffect[] = [];
+      if (payload.userId) {
+        [level, passives] = await Promise.all([
+          getUserLevel(payload.userId).catch(() => 1),
+          getUnlockedPassives(payload.userId).catch(() => []),
+        ]);
+      }
+
+      const character = createCharacter(socket.id, payload.playerName, payload.userId, level, passives);
       const room = roomManager.joinRoom(payload.roomCode, character);
 
       if (!room) {
@@ -65,7 +87,7 @@ export function setupSocketHandlers(io: Server) {
       // 다른 플레이어들에게 알림
       socket.to(room.code).emit(SOCKET_EVENTS.PLAYER_JOINED, { player: character, room });
 
-      console.log(`${character.name} joined room ${room.code}`);
+      console.log(`${character.name} joined room ${room.code} (lv: ${level})`);
     });
 
     // ===== 캐릭터 설정 =====
@@ -191,6 +213,7 @@ export function setupSocketHandlers(io: Server) {
         hp: updated.hp,
         maxHp: updated.maxHp,
         activeBuffs: updated.activeBuffs,
+        activeSynergies: getActiveSynergies(updated),
       });
     });
 
@@ -212,6 +235,7 @@ export function setupSocketHandlers(io: Server) {
         hp: updated.hp,
         maxHp: updated.maxHp,
         activeBuffs: updated.activeBuffs,
+        activeSynergies: getActiveSynergies(updated),
       });
     });
 

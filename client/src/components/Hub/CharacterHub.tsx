@@ -11,6 +11,7 @@ import {
 import { apiGetRuns, apiGetDailyToday, apiGetProfile } from '../../hooks/useApi';
 import LobbyBg from '../Lobby/LobbyBg';
 import CharacterCreator from '../Lobby/CharacterCreator';
+import UnlockPanel from './UnlockPanel';
 
 interface CharacterHubProps {
   onCreateRoom: (name: string, roomMode?: RoomMode, dailySeedId?: string, seed?: string) => void;
@@ -26,7 +27,7 @@ export default function CharacterHub({ onCreateRoom, onJoinRoom }: CharacterHubP
   const runHistory = useGameStore((s) => s.runHistory);
   const setRunHistory = useGameStore((s) => s.setRunHistory);
 
-  const [activePanel, setActivePanel] = useState<'none' | 'appearance' | 'stats' | 'guide' | 'background'>('none');
+  const [activePanel, setActivePanel] = useState<'none' | 'appearance' | 'stats' | 'guide' | 'background' | 'unlock'>('none');
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [joinCode, setJoinCode] = useState('');
   const [showHistory, setShowHistory] = useState(false);
@@ -233,6 +234,12 @@ export default function CharacterHub({ onCreateRoom, onJoinRoom }: CharacterHubP
         </div>
       )}
 
+      {activePanel === 'unlock' && (
+        <div className="relative z-10 animate-fade-in">
+          <UnlockPanel onClose={() => setActivePanel('none')} />
+        </div>
+      )}
+
       {/* 네비게이션 버튼 */}
       {activePanel === 'none' && (
         <>
@@ -256,10 +263,10 @@ export default function CharacterHub({ onCreateRoom, onJoinRoom }: CharacterHubP
               <span className="font-title text-xs text-slate-300">통계</span>
             </button>
             <button
-              onClick={() => setActivePanel('guide')}
-              className="flex-1 eb-window !border-slate-500 text-center active:scale-95 transition-transform"
+              onClick={() => setActivePanel('unlock')}
+              className="flex-1 eb-window !border-gold/50 text-center active:scale-95 transition-transform"
             >
-              <span className="font-title text-xs text-slate-300">안내</span>
+              <span className="font-title text-xs text-gold">도전</span>
             </button>
           </div>
 

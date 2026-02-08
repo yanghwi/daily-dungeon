@@ -1,5 +1,5 @@
 import { useGameStore } from '../../stores/gameStore';
-import type { ItemRarity, InventoryItemDisplay } from '@round-midnight/shared';
+import type { ItemRarity, InventoryItemDisplay, ActiveSynergy } from '@round-midnight/shared';
 import { GAME_CONSTANTS } from '@round-midnight/shared';
 
 interface Props {
@@ -106,9 +106,9 @@ export default function MaintenanceScreen({ onVote, onEquipItem, onUnequipItem, 
   const setHasVoted = useGameStore((s) => s.setHasVoted);
   const nextWavePreview = useGameStore((s) => s.nextWavePreview);
   const partyStatus = useGameStore((s) => s.partyStatus);
-  const voteStatus = useGameStore((s) => s.voteStatus);
   const inventory = useGameStore((s) => s.inventory);
   const activeBuffs = useGameStore((s) => s.activeBuffs);
+  const activeSynergies = useGameStore((s) => s.activeSynergies);
 
   const inventoryFull = inventory.length >= GAME_CONSTANTS.MAX_RUN_INVENTORY;
   const groupedInventory = groupAndSortInventory(inventory);
@@ -143,6 +143,33 @@ export default function MaintenanceScreen({ onVote, onEquipItem, onUnequipItem, 
           })}
         </div>
       </div>
+
+      {/* 활성 시너지 */}
+      {activeSynergies.length > 0 && (
+        <div className="eb-window !border-gold/50 animate-fade-in">
+          <div className="font-title text-xs text-gold mb-1.5">빌드 시너지</div>
+          <div className="space-y-1">
+            {activeSynergies.map((syn) => {
+              const isActive = syn.count >= syn.threshold;
+              return (
+                <div key={syn.tag} className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`font-body text-xs font-bold ${isActive ? 'text-gold' : 'text-slate-500'}`}>
+                      {syn.name}
+                    </span>
+                    <span className={`font-body text-[10px] ${isActive ? 'text-slate-400' : 'text-slate-600'}`}>
+                      ({syn.count}/{syn.threshold})
+                    </span>
+                  </div>
+                  {isActive && (
+                    <span className="font-body text-[10px] text-tier-critical">{syn.bonusDescription}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* 활성 버프 */}
       {activeBuffs.length > 0 && (
@@ -217,34 +244,20 @@ export default function MaintenanceScreen({ onVote, onEquipItem, onUnequipItem, 
         </div>
       )}
 
-      {/* 투표 버튼 */}
+      {/* 준비 완료 버튼 */}
       {!hasVoted ? (
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleVote('continue')}
-            className="flex-1 eb-window !border-tier-critical text-center active:scale-[0.97] transition-transform"
-          >
-            <div className="font-title text-base text-tier-critical">계속 전진</div>
-            <div className="font-body text-sm text-slate-500">다음 웨이브로</div>
-          </button>
-          <button
-            onClick={() => handleVote('retreat')}
-            className="flex-1 eb-window !border-tier-fail text-center active:scale-[0.97] transition-transform"
-          >
-            <div className="font-title text-base text-tier-fail">철수</div>
-            <div className="font-body text-sm text-slate-500">전리품 챙기고 나가기</div>
-          </button>
-        </div>
+        <button
+          onClick={() => handleVote('continue')}
+          className="w-full eb-window !border-tier-critical text-center active:scale-[0.97] transition-transform"
+        >
+          <div className="font-title text-base text-tier-critical">준비 완료</div>
+          <div className="font-body text-sm text-slate-500">다음 웨이브로 진행</div>
+        </button>
       ) : (
-        <div className="text-center space-y-1">
+        <div className="text-center">
           <div className="font-body text-sm text-slate-400 animate-pulse">
-            투표 완료! 결과를 기다리는 중...
+            다른 플레이어를 기다리는 중...
           </div>
-          {voteStatus && (
-            <div className="font-body text-sm text-slate-500">
-              전진 {voteStatus.continueCount} / 철수 {voteStatus.retreatCount} ({voteStatus.total}명 중 {voteStatus.continueCount + voteStatus.retreatCount}명 투표)
-            </div>
-          )}
         </div>
       )}
     </div>

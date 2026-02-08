@@ -15,6 +15,7 @@ import type {
   Equipment,
   InventoryUpdatedPayload,
   TemporaryBuff,
+  ActiveSynergy,
 } from '@round-midnight/shared';
 import type { CharacterAppearance } from '../assets/sprites/characterParts';
 
@@ -113,6 +114,7 @@ interface GameStore {
   inventory: InventoryItemDisplay[];
   equipment: Equipment | null;
   activeBuffs: TemporaryBuff[];
+  activeSynergies: ActiveSynergy[];
   setInventoryUpdate: (payload: InventoryUpdatedPayload) => void;
 
   // 런 종료 상태
@@ -214,11 +216,13 @@ export const useGameStore = create<GameStore>((set) => ({
   inventory: [],
   equipment: null,
   activeBuffs: [],
+  activeSynergies: [],
   setInventoryUpdate: (payload) =>
     set((state) => ({
       inventory: payload.inventory,
       equipment: payload.equipment,
       activeBuffs: payload.activeBuffs ?? state.activeBuffs,
+      activeSynergies: payload.activeSynergies ?? state.activeSynergies,
       player: state.player
         ? {
             ...state.player,
@@ -322,6 +326,7 @@ export const useGameStore = create<GameStore>((set) => ({
       inventory: [],
       equipment: null,
       activeBuffs: [],
+      activeSynergies: [],
       runEndResult: null,
       error: null,
     }),

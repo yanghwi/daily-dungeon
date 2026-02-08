@@ -53,6 +53,12 @@ export async function apiGetDailyLeaderboard() {
   return apiFetch('/api/daily/leaderboard') as Promise<{ date: string; runs: any[] }>;
 }
 
+// ─── 해금 ───
+
+export async function apiGetUnlocksAll() {
+  return apiFetch('/api/unlocks/all') as Promise<{ unlockables: any[] }>;
+}
+
 // ─── Discord OAuth ───
 
 /** Discord OAuth 리다이렉트 URL (서버가 Discord으로 리다이렉트) */

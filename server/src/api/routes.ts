@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { prisma, getPrisma } from '../db/client.js';
 import { signToken, authMiddleware } from '../auth/jwt.js';
+import { UNLOCKABLES } from '../game/progression/unlockables.js';
 
 const router = Router();
 
@@ -281,6 +282,37 @@ router.get('/unlocks', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('Unlocks error:', err);
     res.status(500).json({ error: 'Failed to load unlocks' });
+  }
+});
+
+// GET /api/unlocks/all — 전체 해금 목록 + 유저 상태
+router.get('/unlocks/all', authMiddleware, async (req, res) => {
+  try {
+    const { userId } = (req as any).user;
+
+    const userUnlocks = await getPrisma().userUnlock.findMany({
+      where: { userId },
+      select: { unlockableId: true, unlockedAt: true },
+    });
+    const unlockedMap = new Map(
+      userUnlocks.map((u: any) => [u.unlockableId as string, u.unlockedAt as Date])
+    );
+
+    const items = UNLOCKABLES.map((def) => ({
+      id: def.id,
+      type: def.type,
+      name: def.name,
+      description: def.description,
+      condition: def.condition,
+      reward: def.reward,
+      unlocked: unlockedMap.has(def.id),
+      unlockedAt: unlockedMap.get(def.id) ?? null,
+    }));
+
+    res.json({ unlockables: items });
+  } catch (err) {
+    console.error('Unlocks/all error:', err);
+    res.status(500).json({ error: 'Failed to load unlockables' });
   }
 });
 

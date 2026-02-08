@@ -1,5 +1,7 @@
 import type { Character, ActionCategory, ItemEffect } from '@round-midnight/shared';
+import { GAME_CONSTANTS } from '@round-midnight/shared';
 import { getItemById } from './data/items/index.js';
+import { countEquippedTags, resolveSynergyEffects } from './SynergyResolver.js';
 
 /** 장착된 아이템 효과의 집계 결과 */
 export interface ResolvedEffects {
@@ -60,6 +62,29 @@ export function resolveEquippedEffects(character: Character): ResolvedEffects {
       if (buff.remainingWaves > 0) {
         applyEffect(result, buff.effect);
       }
+    }
+  }
+
+  // 시너지 효과 집계
+  const tagCounts = countEquippedTags(character);
+  const synergyEffects = resolveSynergyEffects(tagCounts);
+  for (const effect of synergyEffects) {
+    applyEffect(result, effect);
+  }
+
+  // 레벨 기반 DC 감소
+  const { DC_REDUCTION_LEVELS, DC_REDUCTION_VALUE } = GAME_CONSTANTS.LEVEL_BONUSES;
+  for (const lvl of DC_REDUCTION_LEVELS) {
+    if (character.level >= lvl) {
+      const current = result.dcReductions.get('all') ?? 0;
+      result.dcReductions.set('all', current + DC_REDUCTION_VALUE);
+    }
+  }
+
+  // 해금된 패시브 효과 적용
+  if (character.unlockedPassives) {
+    for (const effect of character.unlockedPassives) {
+      applyEffect(result, effect);
     }
   }
 
