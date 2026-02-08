@@ -209,6 +209,20 @@ export function useSocket() {
     };
   }, []);
 
+  // 게임 진행 중 페이지 이탈 경고 (모바일 실수 방지)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      const { phase } = useGameStore.getState();
+      const activePhases = ['character_setup', 'wave_intro', 'choosing', 'rolling', 'narrating', 'wave_result', 'maintenance'];
+      if (activePhases.includes(phase ?? '')) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
   // ===== Emitters =====
 
   const createRoom = (playerName: string, mode?: RoomMode, dailySeedId?: string, seed?: string) => {

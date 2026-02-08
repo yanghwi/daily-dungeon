@@ -18,9 +18,14 @@ import { SOCKET_EVENTS } from '@round-midnight/shared';
 import { equipItem, unequipItem, useConsumable, discardItem, toDisplayInventory } from '../game/InventoryManager.js';
 import { getActiveSynergies } from '../game/SynergyResolver.js';
 import { getUnlockedPassives } from '../game/progression/unlockChecker.js';
+import { saveRunResult } from '../db/runSaver.js';
 
 /** 방별 WaveManager 인스턴스 */
 const waveManagers: Map<string, WaveManager> = new Map();
+
+/** 연결 끊김 유예 타이머 (playerId → timer info) */
+const disconnectTimers: Map<string, { timer: NodeJS.Timeout; roomCode: string }> = new Map();
+const DISCONNECT_GRACE_MS = 30_000; // 30초
 
 export function setupSocketHandlers(io: Server) {
   io.on('connection', (socket: Socket) => {
@@ -299,6 +304,14 @@ export function setupSocketHandlers(io: Server) {
         return;
       }
 
+      // 유예 타이머가 있으면 취소
+      const pending = disconnectTimers.get(playerId);
+      if (pending) {
+        clearTimeout(pending.timer);
+        disconnectTimers.delete(playerId);
+        console.log(`[reconnect] Cancelled disconnect timer for ${playerId}`);
+      }
+
       // playerId로 방 찾기
       const room = roomManager.findRoomByPlayerId(playerId);
       if (!room) {
@@ -322,17 +335,17 @@ export function setupSocketHandlers(io: Server) {
         phase: room.phase,
       });
 
-      console.log(`Player ${player.name} reconnected to room ${room.code}`);
+      console.log(`[reconnect] Player ${player.name} reconnected to room ${room.code} (phase: ${room.phase})`);
     });
 
     // ===== 연결 관리 =====
 
-    // 방 나가기
+    // 방 나가기 (의도적 퇴장 → 즉시 제거)
     socket.on(SOCKET_EVENTS.LEAVE_ROOM, () => {
-      handleDisconnect(socket, io);
+      removePlayerImmediate(socket, io);
     });
 
-    // 연결 해제
+    // 연결 해제 (브라우저 닫기/새로고침 → 유예 시간)
     socket.on('disconnect', () => {
       handleDisconnect(socket, io);
       console.log(`Client disconnected: ${socket.id}`);
@@ -340,23 +353,142 @@ export function setupSocketHandlers(io: Server) {
   });
 }
 
+/**
+ * 의도적 퇴장: 즉시 플레이어 제거
+ */
+function removePlayerImmediate(socket: Socket, io: Server) {
+  const room = roomManager.getPlayerRoom(socket.id);
+  const player = room?.players.find((p: Character) => p.socketId === socket.id);
+
+  // 유예 타이머가 있었으면 취소
+  if (player) {
+    const pending = disconnectTimers.get(player.id);
+    if (pending) {
+      clearTimeout(pending.timer);
+      disconnectTimers.delete(player.id);
+    }
+  }
+
+  const result = roomManager.removePlayerBySocketId(socket.id);
+  if (!result) return;
+
+  io.to(result.room.code).emit(SOCKET_EVENTS.PLAYER_LEFT, {
+    playerId: result.playerId,
+    room: result.room,
+  });
+
+  // 방에 아무도 없으면 WaveManager 정리
+  if (result.room.players.length === 0) {
+    cleanupEmptyRoom(result.room.code);
+  }
+}
+
+/**
+ * 연결 끊김: 게임 진행 중이면 유예 시간, 아니면 즉시 제거
+ */
 function handleDisconnect(socket: Socket, io: Server) {
   const room = roomManager.getPlayerRoom(socket.id);
-  const result = roomManager.removePlayerBySocketId(socket.id);
+  if (!room) return;
 
-  if (result) {
-    io.to(result.room.code).emit(SOCKET_EVENTS.PLAYER_LEFT, {
-      playerId: result.playerId,
-      room: result.room,
-    });
+  const player = room.players.find((p: Character) => p.socketId === socket.id);
+  if (!player) return;
 
-    // 방에 아무도 없으면 WaveManager 정리
-    if (result.room.players.length === 0) {
-      const wm = waveManagers.get(result.room.code);
-      if (wm) {
-        wm.cleanup();
-        waveManagers.delete(result.room.code);
-      }
+  // 게임 진행 중이 아니면 (로비/런 종료) 즉시 제거
+  const activePhases: string[] = ['character_setup', 'wave_intro', 'choosing', 'rolling', 'narrating', 'wave_result', 'maintenance'];
+  if (!activePhases.includes(room.phase)) {
+    removePlayerImmediate(socket, io);
+    return;
+  }
+
+  // 게임 진행 중: socketId 비우고 유예 시간 시작
+  console.log(`[disconnect] Player ${player.name} disconnected during ${room.phase}. Grace period: ${DISCONNECT_GRACE_MS / 1000}s`);
+  player.socketId = '';
+
+  const timer = setTimeout(() => {
+    disconnectTimers.delete(player.id);
+    handleDisconnectTimeout(io, room.code, player.id);
+  }, DISCONNECT_GRACE_MS);
+
+  disconnectTimers.set(player.id, { timer, roomCode: room.code });
+}
+
+/**
+ * 유예 시간 만료: 플레이어 제거, 빈 방이면 런 저장 후 정리
+ */
+function handleDisconnectTimeout(io: Server, roomCode: string, playerId: string) {
+  const room = roomManager.getRoom(roomCode);
+  if (!room) return;
+
+  const player = room.players.find((p: Character) => p.id === playerId);
+  if (!player) return;
+
+  // 이미 재접속했으면 무시
+  if (player.socketId !== '') return;
+
+  // 런이 이미 정상 종료됐으면 저장 없이 정리만
+  const alreadyEnded = room.phase === 'run_end';
+
+  console.log(`[disconnect] Grace period expired for ${player.name} in room ${roomCode}${alreadyEnded ? ' (run already ended)' : ''}`);
+
+  // 아직 접속 중인 다른 플레이어가 있는지 확인
+  const connectedOthers = room.players.filter((p: Character) => p.id !== playerId && p.socketId !== '');
+
+  if (connectedOthers.length > 0) {
+    // 다른 플레이어가 접속 중 → 이 플레이어만 제거, 게임 계속
+    const result = roomManager.leaveRoom(roomCode, playerId);
+    if (result) {
+      io.to(roomCode).emit(SOCKET_EVENTS.PLAYER_LEFT, { playerId, room: result });
     }
+    return;
+  }
+
+  // 접속 중인 플레이어 없음 → 런 저장 후 전체 정리
+  // 런 데이터 캡처 (플레이어 제거 전)
+  const runSnapshot = room.run ? {
+    currentWave: room.run.currentWave,
+    dailySeedId: room.run.dailySeedId,
+    players: [...room.players],
+  } : null;
+
+  // 다른 disconnected 플레이어들의 타이머도 취소
+  for (const p of room.players) {
+    if (p.id === playerId) continue;
+    const pending = disconnectTimers.get(p.id);
+    if (pending) {
+      clearTimeout(pending.timer);
+      disconnectTimers.delete(p.id);
+    }
+  }
+
+  // 런 결과 저장 (게임 진행 중이었고, 아직 종료되지 않았으면)
+  if (runSnapshot && !alreadyEnded) {
+    console.log(`[disconnect] All players gone. Saving run as wipe (wave ${runSnapshot.currentWave})`);
+    saveRunResult({
+      roomCode,
+      result: 'wipe',
+      wavesCleared: runSnapshot.currentWave,
+      highlights: ['연결 끊김으로 인한 자동 종료'],
+      dailySeedId: runSnapshot.dailySeedId,
+      players: runSnapshot.players,
+    }).catch((err) => console.error('[disconnect] Failed to save run:', err instanceof Error ? err.message : err));
+  }
+
+  // 모든 플레이어를 제거하여 방 삭제 (leaveRoom은 마지막 플레이어 제거 시 rooms Map에서 방 삭제)
+  const playerIds = room.players.map((p: Character) => p.id);
+  for (const pid of playerIds) {
+    roomManager.leaveRoom(roomCode, pid);
+  }
+
+  cleanupEmptyRoom(roomCode);
+}
+
+/**
+ * 빈 방 정리: WaveManager cleanup + 방 삭제
+ */
+function cleanupEmptyRoom(roomCode: string) {
+  const wm = waveManagers.get(roomCode);
+  if (wm) {
+    wm.cleanup();
+    waveManagers.delete(roomCode);
   }
 }
