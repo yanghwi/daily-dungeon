@@ -36,9 +36,9 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', game: 'Round Midnight' });
 });
 
-// REST API
-app.use('/api', apiRoutes);
+// REST API — Discord OAuth를 먼저 마운트 (requireDb 미들웨어 우회)
 app.use('/api/auth', discordRoutes);
+app.use('/api', apiRoutes);
 
 // Socket.io 핸들러 설정
 setupSocketHandlers(io);

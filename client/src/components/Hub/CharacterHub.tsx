@@ -49,22 +49,23 @@ export default function CharacterHub({ onCreateRoom, onJoinRoom }: CharacterHubP
 
   // 런 히스토리 + 프로필(레벨) 로드
   useEffect(() => {
-    if (authUser) {
-      apiGetRuns(10).then((data) => setRunHistory(data.runs)).catch(() => {});
-      // 레벨 정보 로드
-      if (authToken) {
-        apiGetProfile().then((data: any) => {
-          if (data.level) {
-            setAuth(authToken, {
-              ...authUser,
-              level: data.level.level,
-              xp: data.level.xp,
-              xpToNext: data.level.xpToNext,
-              totalRuns: data.stats?.totalRuns,
-            });
-          }
-        }).catch(() => {});
-      }
+    if (authUser && authToken) {
+      apiGetRuns(10).then((data) => setRunHistory(data.runs)).catch((err) => {
+        console.warn('[CharacterHub] Failed to load runs:', err.message);
+      });
+      apiGetProfile().then((data: any) => {
+        if (data.level) {
+          setAuth(authToken, {
+            ...authUser,
+            level: data.level.level,
+            xp: data.level.xp,
+            xpToNext: data.level.xpToNext,
+            totalRuns: data.stats?.totalRuns ?? 0,
+          });
+        }
+      }).catch((err) => {
+        console.warn('[CharacterHub] Failed to load profile:', err.message);
+      });
     }
   }, [authUser?.id]);
 
@@ -188,7 +189,7 @@ export default function CharacterHub({ onCreateRoom, onJoinRoom }: CharacterHubP
           <div className="eb-window">
             <div className="flex items-center justify-between mb-3">
               <span className="font-title text-sm text-arcane-light">배경 선택</span>
-              <button onClick={() => setActivePanel('none')} className="font-body text-xs text-slate-400">닫기</button>
+              <button onClick={() => setActivePanel('none')} className="px-3 py-1.5 rounded border border-slate-500 font-body text-xs text-slate-200 active:bg-slate-700 transition-colors">✕ 닫기</button>
             </div>
             <div className="flex flex-col gap-2">
               {BACKGROUNDS.map((bg) => (
@@ -365,7 +366,7 @@ function StatsPanel({
     <div className="eb-window">
       <div className="flex items-center justify-between mb-3">
         <span className="font-title text-sm text-arcane-light">통계</span>
-        <button onClick={onClose} className="font-body text-xs text-slate-400">닫기</button>
+        <button onClick={onClose} className="px-3 py-1.5 rounded border border-slate-500 font-body text-xs text-slate-200 active:bg-slate-700 transition-colors">✕ 닫기</button>
       </div>
       <div className="space-y-2">
         <div className="flex justify-between font-body text-sm">
@@ -392,7 +393,7 @@ function GuidePanel({ onClose }: { onClose: () => void }) {
     <div className="eb-window">
       <div className="flex items-center justify-between mb-3">
         <span className="font-title text-sm text-arcane-light">안내</span>
-        <button onClick={onClose} className="font-body text-xs text-slate-400">닫기</button>
+        <button onClick={onClose} className="px-3 py-1.5 rounded border border-slate-500 font-body text-xs text-slate-200 active:bg-slate-700 transition-colors">✕ 닫기</button>
       </div>
       <div className="space-y-2 font-body text-sm text-slate-300 leading-relaxed">
         <p>던전에서 적을 처치하면 전리품을 획득합니다.</p>

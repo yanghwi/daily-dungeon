@@ -49,7 +49,7 @@ export default function UnlockPanel({ onClose }: { onClose: () => void }) {
         <span className="font-title text-sm text-gold">
           도전 ({unlockedCount}/{items.length})
         </span>
-        <button onClick={onClose} className="font-body text-xs text-slate-400">닫기</button>
+        <button onClick={onClose} className="px-3 py-1.5 rounded border border-slate-500 font-body text-xs text-slate-200 active:bg-slate-700 transition-colors">✕ 닫기</button>
       </div>
 
       {loading ? (
