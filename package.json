@@ -16,9 +16,6 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "omggif": "^1.0.10",
-    "pngjs": "^7.0.0",
-    "puppeteer": "^24.37.1",
     "typescript": "^5.3.3"
   }
 }

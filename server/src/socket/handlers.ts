@@ -184,7 +184,7 @@ export function setupSocketHandlers(io: Server) {
       wm.handleDiceRoll(player.id, room);
     });
 
-    // 계속/철수 투표
+    // 준비 완료 투표
     socket.on(SOCKET_EVENTS.CONTINUE_OR_RETREAT, (payload: ContinueOrRetreatPayload) => {
       const room = roomManager.getPlayerRoom(socket.id);
       if (!room || room.phase !== 'maintenance') return;
@@ -200,99 +200,56 @@ export function setupSocketHandlers(io: Server) {
 
     // ===== 아이템/인벤토리 =====
 
-    // 아이템 장착
+    /** 정비 중 인벤토리 변경 공통 처리 */
+    const handleInventoryAction = (
+      actionFn: (player: Character, itemId: string) => Character,
+      itemId: string,
+      broadcastHp?: boolean,
+    ) => {
+      const room = roomManager.getPlayerRoom(socket.id);
+      if (!room || room.phase !== 'maintenance') return;
+
+      const player = room.players.find((p: Character) => p.socketId === socket.id);
+      if (!player) return;
+
+      const updated = actionFn(player, itemId);
+      const updatedRoom = roomManager.updateCharacter(room.code, updated);
+      if (!updatedRoom) return;
+
+      socket.emit(SOCKET_EVENTS.INVENTORY_UPDATED, {
+        inventory: toDisplayInventory(updated.inventory),
+        equipment: updated.equipment,
+        hp: updated.hp,
+        maxHp: updated.maxHp,
+        activeBuffs: updated.activeBuffs,
+        activeSynergies: getActiveSynergies(updated),
+      });
+
+      if (broadcastHp) {
+        const partyStatus = updatedRoom.players.map((p: Character) => ({
+          playerId: p.id,
+          name: p.name,
+          hp: p.hp,
+          maxHp: p.maxHp,
+        }));
+        io.to(room.code).emit(SOCKET_EVENTS.PHASE_CHANGE, { phase: 'maintenance', partyStatus });
+      }
+    };
+
     socket.on(SOCKET_EVENTS.EQUIP_ITEM, (payload: EquipItemPayload) => {
-      const room = roomManager.getPlayerRoom(socket.id);
-      if (!room || room.phase !== 'maintenance') return;
-
-      const player = room.players.find((p: Character) => p.socketId === socket.id);
-      if (!player) return;
-
-      const updated = equipItem(player, payload.itemId);
-      const updatedRoom = roomManager.updateCharacter(room.code, updated);
-      if (!updatedRoom) return;
-
-      socket.emit(SOCKET_EVENTS.INVENTORY_UPDATED, {
-        inventory: toDisplayInventory(updated.inventory),
-        equipment: updated.equipment,
-        hp: updated.hp,
-        maxHp: updated.maxHp,
-        activeBuffs: updated.activeBuffs,
-        activeSynergies: getActiveSynergies(updated),
-      });
+      handleInventoryAction(equipItem, payload.itemId);
     });
 
-    // 아이템 장착 해제
     socket.on(SOCKET_EVENTS.UNEQUIP_ITEM, (payload: UnequipItemPayload) => {
-      const room = roomManager.getPlayerRoom(socket.id);
-      if (!room || room.phase !== 'maintenance') return;
-
-      const player = room.players.find((p: Character) => p.socketId === socket.id);
-      if (!player) return;
-
-      const updated = unequipItem(player, payload.itemId);
-      const updatedRoom = roomManager.updateCharacter(room.code, updated);
-      if (!updatedRoom) return;
-
-      socket.emit(SOCKET_EVENTS.INVENTORY_UPDATED, {
-        inventory: toDisplayInventory(updated.inventory),
-        equipment: updated.equipment,
-        hp: updated.hp,
-        maxHp: updated.maxHp,
-        activeBuffs: updated.activeBuffs,
-        activeSynergies: getActiveSynergies(updated),
-      });
+      handleInventoryAction(unequipItem, payload.itemId);
     });
 
-    // 소모품 사용
     socket.on(SOCKET_EVENTS.USE_CONSUMABLE, (payload: UseConsumablePayload) => {
-      const room = roomManager.getPlayerRoom(socket.id);
-      if (!room || room.phase !== 'maintenance') return;
-
-      const player = room.players.find((p: Character) => p.socketId === socket.id);
-      if (!player) return;
-
-      const updated = useConsumable(player, payload.itemId);
-      const updatedRoom = roomManager.updateCharacter(room.code, updated);
-      if (!updatedRoom) return;
-
-      socket.emit(SOCKET_EVENTS.INVENTORY_UPDATED, {
-        inventory: toDisplayInventory(updated.inventory),
-        equipment: updated.equipment,
-        hp: updated.hp,
-        maxHp: updated.maxHp,
-        activeBuffs: updated.activeBuffs,
-      });
-
-      // 파티원 전체에게 HP 변경 알림
-      const partyStatus = updatedRoom.players.map((p: Character) => ({
-        playerId: p.id,
-        name: p.name,
-        hp: p.hp,
-        maxHp: p.maxHp,
-      }));
-      io.to(room.code).emit(SOCKET_EVENTS.PHASE_CHANGE, { phase: 'maintenance', partyStatus });
+      handleInventoryAction(useConsumable, payload.itemId, true);
     });
 
-    // 아이템 버리기
     socket.on(SOCKET_EVENTS.DISCARD_ITEM, (payload: DiscardItemPayload) => {
-      const room = roomManager.getPlayerRoom(socket.id);
-      if (!room || room.phase !== 'maintenance') return;
-
-      const player = room.players.find((p: Character) => p.socketId === socket.id);
-      if (!player) return;
-
-      const updated = discardItem(player, payload.itemId);
-      const updatedRoom = roomManager.updateCharacter(room.code, updated);
-      if (!updatedRoom) return;
-
-      socket.emit(SOCKET_EVENTS.INVENTORY_UPDATED, {
-        inventory: toDisplayInventory(updated.inventory),
-        equipment: updated.equipment,
-        hp: updated.hp,
-        maxHp: updated.maxHp,
-        activeBuffs: updated.activeBuffs,
-      });
+      handleInventoryAction(discardItem, payload.itemId);
     });
 
     // ===== 재접속 =====

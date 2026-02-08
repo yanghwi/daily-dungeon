@@ -1,44 +1,15 @@
 import { useGameStore } from '../../stores/gameStore';
 import type { ItemRarity, InventoryItemDisplay, ActiveSynergy } from '@round-midnight/shared';
 import { GAME_CONSTANTS } from '@round-midnight/shared';
+import { RARITY_COLORS, RARITY_BORDERS, RARITY_LABELS, TYPE_LABELS } from '../../styles/itemStyles';
 
 interface Props {
-  onVote: (decision: 'continue' | 'retreat') => void;
+  onVote: (decision: 'continue') => void;
   onEquipItem?: (itemId: string) => void;
   onUnequipItem?: (itemId: string) => void;
   onUseConsumable?: (itemId: string) => void;
   onDiscardItem?: (itemId: string) => void;
 }
-
-const RARITY_COLORS: Record<ItemRarity, string> = {
-  common: 'text-slate-400',
-  uncommon: 'text-green-400',
-  rare: 'text-blue-400',
-  legendary: 'text-gold',
-};
-
-const RARITY_BORDERS: Record<ItemRarity, string> = {
-  common: 'border-slate-600',
-  uncommon: 'border-green-700',
-  rare: 'border-blue-700',
-  legendary: 'border-gold',
-};
-
-const RARITY_LABELS: Record<ItemRarity, string> = {
-  common: '일반',
-  uncommon: '고급',
-  rare: '희귀',
-  legendary: '전설',
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  weapon: '무기',
-  top: '상의',
-  bottom: '하의',
-  hat: '모자',
-  accessory: '악세서리',
-  consumable: '소모품',
-};
 
 const EQUIP_SLOTS = ['weapon', 'top', 'bottom', 'hat', 'accessory'] as const;
 const RARITY_RANK: Record<ItemRarity, number> = { legendary: 0, rare: 1, uncommon: 2, common: 3 };
@@ -113,7 +84,7 @@ export default function MaintenanceScreen({ onVote, onEquipItem, onUnequipItem, 
   const inventoryFull = inventory.length >= GAME_CONSTANTS.MAX_RUN_INVENTORY;
   const groupedInventory = groupAndSortInventory(inventory);
 
-  const handleVote = (decision: 'continue' | 'retreat') => {
+  const handleVote = (decision: 'continue') => {
     if (hasVoted) return;
     setHasVoted(true);
     onVote(decision);

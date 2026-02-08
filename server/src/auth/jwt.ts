@@ -38,12 +38,3 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction):
   (req as any).user = payload;
   next();
 }
-
-// 선택적 인증: 토큰이 있으면 파싱, 없어도 통과
-export function optionalAuth(req: Request, _res: Response, next: NextFunction): void {
-  const header = req.headers.authorization;
-  if (header?.startsWith('Bearer ')) {
-    (req as any).user = verifyToken(header.slice(7));
-  }
-  next();
-}

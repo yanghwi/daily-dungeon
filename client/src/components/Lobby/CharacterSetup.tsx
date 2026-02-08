@@ -4,7 +4,6 @@ import { BACKGROUNDS } from '../../styles/theme';
 import { useGameStore } from '../../stores/gameStore';
 import LobbyBg from './LobbyBg';
 import CharacterCreator from './CharacterCreator';
-import type { CharacterAppearance } from '../../assets/sprites/characterParts';
 
 interface CharacterSetupProps {
   room: Room;
@@ -19,7 +18,6 @@ export default function CharacterSetup({ room, player, onSubmit }: CharacterSetu
   const [name, setName] = useState(player.name);
   const [selectedBg, setSelectedBg] = useState<string | null>(null);
   const [showCreator, setShowCreator] = useState(false);
-  const [_appearance, setAppearance] = useState<CharacterAppearance | null>(null);
   const hasSubmitted = player.background !== '';
 
   // 자동제출: characterConfig가 있으면 즉시 제출
@@ -168,8 +166,7 @@ export default function CharacterSetup({ room, player, onSubmit }: CharacterSetu
         <div className="relative z-10">
           {showCreator ? (
             <CharacterCreator
-              onConfirm={(app) => {
-                setAppearance(app);
+              onConfirm={() => {
                 setShowCreator(false);
               }}
             />

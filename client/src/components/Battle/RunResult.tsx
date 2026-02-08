@@ -12,13 +12,6 @@ const RESULT_THEME = {
     bgGlow: 'shadow-[0_0_30px_rgba(251,191,36,0.2)]',
     subtitle: '야시장의 주인을 물리쳤다!',
   },
-  retreat: {
-    title: 'RETREAT',
-    titleColor: 'text-tier-fail',
-    border: '!border-tier-fail',
-    bgGlow: '',
-    subtitle: '현명한 후퇴도 용기다.',
-  },
   wipe: {
     title: 'WIPE OUT',
     titleColor: 'text-tier-nat1',
@@ -29,7 +22,7 @@ const RESULT_THEME = {
 };
 
 /**
- * 런 종료 화면 — clear/retreat/wipe 테마별
+ * 런 종료 화면 — clear/wipe 테마별
  */
 export default function RunResult({ onReturnToLobby }: Props) {
   const runEndResult = useGameStore((s) => s.runEndResult);

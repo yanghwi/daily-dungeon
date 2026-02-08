@@ -42,7 +42,7 @@ export class WaveManager {
   private pendingChoices: Map<string, PendingChoice> = new Map();
   private pendingRolls: Map<string, boolean> = new Map(); // playerId → rolled?
   private actions: PlayerAction[] = [];
-  private votes: Map<string, 'continue' | 'retreat'> = new Map();
+  private votes: Map<string, 'continue'> = new Map();
 
   private combatRound: number = 0;
 
@@ -254,20 +254,17 @@ export class WaveManager {
   }
 
   /**
-   * 계속/철수 투표
+   * 준비 완료 투표
    */
-  handleVote(playerId: string, decision: 'continue' | 'retreat', room: Room): void {
+  handleVote(playerId: string, decision: 'continue', room: Room): void {
     if (this.votes.has(playerId)) return;
 
     this.votes.set(playerId, decision);
 
     // 투표 현황 브로드캐스트
     const alivePlayers = room.players.filter((p) => p.isAlive);
-    const retreatCount = Array.from(this.votes.values()).filter((v) => v === 'retreat').length;
-    const continueCount = this.votes.size - retreatCount;
     this.io.to(this.roomCode).emit(SOCKET_EVENTS.VOTE_UPDATE, {
-      continueCount,
-      retreatCount,
+      continueCount: this.votes.size,
       total: alivePlayers.length,
     });
 
@@ -510,22 +507,14 @@ export class WaveManager {
     const refreshedRoom = roomManager.getRoom(this.roomCode);
     if (!refreshedRoom || !refreshedRoom.run) return;
 
-    const retreatCount = Array.from(this.votes.values()).filter((v) => v === 'retreat').length;
-    const total = this.votes.size;
-    const majority = retreatCount > total / 2;
-
-    if (majority) {
-      this.endRun(refreshedRoom, 'retreat').catch((err) => logger.error('endRun failed', { room: this.roomCode, error: err instanceof Error ? err.message : String(err) }));
-    } else {
-      // 적은 항상 사망 상태 → 다음 웨이브
-      const runState = roomManager.advanceWave(this.roomCode);
-      if (runState) {
-        this.startWave(roomManager.getRoom(this.roomCode)!).catch((err) => logger.error('startWave failed', { room: this.roomCode, error: err instanceof Error ? err.message : String(err) }));
-      }
+    // 항상 다음 웨이브로 진행
+    const runState = roomManager.advanceWave(this.roomCode);
+    if (runState) {
+      this.startWave(roomManager.getRoom(this.roomCode)!).catch((err) => logger.error('startWave failed', { room: this.roomCode, error: err instanceof Error ? err.message : String(err) }));
     }
   }
 
-  private async endRun(room: Room, result: 'retreat' | 'wipe' | 'clear'): Promise<void> {
+  private async endRun(room: Room, result: 'wipe' | 'clear'): Promise<void> {
     const waveCount = room.run?.currentWave ?? 1;
     const players = room.players;
     const dailySeedId = room.run?.dailySeedId;

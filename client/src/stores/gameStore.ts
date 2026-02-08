@@ -107,8 +107,8 @@ interface GameStore {
   partyStatus: WaveEndPayload['partyStatus'];
   hasVoted: boolean;
   nextWavePreview: string;
-  voteStatus: { continueCount: number; retreatCount: number; total: number } | null;
-  setVoteStatus: (status: { continueCount: number; retreatCount: number; total: number }) => void;
+  voteStatus: { continueCount: number; total: number } | null;
+  setVoteStatus: (status: { continueCount: number; total: number }) => void;
 
   // 인벤토리
   inventory: InventoryItemDisplay[];

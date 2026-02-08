@@ -250,7 +250,7 @@ export interface MaintenanceStartPayload {
 }
 
 export interface RunEndPayload {
-  result: 'retreat' | 'wipe' | 'clear';
+  result: 'wipe' | 'clear';
   totalLoot: LootItem[];
   highlights: string[];               // LLM이 생성한 이번 런 하이라이트 3줄
   waveHistory: WaveTurn[];
@@ -282,7 +282,7 @@ export interface DiceRollPayload {
 }
 
 export interface ContinueOrRetreatPayload {
-  decision: 'continue' | 'retreat';
+  decision: 'continue';
 }
 
 // Server → Client (로비)
@@ -412,7 +412,7 @@ export const SOCKET_EVENTS = {
   ROLL_RESULTS: 'roll-results',
   WAVE_NARRATIVE: 'wave-narrative',
   WAVE_END: 'wave-end',
-  CONTINUE_OR_RETREAT: 'continue-or-retreat',
+  CONTINUE_OR_RETREAT: 'continue-or-retreat', // 레거시 이벤트명 유지 (준비 완료)
 
   // Phase 전환 (서버 → 클라이언트)
   PHASE_CHANGE: 'phase-change',

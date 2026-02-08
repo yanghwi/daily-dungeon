@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { prisma, getPrisma } from '../db/client.js';
 import { signToken, authMiddleware } from '../auth/jwt.js';
 import { UNLOCKABLES } from '../game/progression/unlockables.js';
+import { calculateXpAndLevel } from '../game/Player.js';
 
 const router = Router();
 
@@ -118,21 +119,7 @@ router.get('/me', authMiddleware, async (req, res) => {
       include: { run: { select: { wavesCleared: true, result: true } } },
     });
 
-    let totalXp = 0;
-    for (const p of participations) {
-      const wavesCleared = p.run.wavesCleared ?? 0;
-      totalXp += 15;                                    // 참가 기본
-      totalXp += wavesCleared * 25;                     // 웨이브당
-      if (wavesCleared >= 5) totalXp += 15;             // 보스 보너스
-      if (wavesCleared >= 10) totalXp += 15;            // 최종보스 보너스
-      if (p.run.result === 'clear') totalXp += 50;      // 클리어 보너스
-    }
-
-    const level = Math.floor(Math.sqrt(totalXp / 50)) + 1;
-    const currentLevelXp = (level - 1) * (level - 1) * 50;
-    const nextLevelXp = level * level * 50;
-    const xp = totalXp - currentLevelXp;
-    const xpToNext = nextLevelXp - currentLevelXp;
+    const levelInfo = calculateXpAndLevel(participations);
 
     res.json({
       user,
@@ -142,7 +129,7 @@ router.get('/me', authMiddleware, async (req, res) => {
         totalDamageDealt: stats._sum.damageDealt ?? 0,
         totalDamageTaken: stats._sum.damageTaken ?? 0,
       },
-      level: { level, xp, xpToNext, totalXp },
+      level: levelInfo,
     });
   } catch (err) {
     console.error('Profile error:', err);

@@ -1,26 +1,6 @@
 import { useGameStore } from '../../stores/gameStore';
-import type { LootItem, ItemRarity } from '@round-midnight/shared';
-
-const RARITY_COLORS: Record<ItemRarity, string> = {
-  common: 'text-slate-400',
-  uncommon: 'text-green-400',
-  rare: 'text-blue-400',
-  legendary: 'text-gold',
-};
-
-const RARITY_BORDERS: Record<ItemRarity, string> = {
-  common: 'border-slate-600',
-  uncommon: 'border-green-700',
-  rare: 'border-blue-700',
-  legendary: 'border-gold',
-};
-
-const RARITY_LABELS: Record<ItemRarity, string> = {
-  common: '일반',
-  uncommon: '고급',
-  rare: '희귀',
-  legendary: '전설',
-};
+import type { LootItem } from '@round-midnight/shared';
+import { RARITY_COLORS, RARITY_BORDERS, RARITY_LABELS } from '../../styles/itemStyles';
 
 /**
  * 웨이브 종료 — 전리품 표시만 (3초간, 이후 maintenance로 전환)

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import type { Room, Character, InventoryItemDisplay, ItemRarity } from '@round-midnight/shared';
+import type { Room, Character, InventoryItemDisplay } from '@round-midnight/shared';
 import { GAME_CONSTANTS } from '@round-midnight/shared';
 import { useGameStore } from '../../stores/gameStore';
 import LobbyBg from './LobbyBg';
+import { RARITY_COLORS, TYPE_LABELS } from '../../styles/itemStyles';
 
 interface LobbyProps {
   mode: 'room';
@@ -25,21 +26,6 @@ export default function LobbyScreen(props: LobbyProps) {
 
 // ===== 대기실 화면 =====
 
-const RARITY_COLORS: Record<ItemRarity, string> = {
-  common: 'text-slate-400',
-  uncommon: 'text-green-400',
-  rare: 'text-blue-400',
-  legendary: 'text-gold',
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  weapon: '무기',
-  top: '상의',
-  bottom: '하의',
-  hat: '모자',
-  accessory: '악세서리',
-  consumable: '소모품',
-};
 
 function RoomView({
   room,

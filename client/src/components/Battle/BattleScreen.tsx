@@ -15,7 +15,7 @@ import SituationBox from './SituationBox';
 interface Props {
   onSubmitChoice: (choiceId: string) => void;
   onRoll: () => void;
-  onVote: (decision: 'continue' | 'retreat') => void;
+  onVote: (decision: 'continue') => void;
   onEquipItem?: (itemId: string) => void;
   onUnequipItem?: (itemId: string) => void;
   onUseConsumable?: (itemId: string) => void;

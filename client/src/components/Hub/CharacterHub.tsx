@@ -331,11 +331,8 @@ export default function CharacterHub({ onCreateRoom, onJoinRoom }: CharacterHubP
               <div className="space-y-2">
                 {runHistory.map((run, i) => (
                   <div key={i} className="flex items-center justify-between font-body text-xs">
-                    <span className={
-                      run.result === 'clear' ? 'text-gold' :
-                      run.result === 'retreat' ? 'text-slate-400' : 'text-tier-fail'
-                    }>
-                      {run.result === 'clear' ? 'CLEAR' : run.result === 'retreat' ? 'RETREAT' : 'WIPE'}
+                    <span className={run.result === 'clear' ? 'text-gold' : 'text-tier-fail'}>
+                      {run.result === 'clear' ? 'CLEAR' : 'WIPE'}
                     </span>
                     <span className="text-slate-500">W{run.wavesCleared}/{run.totalWaves}</span>
                     <span className="text-slate-600">{run.characterName}</span>

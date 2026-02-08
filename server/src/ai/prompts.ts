@@ -189,10 +189,10 @@ export function buildCombatChoicesMessage(
 }
 
 export function buildHighlightsMessage(
-  result: 'retreat' | 'wipe' | 'clear',
+  result: 'wipe' | 'clear',
   players: Character[],
   waveCount: number,
 ): string {
-  const resultLabel = result === 'clear' ? '클리어' : result === 'retreat' ? '후퇴' : '전멸';
+  const resultLabel = result === 'clear' ? '클리어' : '전멸';
   return `결과: ${resultLabel}\n파티: ${players.map((p) => p.name).join(', ')}\n진행 웨이브: ${waveCount}`;
 }

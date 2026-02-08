@@ -110,7 +110,38 @@ export function createCharacter(
 }
 
 /**
- * DB에서 유저의 XP를 계산하여 레벨 반환 (routes.ts의 XP 공식 재사용)
+ * 참가 기록에서 XP/레벨 계산 (순수 함수, DB 비의존)
+ */
+export function calculateXpAndLevel(participations: { run: { wavesCleared: number | null; result: string } }[]): {
+  totalXp: number;
+  level: number;
+  xp: number;
+  xpToNext: number;
+} {
+  let totalXp = 0;
+  for (const p of participations) {
+    const wavesCleared = p.run.wavesCleared ?? 0;
+    totalXp += 15;                                    // 참가 기본
+    totalXp += wavesCleared * 25;                     // 웨이브당
+    if (wavesCleared >= 5) totalXp += 15;             // 보스 보너스
+    if (wavesCleared >= 10) totalXp += 15;            // 최종보스 보너스
+    if (p.run.result === 'clear') totalXp += 50;      // 클리어 보너스
+  }
+
+  const level = Math.floor(Math.sqrt(totalXp / 50)) + 1;
+  const currentLevelXp = (level - 1) * (level - 1) * 50;
+  const nextLevelXp = level * level * 50;
+
+  return {
+    totalXp,
+    level,
+    xp: totalXp - currentLevelXp,
+    xpToNext: nextLevelXp - currentLevelXp,
+  };
+}
+
+/**
+ * DB에서 유저의 XP를 계산하여 레벨 반환
  */
 export async function getUserLevel(userId: string): Promise<number> {
   if (!prisma) return 1;
@@ -121,17 +152,7 @@ export async function getUserLevel(userId: string): Promise<number> {
       include: { run: { select: { wavesCleared: true, result: true } } },
     });
 
-    let totalXp = 0;
-    for (const p of participations) {
-      const wavesCleared = p.run.wavesCleared ?? 0;
-      totalXp += 15;                                    // 참가 기본
-      totalXp += wavesCleared * 25;                     // 웨이브당
-      if (wavesCleared >= 5) totalXp += 15;             // 보스 보너스
-      if (wavesCleared >= 10) totalXp += 15;            // 최종보스 보너스
-      if (p.run.result === 'clear') totalXp += 50;      // 클리어 보너스
-    }
-
-    return Math.floor(Math.sqrt(totalXp / 50)) + 1;
+    return calculateXpAndLevel(participations).level;
   } catch (err) {
     console.error('[getUserLevel] DB error:', err);
     return 1;

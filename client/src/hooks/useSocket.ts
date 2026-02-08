@@ -184,7 +184,7 @@ export function useSocket() {
       setWaveEnd(data);
     });
 
-    socket.on(SOCKET_EVENTS.VOTE_UPDATE, (data: { continueCount: number; retreatCount: number; total: number }) => {
+    socket.on(SOCKET_EVENTS.VOTE_UPDATE, (data: { continueCount: number; total: number }) => {
       setVoteStatus(data);
     });
 
@@ -257,7 +257,7 @@ export function useSocket() {
     socketRef.current?.emit(SOCKET_EVENTS.DICE_ROLL, {});
   };
 
-  const voteContinueOrRetreat = (decision: 'continue' | 'retreat') => {
+  const voteContinueOrRetreat = (decision: 'continue') => {
     socketRef.current?.emit(SOCKET_EVENTS.CONTINUE_OR_RETREAT, { decision });
   };
 

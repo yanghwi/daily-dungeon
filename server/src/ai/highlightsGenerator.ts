@@ -8,7 +8,6 @@ interface LLMHighlightsResponse {
 
 const FALLBACK_HIGHLIGHTS: Record<string, string[]> = {
   clear: ['야시장의 주인을 물리쳤다!', '모두 무사히 살아남았다.', '오늘 밤은 승리의 야식이다!'],
-  retreat: ['현명한 후퇴도 용기다.', '다음에는 더 강해져서 돌아오자.', '적어도 살아남았으니까.'],
   wipe: ['모두 쓰러졌다...', '야시장의 어둠이 모든 것을 삼켰다.', '다음엔... 더 잘할 수 있을 거야.'],
 };
 
@@ -16,7 +15,7 @@ const FALLBACK_HIGHLIGHTS: Record<string, string[]> = {
  * LLM으로 런 종료 하이라이트 3줄 생성. 실패 시 하드코딩 폴백.
  */
 export async function generateHighlights(
-  result: 'retreat' | 'wipe' | 'clear',
+  result: 'wipe' | 'clear',
   players: Character[],
   waveCount: number,
 ): Promise<string[]> {

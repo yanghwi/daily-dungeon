@@ -4,7 +4,7 @@ import { checkAndGrantUnlocks } from '../game/progression/unlockChecker.js';
 
 interface SaveRunParams {
   roomCode: string;
-  result: 'retreat' | 'wipe' | 'clear';
+  result: 'wipe' | 'clear';
   wavesCleared: number;
   highlights: string[];
   dailySeedId?: string;
