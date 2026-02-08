@@ -311,6 +311,14 @@ npm run build --workspace=@round-midnight/server
 - **배경 데이터**: `getWaveBackground(waveNumber, isBoss, bossType)`으로 배경 선택. `client/src/assets/backgrounds/backgroundData.ts`
 - **클라이언트→서버 데이터 파이프라인 반드시 검증**: 소켓 emit 시 클라이언트가 보유한 데이터(예: `authUser.id`)를 payload에 포함했는지, 서버 핸들러가 해당 필드를 모델 생성 함수에 전달하는지, 최종적으로 모델 객체에 값이 설정되는지 전 구간을 확인할 것. optional 필드(`userId?`)가 `undefined`면 `.filter(p => p.userId)` 같은 하류 로직에서 무음 실패(0건 저장, 에러 없음)를 일으킴
 
+### 웨이브 풀 + LLM 가드레일
+- **웨이브 풀**: `WAVE_POOLS`에서 비보스 웨이브는 2종 적 풀, `getWaveTemplateFromPool(waveNumber, pick?)`으로 선택. 보스 웨이브(5, 10)는 항상 단일 고정
+- **시드 기반 선택**: 데일리 모드는 `SeededRandom("${seed}-wave-${waveNumber}")`으로 결정적, 커스텀 모드는 `Math.random()`
+- **보스 잠금**: `parseLLMSituation()`에서 `waveNumber % 5 === 0`이면 LLM 출력(name/description/imageTag) 무시, 템플릿 강제
+- **스프라이트 동기화**: 새 적 추가 시 3곳 동기화 필수: `spriteData.ts`(렌더링) + `hardcodedData.ts`(템플릿 imageTag) + `situationGenerator.ts`(VALID_IMAGE_TAGS)
+- **LLM 내러티브**: `buildNarrativeMessage()`에 `enemyDefeated` 전달 → LLM이 적 생사를 알고 자연스럽게 서술. 서버 후처리 추가 없음
+- **이전 웨이브 누출 방지**: 모든 LLM 시스템 프롬프트에 "이전 웨이브 적 언급 금지" 규칙 포함
+
 ### 아이템 효과 시스템 + 3축 성장
 - **단일 진실 소스**: 장비 보너스는 `ItemEffectResolver.resolveEquippedEffects()`가 집계한 `ResolvedEffects`를 사용. `character.equipment.weaponBonus`를 직접 읽지 말 것
 - **resolveEquippedEffects 집계 순서**: 기존 장비 → 카탈로그 아이템 → 임시 버프 → 시너지 → 레벨 DC → 패시브 해금
@@ -396,6 +404,12 @@ npm run build --workspace=@round-midnight/server
   - ItemEffectResolver에 시너지 + 레벨DC + 패시브 통합 (단일 합산 지점)
   - MaintenanceScreen 시너지 표시 UI + UnlockPanel 해금 목록 UI
   - GET /api/unlocks/all 엔드포인트
+- [x] **Phase H**: 몬스터 다양성 + LLM 가드레일 강화
+  - 웨이브 풀 시스템: 비보스 웨이브(1-4, 6-9)에 각 2종 적 풀, 시드 기반 결정적 선택
+  - 새 box-shadow 스프라이트 8종 (총 18종): stray-dog, traffic-light, sewer-rats, shopping-cart, food-cart, umbrella-ghost, broken-tv, electric-pole
+  - 보스 웨이브(5, 10) LLM 변경 방지 (코드 레벨 잠금)
+  - LLM 프롬프트 이전 웨이브 누출 수정 (4개 시스템 프롬프트 + 3개 메시지 빌더)
+  - 전투 내러티브 enemyDefeated 정보 LLM 직접 전달 (후처리 강제 추가 제거)
 
 ## 문서
 

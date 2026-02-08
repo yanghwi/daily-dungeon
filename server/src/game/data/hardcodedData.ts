@@ -387,12 +387,285 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
 ];
 
 /**
- * 웨이브 번호에 해당하는 템플릿 반환
+ * 웨이브 번호에 해당하는 템플릿 반환 (레거시 — 항상 기본 적)
  * waveNumber: 1~10 (1-indexed)
  */
 export function getWaveTemplate(waveNumber: number): WaveTemplate {
   const idx = Math.max(0, Math.min(waveNumber - 1, WAVE_TEMPLATES.length - 1));
   return WAVE_TEMPLATES[idx];
+}
+
+// ===== 웨이브 풀 (다양한 적) =====
+
+export interface WavePool {
+  variants: WaveTemplate[];
+  isBoss: boolean;
+}
+
+/** 비보스 웨이브 변형 적 템플릿 */
+const WAVE_VARIANTS: Record<number, WaveTemplate[]> = {
+  // Wave 1 변형: 야시장 떠돌이 개
+  1: [{
+    enemy: { name: '야시장 떠돌이 개', description: '빨간 반다나를 두른 크고 사나운 개. 이빨을 드러내며 으르렁거린다.', defense: 3, imageTag: 'stray-dog' },
+    baseHp: 45, baseAttack: 8,
+    situation: '야시장 뒷골목. 쓰레기통 옆에 커다란 떠돌이 개가 앉아 있다. 빨간 반다나를 두르고 있는 걸 보니 누군가 키우다 버린 듯. 갑자기 이빨을 드러내며 달려든다!',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트를 앞에 대고 막아선다', category: 'defensive', baseDC: 8 },
+        { text: '큰 소리로 위협한다', category: 'physical', baseDC: 9 },
+      ],
+      '요리사': [
+        { text: '남은 고기로 다른 곳에 유인한다', category: 'creative', baseDC: 8 },
+        { text: '프라이팬을 땅에 쳐 소리를 낸다', category: 'creative', baseDC: 10 },
+      ],
+      '개발자': [
+        { text: '초음파 앱을 튼다', category: 'technical', baseDC: 9 },
+        { text: '가방을 방패처럼 든다', category: 'defensive', baseDC: 10 },
+      ],
+      '영업사원': [
+        { text: '"착하지~ 착하지~" 달랜다', category: 'social', baseDC: 8 },
+        { text: '서류 뭉치를 던져 주의를 끈다', category: 'creative', baseDC: 10 },
+      ],
+    },
+    defaultChoices: [
+      { text: '천천히 뒷걸음질 친다', category: 'defensive', baseDC: 8 },
+      { text: '물건을 던져 주의를 돌린다', category: 'creative', baseDC: 9 },
+    ],
+  }],
+  // Wave 2 변형: 폭주 신호등
+  2: [{
+    enemy: { name: '폭주 신호등', description: '세 눈이 동시에 켜진 미친 신호등. 팔을 휘두른다.', defense: 4, imageTag: 'traffic-light' },
+    baseHp: 55, baseAttack: 10,
+    situation: '교차로에 도착했는데 신호등이 이상하다. 빨강, 노랑, 초록이 동시에 번쩍이더니 기둥째로 일어선다! 방향 표지판 팔로 차를 쓸어버린다.',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '기둥 하단을 배트로 친다', category: 'physical', baseDC: 8 },
+        { text: '전봇대 뒤로 숨어 접근한다', category: 'defensive', baseDC: 10 },
+      ],
+      '요리사': [
+        { text: '양파를 던져 센서를 가린다', category: 'creative', baseDC: 9 },
+        { text: '기름을 뿌려 미끄러뜨린다', category: 'creative', baseDC: 11 },
+      ],
+      '개발자': [
+        { text: '제어박스를 찾아 전원을 끊는다', category: 'technical', baseDC: 8 },
+        { text: '신호 프로토콜을 해킹한다', category: 'technical', baseDC: 11 },
+      ],
+      '영업사원': [
+        { text: '"규정을 지켜야죠" 협상한다', category: 'social', baseDC: 9 },
+        { text: '통행료 협상을 제안한다', category: 'social', baseDC: 11 },
+      ],
+    },
+    defaultChoices: [
+      { text: '돌멩이를 던져 주의를 끈다', category: 'creative', baseDC: 10 },
+      { text: '뒤로 물러나 관찰한다', category: 'defensive', baseDC: 9 },
+    ],
+  }],
+  // Wave 3 변형: 하수구 쥐떼
+  3: [{
+    enemy: { name: '하수구 쥐떼', description: '맨홀에서 쏟아져 나오는 빨간 눈의 쥐 무리.', defense: 5, imageTag: 'sewer-rats' },
+    baseHp: 65, baseAttack: 12,
+    situation: '맨홀 뚜껑이 덜컹거리더니 튕겨 나간다. 빨간 눈의 쥐 수십 마리가 파도처럼 밀려온다. 키이익 소리가 골목을 채운다.',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 바닥을 쳐서 진동으로 흩뜨린다', category: 'physical', baseDC: 10 },
+        { text: '높은 곳으로 올라간다', category: 'defensive', baseDC: 11 },
+      ],
+      '요리사': [
+        { text: '고추가루를 뿌려 쥐떼를 멈춘다', category: 'creative', baseDC: 9 },
+        { text: '치즈로 다른 방향에 유인한다', category: 'creative', baseDC: 12 },
+      ],
+      '개발자': [
+        { text: '폰 플래시를 스트로보로 설정한다', category: 'technical', baseDC: 10 },
+        { text: '보조배터리를 물웅덩이에 떨어뜨린다', category: 'technical', baseDC: 12 },
+      ],
+      '영업사원': [
+        { text: '"쥐 퇴치 서비스 있습니다!" 허세를 부린다', category: 'social', baseDC: 10 },
+        { text: '큰 소리로 노래를 불러 혼란을 준다', category: 'social', baseDC: 12 },
+      ],
+    },
+    defaultChoices: [
+      { text: '물건을 던져 길을 만든다', category: 'physical', baseDC: 11 },
+      { text: '담장 위로 올라간다', category: 'defensive', baseDC: 10 },
+    ],
+  }],
+  // Wave 4 변형: 폭주 쇼핑카트
+  4: [{
+    enemy: { name: '폭주 쇼핑카트', description: '물건이 가득 찬 카트가 빨간 눈으로 돌진한다.', defense: 6, imageTag: 'shopping-cart' },
+    baseHp: 75, baseAttack: 15,
+    situation: '마트 주차장을 지나는데 쇼핑카트가 저절로 움직인다. 안에 물건이 잔뜩 쌓여 있고 빨간 불이 켜진다. 바퀴가 미친 듯이 돌며 돌진해온다!',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 바퀴를 노린다', category: 'physical', baseDC: 10 },
+        { text: '차 뒤에 숨어 지나가게 한다', category: 'defensive', baseDC: 11 },
+        { text: '전력 질주로 옆에서 밀어 넘긴다', category: 'physical', baseDC: 13 },
+      ],
+      '요리사': [
+        { text: '바닥에 기름을 뿌려 방향을 틀게 한다', category: 'creative', baseDC: 10 },
+        { text: '물건을 빼서 가볍게 만든다', category: 'creative', baseDC: 12 },
+      ],
+      '개발자': [
+        { text: '주차 차단기를 해킹해 가로막는다', category: 'technical', baseDC: 10 },
+        { text: '전자 잠금장치로 바퀴를 잠근다', category: 'technical', baseDC: 13 },
+      ],
+      '영업사원': [
+        { text: '"영수증 확인 좀!" 혼란을 준다', category: 'social', baseDC: 11 },
+        { text: '"반품 처리 해드릴게요" 달랜다', category: 'social', baseDC: 13 },
+      ],
+    },
+    defaultChoices: [
+      { text: '옆으로 뛰어 피한다', category: 'defensive', baseDC: 10 },
+      { text: '벽으로 유인해서 부딪치게 한다', category: 'creative', baseDC: 11 },
+    ],
+  }],
+  // Wave 6 변형: 폭주 포장마차
+  6: [{
+    enemy: { name: '폭주 포장마차', description: '불타는 포장마차가 바퀴 달린 채로 돌진한다.', defense: 7, imageTag: 'food-cart' },
+    baseHp: 85, baseAttack: 16,
+    situation: '야시장 대로에서 포장마차 하나가 불을 뿜으며 돌진해온다! 뜨거운 국물이 사방에 튀고 천막에 불이 붙었다. "오늘의 메뉴는... 너희다!"',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 바퀴를 부순다', category: 'physical', baseDC: 10 },
+        { text: '소화기를 찾아 불을 끈다', category: 'defensive', baseDC: 11 },
+      ],
+      '요리사': [
+        { text: '냄비를 빼앗아 무기로 쓴다', category: 'creative', baseDC: 10 },
+        { text: '물을 끼얹어 불을 끈다', category: 'creative', baseDC: 12 },
+      ],
+      '개발자': [
+        { text: '가스 밸브를 잠근다', category: 'technical', baseDC: 10 },
+        { text: '전기 회로를 단락시킨다', category: 'technical', baseDC: 13 },
+      ],
+      '영업사원': [
+        { text: '"위생 점검이요!" 위협한다', category: 'social', baseDC: 10 },
+        { text: '"맛집 리뷰 써드릴게요" 달랜다', category: 'social', baseDC: 12 },
+      ],
+    },
+    defaultChoices: [
+      { text: '옆으로 뛰어 피한다', category: 'defensive', baseDC: 10 },
+      { text: '물건을 던져 방향을 틀게 한다', category: 'creative', baseDC: 11 },
+    ],
+  }],
+  // Wave 7 변형: 우산 요괴
+  7: [{
+    enemy: { name: '버려진 우산 요괴', description: '한쪽 다리로 폴짝거리는 보라색 우산. 눈이 빨갛다.', defense: 8, imageTag: 'umbrella-ghost' },
+    baseHp: 95, baseAttack: 18,
+    situation: '비가 내리기 시작한다. 버려진 우산 하나가 저절로 펼쳐지더니 한쪽 다리로 일어선다. 빨간 눈이 번쩍이고 긴 혀를 내민다. 뒤에서 우산 여러 개가 더 펼쳐진다.',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 우산살을 부순다', category: 'physical', baseDC: 11 },
+        { text: '지붕 아래로 숨어 유인한다', category: 'defensive', baseDC: 12 },
+      ],
+      '요리사': [
+        { text: '뜨거운 물을 끼얹는다', category: 'creative', baseDC: 11 },
+        { text: '바람에 날려보낸다', category: 'creative', baseDC: 13 },
+      ],
+      '개발자': [
+        { text: '에어컨 실외기 바람을 이용한다', category: 'technical', baseDC: 11 },
+        { text: '자동문을 이용해 가둔다', category: 'technical', baseDC: 13 },
+      ],
+      '영업사원': [
+        { text: '"비 올 때 우산이 뭘 더 원해요" 달랜다', category: 'social', baseDC: 11 },
+        { text: '새 주인을 찾아주겠다고 설득한다', category: 'social', baseDC: 14 },
+      ],
+    },
+    defaultChoices: [
+      { text: '건물 안으로 도망친다', category: 'defensive', baseDC: 11 },
+      { text: '나뭇가지로 우산을 잡는다', category: 'physical', baseDC: 12 },
+    ],
+  }],
+  // Wave 8 변형: 고장난 TV
+  8: [{
+    enemy: { name: '고장난 브라운관 TV', description: '정전기를 뿜으며 걸어다니는 구형 TV. 화면에 눈이 보인다.', defense: 9, imageTag: 'broken-tv' },
+    baseHp: 105, baseAttack: 20,
+    situation: '전자상가 폐허에 들어섰다. 구석에 쌓인 구형 TV 한 대가 갑자기 켜진다. 화면에 눈 두 개가 나타나더니 정전기를 뿜으며 안테나 다리로 일어선다. "치지직... 시청률... 올려야 해..."',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 화면을 깨부순다', category: 'physical', baseDC: 12 },
+        { text: '고무장갑을 끼고 접근한다', category: 'defensive', baseDC: 13 },
+      ],
+      '요리사': [
+        { text: '물을 뿌려 합선시킨다', category: 'creative', baseDC: 11 },
+        { text: '알루미늄 호일로 안테나를 감싼다', category: 'creative', baseDC: 14 },
+      ],
+      '개발자': [
+        { text: '리모컨을 찾아 전원을 끈다', category: 'technical', baseDC: 11 },
+        { text: '전파 간섭으로 화면을 교란한다', category: 'technical', baseDC: 14 },
+      ],
+      '영업사원': [
+        { text: '"요즘은 스마트 TV 시대에요" 설득한다', category: 'social', baseDC: 12 },
+        { text: '재활용 수거 서비스를 제안한다', category: 'social', baseDC: 14 },
+      ],
+    },
+    defaultChoices: [
+      { text: '전원 콘센트를 뽑는다', category: 'technical', baseDC: 12 },
+      { text: '건물 밖으로 유인한다', category: 'defensive', baseDC: 12 },
+    ],
+  }],
+  // Wave 9 변형: 변이 전봇대
+  9: [{
+    enemy: { name: '변이 전봇대', description: '전선을 촉수처럼 휘두르는 전봇대. 스파크가 튄다.', defense: 10, imageTag: 'electric-pole' },
+    baseHp: 115, baseAttack: 22,
+    situation: '큰길에 나서자 전봇대 하나가 꿈틀거린다. 전선이 촉수처럼 풀리며 사방을 휘젓는다. 아스팔트에 불꽃이 튀고, 가로등이 연쇄적으로 터진다!',
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '고무장갑을 끼고 전선을 잡는다', category: 'physical', baseDC: 12 },
+        { text: '비금속 방패로 방어한다', category: 'defensive', baseDC: 13 },
+        { text: '기둥 하단을 공격한다', category: 'physical', baseDC: 14 },
+      ],
+      '요리사': [
+        { text: '물웅덩이를 피해 접근한다', category: 'creative', baseDC: 12 },
+        { text: '나무 도마를 방패로 쓴다', category: 'creative', baseDC: 14 },
+      ],
+      '개발자': [
+        { text: '변전소 차단기를 찾아 내린다', category: 'technical', baseDC: 12 },
+        { text: '전력망을 해킹해 차단한다', category: 'technical', baseDC: 14 },
+      ],
+      '영업사원': [
+        { text: '"한전에 민원 넣겠습니다!" 위협한다', category: 'social', baseDC: 12 },
+        { text: '동료들의 사기를 끌어올린다', category: 'social', baseDC: 15 },
+      ],
+    },
+    defaultChoices: [
+      { text: '안전 거리에서 물건을 던진다', category: 'creative', baseDC: 12 },
+      { text: '팀원과 합심해 기둥을 밀어낸다', category: 'physical', baseDC: 13 },
+    ],
+  }],
+};
+
+/**
+ * 웨이브 풀: 비보스 웨이브는 [기본 + 변형] 풀, 보스 웨이브는 단일 고정
+ */
+export const WAVE_POOLS: WavePool[] = WAVE_TEMPLATES.map((base, idx) => {
+  const waveNumber = idx + 1;
+  const isBoss = waveNumber % 5 === 0;
+  const variants = WAVE_VARIANTS[waveNumber];
+  return {
+    isBoss,
+    variants: isBoss || !variants ? [base] : [base, ...variants],
+  };
+});
+
+/**
+ * 시드 기반 웨이브 풀에서 템플릿 선택
+ * - 보스 웨이브: 항상 기본 적
+ * - 비보스 웨이브: 시드로 결정적 선택, 시드 없으면 랜덤
+ */
+export function getWaveTemplateFromPool(
+  waveNumber: number,
+  pick?: <T>(arr: T[]) => T,
+): WaveTemplate {
+  const idx = Math.max(0, Math.min(waveNumber - 1, WAVE_POOLS.length - 1));
+  const pool = WAVE_POOLS[idx];
+
+  if (pool.isBoss || pool.variants.length === 1) {
+    return pool.variants[0];
+  }
+
+  if (pick) {
+    return pick(pool.variants);
+  }
+
+  return pool.variants[Math.floor(Math.random() * pool.variants.length)];
 }
 
 // ===== 적 스케일링 =====

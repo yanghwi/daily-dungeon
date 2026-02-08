@@ -4,8 +4,10 @@ import { SITUATION_SYSTEM, COMBAT_CHOICES_SYSTEM, buildSituationMessage, buildCo
 import {
   WAVE_TEMPLATES,
   scaleEnemy,
+  getWaveTemplateFromPool,
   type WaveTemplate,
 } from '../game/data/hardcodedData.js';
+import { SeededRandom } from '../game/DailyDungeon.js';
 import type { ChoiceOption } from '@round-midnight/shared';
 
 interface LLMSituationResponse {
@@ -21,38 +23,47 @@ interface LLMSituationResponse {
   }[];
 }
 
-interface SituationResult {
+export interface SituationResult {
   enemy: Enemy;
   situation: string;
   playerChoiceSets: Map<string, PlayerChoiceSet>;
+  /** 선택된 웨이브 템플릿 (멀티라운드 폴백용) */
+  selectedTemplate: WaveTemplate;
 }
 
 /**
  * LLM으로 상황/적/선택지 생성. 실패 시 하드코딩 폴백.
+ * seed가 있으면 웨이브 풀에서 결정적으로 적 변형 선택 (데일리 모드)
  */
 export async function generateSituation(
   waveNumber: number,
   maxWaves: number,
   alivePlayers: Character[],
   previousSummary?: string,
+  seed?: string,
 ): Promise<SituationResult> {
-  const waveIndex = Math.min(waveNumber - 1, WAVE_TEMPLATES.length - 1);
-  const template = WAVE_TEMPLATES[waveIndex];
+  // 시드 기반 풀 선택 (비보스 웨이브에서 변형 적 등장)
+  const rng = seed ? new SeededRandom(`${seed}-wave-${waveNumber}`) : undefined;
+  const pick = rng ? <T>(arr: T[]) => rng.pick(arr) : undefined;
+  const template = getWaveTemplateFromPool(waveNumber, pick);
 
-  // LLM 시도
-  const userMessage = buildSituationMessage(waveNumber, maxWaves, alivePlayers, previousSummary);
+  // LLM 시도 — 현재 웨이브의 적 정보를 명시적으로 전달
+  const userMessage = buildSituationMessage(waveNumber, maxWaves, alivePlayers, previousSummary, {
+    name: template.enemy.name,
+    description: template.enemy.description,
+  });
   const llmResult = await callClaude<LLMSituationResponse>(SITUATION_SYSTEM, userMessage);
 
   if (llmResult) {
-    const parsed = parseLLMSituation(llmResult, template, alivePlayers);
+    const parsed = parseLLMSituation(llmResult, template, alivePlayers, waveNumber);
     if (parsed) {
-      console.log(`[AI] Wave ${waveNumber} 상황 생성 성공 (LLM)`);
+      console.log(`[AI] Wave ${waveNumber} 상황 생성 성공 (LLM) — 적: ${template.enemy.name}`);
       return parsed;
     }
   }
 
   // 폴백
-  console.log(`[AI] Wave ${waveNumber} 상황 생성 폴백 (하드코딩)`);
+  console.log(`[AI] Wave ${waveNumber} 상황 생성 폴백 (하드코딩) — 적: ${template.enemy.name}`);
   return buildFallback(template, alivePlayers);
 }
 
@@ -63,17 +74,21 @@ function parseLLMSituation(
   llm: LLMSituationResponse,
   template: WaveTemplate,
   players: Character[],
+  waveNumber: number,
 ): SituationResult | null {
   try {
+    // 보스 웨이브(5, 10)는 LLM이 적 정보를 변경할 수 없음
+    const isBossWave = waveNumber % 5 === 0;
+
     // 적: LLM은 이름/설명만, 스탯은 서버가 스케일링
     const enemy = scaleEnemy(
       {
         ...template,
         enemy: {
-          name: llm.enemy.name || template.enemy.name,
-          description: llm.enemy.description || template.enemy.description,
+          name: isBossWave ? template.enemy.name : (llm.enemy.name || template.enemy.name),
+          description: isBossWave ? template.enemy.description : (llm.enemy.description || template.enemy.description),
           defense: template.enemy.defense,
-          imageTag: VALID_IMAGE_TAGS.has(llm.enemy.imageTag) ? llm.enemy.imageTag : template.enemy.imageTag,
+          imageTag: isBossWave ? template.enemy.imageTag : (VALID_IMAGE_TAGS.has(llm.enemy.imageTag) ? llm.enemy.imageTag : template.enemy.imageTag),
         },
       },
       players.length,
@@ -103,6 +118,7 @@ function parseLLMSituation(
       enemy,
       situation: llm.situation || template.situation,
       playerChoiceSets,
+      selectedTemplate: template,
     };
   } catch {
     return null;
@@ -117,7 +133,7 @@ function buildFallback(template: WaveTemplate, players: Character[]): SituationR
     playerChoiceSets.set(player.id, buildPlayerFallback(player, template));
   }
 
-  return { enemy, situation: template.situation, playerChoiceSets };
+  return { enemy, situation: template.situation, playerChoiceSets, selectedTemplate: template };
 }
 
 function buildPlayerFallback(player: Character, template: WaveTemplate, combatRound: number = 1): PlayerChoiceSet {
@@ -140,6 +156,7 @@ interface LLMCombatChoicesResponse {
 
 /**
  * 멀티라운드 전투: 선택지만 재생성 (상황/적은 기존 유지)
+ * selectedTemplate이 있으면 해당 템플릿의 폴백 선택지 사용 (풀 시스템 호환)
  */
 export async function generateCombatChoices(
   situation: string,
@@ -148,9 +165,9 @@ export async function generateCombatChoices(
   waveNumber: number,
   alivePlayers: Character[],
   previousActions?: PlayerAction[],
+  selectedTemplate?: WaveTemplate,
 ): Promise<Map<string, PlayerChoiceSet>> {
-  const waveIndex = Math.min(waveNumber - 1, WAVE_TEMPLATES.length - 1);
-  const template = WAVE_TEMPLATES[waveIndex];
+  const template = selectedTemplate ?? WAVE_TEMPLATES[Math.min(waveNumber - 1, WAVE_TEMPLATES.length - 1)];
 
   // LLM 시도
   const userMessage = buildCombatChoicesMessage(
@@ -190,6 +207,9 @@ export async function generateCombatChoices(
 const VALID_IMAGE_TAGS = new Set([
   'raccoon', 'vending-machine', 'shadow-cats', 'cleaning-robot', 'market-boss',
   'delivery-bike', 'mannequins', 'neon-ghost', 'antenna-monster', 'midnight-clock',
+  // 변형 적
+  'stray-dog', 'traffic-light', 'sewer-rats', 'shopping-cart',
+  'food-cart', 'umbrella-ghost', 'broken-tv', 'electric-pole',
 ]);
 
 const VALID_CATEGORIES = new Set(['physical', 'social', 'technical', 'defensive', 'creative']);

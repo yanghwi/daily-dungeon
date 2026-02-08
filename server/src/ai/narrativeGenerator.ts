@@ -16,17 +16,12 @@ export async function generateNarrative(
   actions: PlayerAction[],
   enemyDefeated: boolean,
 ): Promise<string> {
-  const userMessage = buildNarrativeMessage(situation, enemyName, actions);
+  const userMessage = buildNarrativeMessage(situation, enemyName, actions, enemyDefeated);
   const llmResult = await callClaude<LLMNarrativeResponse>(NARRATIVE_SYSTEM, userMessage, 150);
 
   if (llmResult?.narrative) {
-    // 적 처치 여부를 내러티브 끝에 반영
-    let narrative = llmResult.narrative;
-    if (enemyDefeated && !narrative.includes('쓰러') && !narrative.includes('격파')) {
-      narrative += `\n\n${enemyName}이(가) 쓰러졌다!`;
-    }
     console.log('[AI] 내러티브 생성 성공 (LLM)');
-    return narrative;
+    return llmResult.narrative;
   }
 
   console.log('[AI] 내러티브 생성 폴백 (하드코딩)');

@@ -365,6 +365,275 @@ const SPRITES: Record<string, SpriteConfig> = {
     visualWidth: 52,
     visualHeight: 44,
   },
+  // ===== 변형 적 스프라이트 (웨이브 풀 시스템) =====
+
+  /**
+   * Wave 1 변형: 야시장 떠돌이 개 — 약 10x8 그리드
+   * 갈색 몸통 + 빨간 반다나 + 구부린 꼬리
+   */
+  'stray-dog': {
+    boxShadow: [
+      // 귀
+      '8px 0px 0 #8B6914', '32px 0px 0 #8B6914',
+      '8px 4px 0 #A0752E', '32px 4px 0 #A0752E',
+      // 머리
+      '12px 4px 0 #C49A45', '16px 4px 0 #D4AA55', '20px 4px 0 #D4AA55', '24px 4px 0 #D4AA55', '28px 4px 0 #C49A45',
+      // 눈
+      '8px 8px 0 #C49A45', '12px 8px 0 #2d3436', '16px 8px 0 #fff', '20px 8px 0 #D4AA55', '24px 8px 0 #fff', '28px 8px 0 #2d3436', '32px 8px 0 #C49A45',
+      // 코
+      '16px 12px 0 #C49A45', '20px 12px 0 #2d3436', '24px 12px 0 #C49A45',
+      // 반다나
+      '8px 16px 0 #e74c3c', '12px 16px 0 #c0392b', '16px 16px 0 #e74c3c', '20px 16px 0 #c0392b', '24px 16px 0 #e74c3c', '28px 16px 0 #c0392b', '32px 16px 0 #e74c3c',
+      // 몸통
+      '8px 20px 0 #8B6914', '12px 20px 0 #C49A45', '16px 20px 0 #D4AA55', '20px 20px 0 #D4AA55', '24px 20px 0 #D4AA55', '28px 20px 0 #C49A45', '32px 20px 0 #8B6914',
+      '12px 24px 0 #8B6914', '16px 24px 0 #C49A45', '20px 24px 0 #C49A45', '24px 24px 0 #C49A45', '28px 24px 0 #8B6914',
+      // 발
+      '12px 28px 0 #2d3436', '16px 28px 0 #2d3436', '24px 28px 0 #2d3436', '28px 28px 0 #2d3436',
+      // 꼬리
+      '36px 12px 0 #C49A45', '40px 8px 0 #8B6914', '44px 12px 0 #C49A45',
+    ].join(', '),
+    idleAnimation: 'idle-bounce',
+    idleDuration: '0.8s',
+    idleSteps: 2,
+    scale: 5,
+    visualWidth: 48,
+    visualHeight: 32,
+  },
+
+  /**
+   * Wave 2 변형: 폭주 신호등 — 약 6x14 그리드
+   * 세로로 긴 신호등 + 깜빡이는 빨간불 + 기울어진 기둥
+   */
+  'traffic-light': {
+    boxShadow: [
+      // 상단 캡
+      '16px 0px 0 #636e72', '20px 0px 0 #636e72', '24px 0px 0 #636e72',
+      // 빨간불 (빛남)
+      '12px 4px 0 #2d3436', '16px 4px 0 #e74c3c', '20px 4px 0 #ff6b6b', '24px 4px 0 #e74c3c', '28px 4px 0 #2d3436',
+      '12px 8px 0 #2d3436', '16px 8px 0 #2d3436', '20px 8px 0 #2d3436', '24px 8px 0 #2d3436', '28px 8px 0 #2d3436',
+      // 노란불
+      '12px 12px 0 #2d3436', '16px 12px 0 #fdcb6e', '20px 12px 0 #ffeaa7', '24px 12px 0 #fdcb6e', '28px 12px 0 #2d3436',
+      '12px 16px 0 #2d3436', '16px 16px 0 #2d3436', '20px 16px 0 #2d3436', '24px 16px 0 #2d3436', '28px 16px 0 #2d3436',
+      // 초록불
+      '12px 20px 0 #2d3436', '16px 20px 0 #00b894', '20px 20px 0 #55efc4', '24px 20px 0 #00b894', '28px 20px 0 #2d3436',
+      '12px 24px 0 #2d3436', '16px 24px 0 #2d3436', '20px 24px 0 #2d3436', '24px 24px 0 #2d3436', '28px 24px 0 #2d3436',
+      // 눈 (빨간불 안)
+      '16px 4px 0 #fff', '24px 4px 0 #fff',
+      // 기둥
+      '20px 28px 0 #636e72', '20px 32px 0 #a4b0be', '20px 36px 0 #636e72', '20px 40px 0 #a4b0be',
+      // 팔 (방향 표지)
+      '4px 28px 0 #636e72', '8px 28px 0 #a4b0be', '12px 28px 0 #636e72',
+      '28px 28px 0 #636e72', '32px 28px 0 #a4b0be', '36px 28px 0 #636e72',
+      // 베이스
+      '12px 44px 0 #636e72', '16px 44px 0 #2d3436', '20px 44px 0 #2d3436', '24px 44px 0 #2d3436', '28px 44px 0 #636e72',
+    ].join(', '),
+    idleAnimation: 'idle-flicker',
+    idleDuration: '1.2s',
+    idleSteps: null,
+    scale: 5,
+    visualWidth: 40,
+    visualHeight: 48,
+  },
+
+  /**
+   * Wave 3 변형: 하수구 쥐떼 — 약 12x8 그리드
+   * 여러 마리 쥐 실루엣 + 빛나는 눈 + 긴 꼬리
+   */
+  'sewer-rats': {
+    boxShadow: [
+      // 쥐 1 (왼쪽)
+      '4px 8px 0 #636e72', '8px 8px 0 #636e72',
+      '0px 12px 0 #636e72', '4px 12px 0 #a4b0be', '8px 12px 0 #a4b0be', '12px 12px 0 #636e72',
+      '0px 16px 0 #a4b0be', '4px 16px 0 #e74c3c', '8px 16px 0 #a4b0be', '12px 16px 0 #e74c3c',
+      '0px 20px 0 #a4b0be', '4px 20px 0 #a4b0be', '8px 20px 0 #a4b0be', '12px 20px 0 #a4b0be',
+      '0px 24px 0 #636e72', '4px 24px 0 #636e72', '8px 24px 0 #636e72', '12px 24px 0 #636e72',
+      // 꼬리 1
+      '-4px 20px 0 #a4b0be', '-8px 16px 0 #a4b0be',
+      // 쥐 2 (가운데, 크게)
+      '20px 4px 0 #636e72', '24px 4px 0 #7f8c8d',
+      '16px 8px 0 #7f8c8d', '20px 8px 0 #a4b0be', '24px 8px 0 #a4b0be', '28px 8px 0 #7f8c8d',
+      '16px 12px 0 #ff6b6b', '20px 12px 0 #a4b0be', '24px 12px 0 #a4b0be', '28px 12px 0 #ff6b6b',
+      '16px 16px 0 #a4b0be', '20px 16px 0 #7f8c8d', '24px 16px 0 #7f8c8d', '28px 16px 0 #a4b0be',
+      '20px 20px 0 #636e72', '24px 20px 0 #636e72',
+      // 꼬리 2
+      '32px 8px 0 #a4b0be', '36px 4px 0 #7f8c8d',
+      // 쥐 3 (오른쪽)
+      '36px 12px 0 #636e72', '40px 12px 0 #636e72',
+      '32px 16px 0 #7f8c8d', '36px 16px 0 #a4b0be', '40px 16px 0 #a4b0be', '44px 16px 0 #7f8c8d',
+      '32px 20px 0 #e74c3c', '36px 20px 0 #a4b0be', '40px 20px 0 #a4b0be', '44px 20px 0 #e74c3c',
+      '36px 24px 0 #636e72', '40px 24px 0 #636e72',
+      // 꼬리 3
+      '48px 16px 0 #a4b0be', '52px 12px 0 #7f8c8d',
+    ].join(', '),
+    idleAnimation: 'idle-twitch',
+    idleDuration: '1.5s',
+    idleSteps: 4,
+    scale: 5,
+    visualWidth: 56,
+    visualHeight: 28,
+  },
+
+  /**
+   * Wave 4 변형: 폭주 쇼핑카트 — 약 10x10 그리드
+   * 철제 카트 + 튀어나온 물건들 + 빨간 눈
+   */
+  'shopping-cart': {
+    boxShadow: [
+      // 물건 튀어나옴
+      '12px 0px 0 #fdcb6e', '20px 0px 0 #e84393', '28px 0px 0 #00cec9',
+      '8px 4px 0 #6c5ce7', '16px 4px 0 #e74c3c', '24px 4px 0 #fdcb6e', '32px 4px 0 #2ecc71',
+      // 카트 상단
+      '4px 8px 0 #a4b0be', '8px 8px 0 #dfe6e9', '12px 8px 0 #dfe6e9', '16px 8px 0 #dfe6e9', '20px 8px 0 #dfe6e9', '24px 8px 0 #dfe6e9', '28px 8px 0 #dfe6e9', '32px 8px 0 #a4b0be',
+      // 눈 (빨간 LED)
+      '4px 12px 0 #a4b0be', '8px 12px 0 #e74c3c', '12px 12px 0 #dfe6e9', '16px 12px 0 #a4b0be', '20px 12px 0 #a4b0be', '24px 12px 0 #dfe6e9', '28px 12px 0 #e74c3c', '32px 12px 0 #a4b0be',
+      // 카트 몸체 (그물)
+      '4px 16px 0 #636e72', '8px 16px 0 #a4b0be', '12px 16px 0 #636e72', '16px 16px 0 #a4b0be', '20px 16px 0 #636e72', '24px 16px 0 #a4b0be', '28px 16px 0 #636e72', '32px 16px 0 #a4b0be',
+      '4px 20px 0 #a4b0be', '8px 20px 0 #636e72', '12px 20px 0 #a4b0be', '16px 20px 0 #636e72', '20px 20px 0 #a4b0be', '24px 20px 0 #636e72', '28px 20px 0 #a4b0be', '32px 20px 0 #636e72',
+      // 하단 프레임
+      '4px 24px 0 #636e72', '8px 24px 0 #636e72', '12px 24px 0 #636e72', '16px 24px 0 #636e72', '20px 24px 0 #636e72', '24px 24px 0 #636e72', '28px 24px 0 #636e72', '32px 24px 0 #636e72',
+      // 바퀴
+      '8px 28px 0 #2d3436', '12px 28px 0 #2d3436', '24px 28px 0 #2d3436', '28px 28px 0 #2d3436',
+      // 손잡이
+      '36px 8px 0 #636e72', '36px 12px 0 #a4b0be', '36px 16px 0 #636e72', '40px 16px 0 #636e72',
+    ].join(', '),
+    idleAnimation: 'idle-vibrate',
+    idleDuration: '0.4s',
+    idleSteps: 2,
+    scale: 5,
+    visualWidth: 44,
+    visualHeight: 32,
+  },
+
+  /**
+   * Wave 6 변형: 폭주 포장마차 — 약 12x10 그리드
+   * 나무 포장마차 + 불꽃 + 김 나는 냄비
+   */
+  'food-cart': {
+    boxShadow: [
+      // 김 (상단)
+      '16px 0px 0 #dfe6e9', '24px 0px 0 #b2bec3', '32px 0px 0 #dfe6e9',
+      // 지붕 (천막)
+      '4px 4px 0 #e74c3c', '8px 4px 0 #c0392b', '12px 4px 0 #e74c3c', '16px 4px 0 #c0392b', '20px 4px 0 #e74c3c', '24px 4px 0 #c0392b', '28px 4px 0 #e74c3c', '32px 4px 0 #c0392b', '36px 4px 0 #e74c3c',
+      // 기둥
+      '4px 8px 0 #8B6914', '36px 8px 0 #8B6914',
+      // 조리대
+      '4px 12px 0 #C49A45', '8px 12px 0 #D4AA55', '12px 12px 0 #D4AA55', '16px 12px 0 #D4AA55', '20px 12px 0 #D4AA55', '24px 12px 0 #D4AA55', '28px 12px 0 #D4AA55', '32px 12px 0 #D4AA55', '36px 12px 0 #C49A45',
+      // 눈 (냄비 안)
+      '8px 8px 0 #e74c3c', '12px 8px 0 #fff', '16px 8px 0 #fdcb6e', '20px 8px 0 #e74c3c', '24px 8px 0 #fdcb6e', '28px 8px 0 #fff', '32px 8px 0 #e74c3c',
+      // 몸통
+      '4px 16px 0 #8B6914', '8px 16px 0 #C49A45', '12px 16px 0 #C49A45', '16px 16px 0 #C49A45', '20px 16px 0 #C49A45', '24px 16px 0 #C49A45', '28px 16px 0 #C49A45', '32px 16px 0 #C49A45', '36px 16px 0 #8B6914',
+      '4px 20px 0 #8B6914', '8px 20px 0 #C49A45', '12px 20px 0 #e74c3c', '16px 20px 0 #C49A45', '20px 20px 0 #C49A45', '24px 20px 0 #C49A45', '28px 20px 0 #e74c3c', '32px 20px 0 #C49A45', '36px 20px 0 #8B6914',
+      // 하단
+      '4px 24px 0 #636e72', '8px 24px 0 #636e72', '12px 24px 0 #636e72', '16px 24px 0 #636e72', '20px 24px 0 #636e72', '24px 24px 0 #636e72', '28px 24px 0 #636e72', '32px 24px 0 #636e72', '36px 24px 0 #636e72',
+      // 바퀴
+      '8px 28px 0 #2d3436', '12px 28px 0 #2d3436', '28px 28px 0 #2d3436', '32px 28px 0 #2d3436',
+    ].join(', '),
+    idleAnimation: 'idle-wobble',
+    idleDuration: '1s',
+    idleSteps: 2,
+    scale: 5,
+    visualWidth: 40,
+    visualHeight: 32,
+  },
+
+  /**
+   * Wave 7 변형: 우산 요괴 — 약 10x12 그리드
+   * 일본풍 우산 요괴 + 한 다리 + 큰 눈
+   */
+  'umbrella-ghost': {
+    boxShadow: [
+      // 우산 상단 (돔)
+      '12px 0px 0 #6c5ce7', '16px 0px 0 #a29bfe', '20px 0px 0 #6c5ce7', '24px 0px 0 #a29bfe', '28px 0px 0 #6c5ce7',
+      '8px 4px 0 #6c5ce7', '12px 4px 0 #a29bfe', '16px 4px 0 #6c5ce7', '20px 4px 0 #a29bfe', '24px 4px 0 #6c5ce7', '28px 4px 0 #a29bfe', '32px 4px 0 #6c5ce7',
+      '4px 8px 0 #a29bfe', '8px 8px 0 #6c5ce7', '12px 8px 0 #a29bfe', '16px 8px 0 #6c5ce7', '20px 8px 0 #a29bfe', '24px 8px 0 #6c5ce7', '28px 8px 0 #a29bfe', '32px 8px 0 #6c5ce7', '36px 8px 0 #a29bfe',
+      // 우산 테두리
+      '0px 12px 0 #6c5ce7', '4px 12px 0 #4a4a6a', '8px 12px 0 #6c5ce7', '12px 12px 0 #4a4a6a', '16px 12px 0 #6c5ce7', '20px 12px 0 #4a4a6a', '24px 12px 0 #6c5ce7', '28px 12px 0 #4a4a6a', '32px 12px 0 #6c5ce7', '36px 12px 0 #4a4a6a', '40px 12px 0 #6c5ce7',
+      // 눈 (크고 무서운)
+      '12px 16px 0 #fff', '16px 16px 0 #e74c3c', '24px 16px 0 #fff', '28px 16px 0 #e74c3c',
+      // 혀 (아래)
+      '16px 20px 0 #ffeaa7', '20px 20px 0 #e74c3c', '24px 20px 0 #ffeaa7',
+      // 기둥 (한 다리)
+      '20px 24px 0 #8B6914', '20px 28px 0 #C49A45', '20px 32px 0 #8B6914', '20px 36px 0 #C49A45',
+      // 발 (나막신)
+      '16px 40px 0 #8B6914', '20px 40px 0 #C49A45', '24px 40px 0 #8B6914',
+    ].join(', '),
+    idleAnimation: 'idle-float',
+    idleDuration: '2.5s',
+    idleSteps: null,
+    scale: 5,
+    visualWidth: 44,
+    visualHeight: 44,
+  },
+
+  /**
+   * Wave 8 변형: 고장난 TV — 약 10x10 그리드
+   * 구형 브라운관 + 정전기 + 깨진 화면
+   */
+  'broken-tv': {
+    boxShadow: [
+      // 안테나
+      '8px 0px 0 #636e72', '12px 4px 0 #a4b0be', '28px 4px 0 #a4b0be', '32px 0px 0 #636e72',
+      // 상단 테두리
+      '8px 8px 0 #8B6914', '12px 8px 0 #C49A45', '16px 8px 0 #C49A45', '20px 8px 0 #C49A45', '24px 8px 0 #C49A45', '28px 8px 0 #C49A45', '32px 8px 0 #8B6914',
+      // 화면 (글리치)
+      '8px 12px 0 #C49A45', '12px 12px 0 #00cec9', '16px 12px 0 #2d3436', '20px 12px 0 #e84393', '24px 12px 0 #2d3436', '28px 12px 0 #00cec9', '32px 12px 0 #C49A45',
+      '8px 16px 0 #C49A45', '12px 16px 0 #e84393', '16px 16px 0 #fff', '20px 16px 0 #6c5ce7', '24px 16px 0 #fff', '28px 16px 0 #e84393', '32px 16px 0 #C49A45',
+      '8px 20px 0 #C49A45', '12px 20px 0 #2d3436', '16px 20px 0 #00cec9', '20px 20px 0 #e84393', '24px 20px 0 #00cec9', '28px 20px 0 #2d3436', '32px 20px 0 #C49A45',
+      // 하단 테두리
+      '8px 24px 0 #8B6914', '12px 24px 0 #C49A45', '16px 24px 0 #C49A45', '20px 24px 0 #C49A45', '24px 24px 0 #C49A45', '28px 24px 0 #C49A45', '32px 24px 0 #8B6914',
+      // 다이얼/버튼
+      '8px 28px 0 #636e72', '12px 28px 0 #636e72', '16px 28px 0 #a4b0be', '20px 28px 0 #e74c3c', '24px 28px 0 #a4b0be', '28px 28px 0 #636e72', '32px 28px 0 #636e72',
+      // 다리
+      '12px 32px 0 #2d3436', '16px 32px 0 #2d3436', '24px 32px 0 #2d3436', '28px 32px 0 #2d3436',
+      // 정전기
+      '4px 12px 0 #fdcb6e', '36px 16px 0 #fdcb6e', '4px 20px 0 #a29bfe',
+    ].join(', '),
+    idleAnimation: 'idle-flicker',
+    idleDuration: '1s',
+    idleSteps: null,
+    scale: 5,
+    visualWidth: 40,
+    visualHeight: 36,
+  },
+
+  /**
+   * Wave 9 변형: 변이 전봇대 — 약 8x14 그리드
+   * 세로로 긴 전봇대 + 전선 촉수 + 보라 전기
+   */
+  'electric-pole': {
+    boxShadow: [
+      // 상단 애자 (발광)
+      '12px 0px 0 #fdcb6e', '20px 0px 0 #fdcb6e', '28px 0px 0 #fdcb6e',
+      // 횡목
+      '4px 4px 0 #636e72', '8px 4px 0 #8B6914', '12px 4px 0 #C49A45', '16px 4px 0 #8B6914', '20px 4px 0 #C49A45', '24px 4px 0 #8B6914', '28px 4px 0 #C49A45', '32px 4px 0 #8B6914', '36px 4px 0 #636e72',
+      // 전선 (좌)
+      '0px 8px 0 #2d3436', '4px 8px 0 #636e72',
+      '0px 12px 0 #6c5ce7', '4px 12px 0 #2d3436',
+      // 기둥 상단
+      '16px 8px 0 #8B6914', '20px 8px 0 #C49A45', '24px 8px 0 #8B6914',
+      // 눈 (빨간 LED)
+      '16px 12px 0 #e74c3c', '20px 12px 0 #C49A45', '24px 12px 0 #e74c3c',
+      // 기둥 중간
+      '20px 16px 0 #8B6914', '20px 20px 0 #C49A45', '20px 24px 0 #8B6914', '20px 28px 0 #C49A45',
+      // 전선 (우)
+      '32px 8px 0 #636e72', '36px 8px 0 #2d3436',
+      '36px 12px 0 #6c5ce7', '40px 12px 0 #a29bfe',
+      // 전기 촉수
+      '0px 16px 0 #a29bfe', '4px 20px 0 #6c5ce7', '8px 16px 0 #a29bfe',
+      '32px 16px 0 #6c5ce7', '36px 20px 0 #a29bfe', '40px 16px 0 #6c5ce7',
+      // 스파크
+      '8px 8px 0 #fdcb6e', '32px 4px 0 #fdcb6e', '4px 24px 0 #fdcb6e', '36px 24px 0 #fdcb6e',
+      // 베이스
+      '16px 32px 0 #636e72', '20px 32px 0 #2d3436', '24px 32px 0 #636e72',
+      '12px 36px 0 #2d3436', '16px 36px 0 #636e72', '20px 36px 0 #636e72', '24px 36px 0 #636e72', '28px 36px 0 #2d3436',
+    ].join(', '),
+    idleAnimation: 'idle-spark',
+    idleDuration: '0.8s',
+    idleSteps: 3,
+    scale: 5,
+    visualWidth: 44,
+    visualHeight: 40,
+  },
 };
 
 export default SPRITES;

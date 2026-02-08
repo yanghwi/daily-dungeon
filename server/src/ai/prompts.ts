@@ -38,7 +38,9 @@ export const SITUATION_SYSTEM = `너는 EarthBound/Mother 시리즈의 톤을 �
 - 선택지 개수는 2~3개, 최소 하나는 캐릭터 전문 분야 (DC 낮음)
 - weakness 관련 상황이면 해당 캐릭터에게 불리한 선택지(DC 높음) 포함
 - 웨이브가 높을수록 적이 강하고 상황이 위험해짐
-- enemy에 hp, attack, defense를 포함하지 마라 (서버가 별도 계산)`;
+- enemy에 hp, attack, defense를 포함하지 마라 (서버가 별도 계산)
+- 이전 웨이브의 적이나 상황을 절대 언급하지 마라. 각 웨이브는 독립적인 새로운 조우다
+- "이번 웨이브의 적" 정보가 주어지면 반드시 해당 적만 묘사하라`;
 
 export const NARRATIVE_SYSTEM = `너는 EarthBound 톤의 전투 내레이터다.
 4명의 행동과 주사위 결과를 받아 2~3문장의 짧은 전투 서술을 생성한다.
@@ -65,7 +67,8 @@ export const NARRATIVE_SYSTEM = `너는 EarthBound 톤의 전투 내레이터다
 
 규칙:
 - 4명의 행동을 하나의 장면으로 엮되 짧게
-- 순서대로 나열 금지`;
+- 순서대로 나열 금지
+- "현재 적:" 필드에 명시된 적만 서술에 포함할 것. 이전 웨이브의 적을 절대 언급하지 마라`;
 
 export const HIGHLIGHTS_SYSTEM = `너는 EarthBound 톤의 게임 마스터다.
 런 종료 후 하이라이트 3줄 생성. 각 줄 15자 이내.
@@ -100,7 +103,8 @@ export const COMBAT_CHOICES_SYSTEM = `너는 EarthBound/Mother 시리즈의 톤�
 - 각 플레이어의 선택지는 해당 캐릭터의 background, trait 반영
 - 선택지 개수는 2~3개
 - 이전 라운드와 다른 접근 제시
-- 적 HP 낮으면 마무리 공격 등 톤 조정`;
+- 적 HP 낮으면 마무리 공격 등 톤 조정
+- 현재 적만 참조하라. 이전 웨이브의 적을 절대 언급하지 마라`;
 
 // ===== 유저 메시지 빌더 =====
 
@@ -132,8 +136,12 @@ export function buildSituationMessage(
   maxWaves: number,
   players: Character[],
   previousSummary?: string,
+  templateEnemy?: { name: string; description: string },
 ): string {
   let msg = `웨이브: ${waveNumber} / ${maxWaves}\n\n파티:\n${formatParty(players)}`;
+  if (templateEnemy) {
+    msg += `\n\n이번 웨이브의 적: ${templateEnemy.name} — ${templateEnemy.description}`;
+  }
   if (previousSummary) {
     msg += `\n\n이전 웨이브 요약: ${previousSummary}`;
   }
@@ -144,6 +152,7 @@ export function buildNarrativeMessage(
   situation: string,
   enemyName: string,
   actions: PlayerAction[],
+  enemyDefeated?: boolean,
 ): string {
   const actionLines = actions
     .map(
@@ -152,7 +161,11 @@ export function buildNarrativeMessage(
     )
     .join('\n');
 
-  return `상황: ${situation}\n적: ${enemyName}\n\n행동 결과:\n${actionLines}`;
+  const defeatLine = enemyDefeated
+    ? `\n\n결과: ${enemyName} 처치 완료. 적의 최후를 짧게 묘사하라.`
+    : `\n\n결과: ${enemyName} 생존. 전투가 계속된다.`;
+
+  return `상황: ${situation}\n현재 적: ${enemyName} (이 적만 서술하라)\n\n행동 결과:\n${actionLines}${defeatLine}`;
 }
 
 export function buildCombatChoicesMessage(
@@ -165,7 +178,7 @@ export function buildCombatChoicesMessage(
   previousActions?: PlayerAction[],
 ): string {
   const hpRatio = enemyMaxHp > 0 ? Math.round((enemyHp / enemyMaxHp) * 100) : 0;
-  let msg = `상황: ${situation}\n적: ${enemyName} (HP: ${hpRatio}%)\n전투 라운드: ${combatRound}\n\n파티:\n${formatParty(players)}`;
+  let msg = `상황: ${situation}\n현재 적: ${enemyName} (HP: ${hpRatio}%) (이 적에 대한 선택지만 생성하라)\n전투 라운드: ${combatRound}\n\n파티:\n${formatParty(players)}`;
   if (previousActions && previousActions.length > 0) {
     const prevLines = previousActions
       .map((a) => `- ${a.playerName}: "${a.choiceText}" (${TIER_LABELS[a.tier] ?? a.tier})`)

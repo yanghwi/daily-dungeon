@@ -17,7 +17,8 @@ import { calculateDamage, applyDamageToPlayers } from './DamageCalculator.js';
 import {
   NEXT_WAVE_PREVIEWS,
 } from './data/hardcodedData.js';
-import { generateSituation, generateCombatChoices } from '../ai/situationGenerator.js';
+import { generateSituation, generateCombatChoices, type SituationResult } from '../ai/situationGenerator.js';
+import type { WaveTemplate } from './data/hardcodedData.js';
 import { generateNarrative } from '../ai/narrativeGenerator.js';
 import { generateHighlights } from '../ai/highlightsGenerator.js';
 import { resolveEquippedEffects, getDcReduction } from './ItemEffectResolver.js';
@@ -59,6 +60,8 @@ export class WaveManager {
   // 현재 웨이브의 상황 묘사 (내러티브 생성 시 재사용)
   private currentSituation: string = '';
   private lastNarrative: string = '';
+  /** 풀에서 선택된 템플릿 (멀티라운드 폴백용) */
+  private currentTemplate: WaveTemplate | null = null;
 
   /**
    * 웨이브 시작: LLM으로 상황 생성 → 선택지 배분 → wave_intro emit → 2초 후 choosing
@@ -87,16 +90,19 @@ export class WaveManager {
     roomManager.setPhase(this.roomCode, 'wave_intro');
     this.io.to(this.roomCode).emit(SOCKET_EVENTS.PHASE_CHANGE, { phase: 'wave_intro' });
 
-    // LLM 또는 폴백으로 상황/적/선택지 생성
+    // LLM 또는 폴백으로 상황/적/선택지 생성 (시드로 변형 적 결정)
     const result = await generateSituation(
       waveNumber,
       room.run?.maxWaves ?? GAME_CONSTANTS.MAX_WAVES,
       alivePlayers,
+      undefined,
+      room.run?.seed,
     );
 
     this.currentEnemy = result.enemy;
     this.currentSituation = result.situation;
     this.playerChoiceSets = result.playerChoiceSets;
+    this.currentTemplate = result.selectedTemplate;
 
     // 각 플레이어에게 자기만의 선택지 전송
     for (const player of alivePlayers) {
@@ -143,11 +149,11 @@ export class WaveManager {
     }
     roomManager.updatePlayers(this.roomCode, room.players);
 
-    // 선택지만 재생성 (상황/적은 기존 유지)
+    // 선택지만 재생성 (상황/적은 기존 유지, 선택된 템플릿으로 폴백)
     const waveNumber = room.run?.currentWave ?? 1;
     const newChoices = await generateCombatChoices(
       this.currentSituation, this.currentEnemy!, this.combatRound,
-      waveNumber, alivePlayers, previousActions,
+      waveNumber, alivePlayers, previousActions, this.currentTemplate ?? undefined,
     );
     this.playerChoiceSets = newChoices;
 
