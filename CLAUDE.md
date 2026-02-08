@@ -16,7 +16,7 @@
 - **프론트엔드**: React + TypeScript + Tailwind CSS + Zustand
 - **백엔드**: Node.js + Express + Socket.io
 - **AI**: Claude API (선택지 생성 + 전투 판정 + 내러티브)
-- **배포**: Vercel + Railway
+- **배포**: Railway (클라이언트 + 서버)
 
 ## 코어 루프
 
@@ -183,8 +183,7 @@ round-midnight/
 │       ├── STYLE-GUIDE.md             # Mother/Earthbound 디자인 시스템
 │       ├── assets/                    # HTML 에셋 (earthbound-assets, poster)
 │       └── references/                # 토큰, UI 컴포넌트, 픽셀아트, 배경
-├── vercel.json                        # Vercel 배포 설정 (SPA 리라이트)
-├── Dockerfile                         # 멀티스테이지 빌드 (서버)
+├── Dockerfile                         # 멀티스테이지 빌드 (Railway 배포)
 └── CLAUDE.md
 ```
 
@@ -340,7 +339,7 @@ npm run build --workspace=@round-midnight/server
 - [x] **Phase 2**: 전투 코어 루프 (하드코딩 데이터)
 - [x] **Phase 3**: LLM 연동 (상황/선택지/내러티브/하이라이트)
 - [x] **Phase 4**: 배포 + 모바일 최적화
-  - Vercel SPA 리라이트, Dockerfile 멀티스테이지 빌드
+  - Railway 배포 (클라이언트 + 서버), Dockerfile 멀티스테이지 빌드
   - Vite chunk splitting, 반응형 폰트, 가로 모드 차단
   - 디자인 토큰 CSS 변수, OG 메타 태그
 - [x] **Phase 5**: 전투 화면 가독성 + UX 개선

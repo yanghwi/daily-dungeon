@@ -532,7 +532,7 @@ our-lore/
 22. RunResult 화면
 23. 밸런싱 (데미지 수치, DC 범위, 웨이브 수)
 24. 모바일 터치 최적화 (아이폰 사파리)
-25. 배포 (Vercel + Railway)
+25. 배포 (Railway)
 
 ---
 
