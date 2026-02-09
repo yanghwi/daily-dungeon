@@ -14,7 +14,6 @@ interface CharacterHubProps {
 export default function CharacterHub({ onCreateRoom, onJoinRoom }: CharacterHubProps) {
   const authUser = useGameStore((s) => s.authUser);
   const clearAuth = useGameStore((s) => s.clearAuth);
-  const setPendingAction = useGameStore((s) => s.setPendingAction);
   const runHistory = useGameStore((s) => s.runHistory);
   const setRunHistory = useGameStore((s) => s.setRunHistory);
 
@@ -60,11 +59,10 @@ export default function CharacterHub({ onCreateRoom, onJoinRoom }: CharacterHubP
     return b.label === pinBgMap[authUser?.pin ?? ''];
   }) ?? BACKGROUNDS[0];
 
-  // 게임 시작 (데일리 시드 → 방 생성 → 자동 시작)
-  const handleStartGame = async () => {
+  // 방 만들기 (데일리 시드 → 방 생성 → 로비 대기)
+  const handleCreateRoom = async () => {
     if (!authUser) return;
     setStarting(true);
-    setPendingAction('solo_start');
     try {
       const daily = await apiGetDailyToday();
       onCreateRoom(authUser.displayName, 'daily', daily.seedId);
@@ -171,12 +169,12 @@ export default function CharacterHub({ onCreateRoom, onJoinRoom }: CharacterHubP
           {/* 메인 액션 */}
           <div className="flex flex-col gap-2 relative z-10">
             <button
-              onClick={handleStartGame}
+              onClick={handleCreateRoom}
               disabled={starting}
               className="w-full eb-window !border-gold text-center active:scale-95 transition-transform disabled:opacity-60"
             >
               <span className="font-title text-base text-gold">
-                {starting ? '준비 중...' : '게임 시작'}
+                {starting ? '준비 중...' : '방 만들기'}
               </span>
             </button>
 

@@ -6,6 +6,13 @@ import type {
   RollTier,
 } from '@round-midnight/shared';
 import { GAME_CONSTANTS } from '@round-midnight/shared';
+import {
+  MONSTER_REGISTRY,
+  MONSTERS_BY_TIER,
+  WAVE_TIER_MAP,
+  type MonsterEntry,
+  type MonsterCategory,
+} from './monsterRegistry.js';
 
 // ===== 웨이브 템플릿 =====
 
@@ -654,8 +661,9 @@ export function getWaveTemplateFromPool(
   waveNumber: number,
   pick?: <T>(arr: T[]) => T,
 ): WaveTemplate {
-  const idx = Math.max(0, Math.min(waveNumber - 1, WAVE_POOLS.length - 1));
-  const pool = WAVE_POOLS[idx];
+  const pools = _getExpandedPools();
+  const idx = Math.max(0, Math.min(waveNumber - 1, pools.length - 1));
+  const pool = pools[idx];
 
   if (pool.isBoss || pool.variants.length === 1) {
     return pool.variants[0];
@@ -767,3 +775,313 @@ export const NEXT_WAVE_PREVIEWS: string[] = [
   '옥상에서 이상한 주파수가 들린다...',             // Wave 8 끝 → 9 예고
   '⚠ 시계탑의 종소리가 울려 퍼진다... 자정이 다가온다.',  // Wave 9 끝 → 10(최종보스) 예고
 ];
+
+// ===== 카테고리별 제네릭 상황 템플릿 (레지스트리 몬스터 폴백용) =====
+
+interface CategoryTemplate {
+  situations: string[];
+  choicesByBackground: Record<string, ChoiceOptionTemplate[]>;
+  defaultChoices: ChoiceOptionTemplate[];
+}
+
+// TODO(human): 카테고리 템플릿 — animal을 참고하여 나머지 7개 카테고리를 완성해주세요
+export const CATEGORY_TEMPLATES: Record<string, CategoryTemplate> = {
+  animal: {
+    situations: [
+      '야시장 골목에서 {name}(이)가 갑자기 나타났다! {description}',
+      '어두운 길모퉁이를 돌자 {name}(이)가 길을 막고 있다. {description}',
+      '쓰레기통 뒤에서 {name}(이)가 튀어나왔다! {description}',
+    ],
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트를 휘두르며 위협한다', category: 'physical', baseDC: 10 },
+        { text: '방어 자세를 취하며 대치한다', category: 'defensive', baseDC: 10 },
+      ],
+      '요리사': [
+        { text: '음식으로 다른 곳에 유인한다', category: 'creative', baseDC: 10 },
+        { text: '프라이팬으로 위협한다', category: 'physical', baseDC: 11 },
+      ],
+      '개발자': [
+        { text: '스마트폰 소리로 주의를 끈다', category: 'technical', baseDC: 10 },
+        { text: '가방을 방패처럼 든다', category: 'defensive', baseDC: 11 },
+      ],
+      '영업사원': [
+        { text: '차분하게 달래본다', category: 'social', baseDC: 10 },
+        { text: '큰 소리로 위협한다', category: 'physical', baseDC: 11 },
+      ],
+    },
+    defaultChoices: [
+      { text: '소리를 질러 위협한다', category: 'physical', baseDC: 10 },
+      { text: '천천히 뒤로 물러난다', category: 'defensive', baseDC: 10 },
+    ],
+  },
+  humanoid: {
+    situations: [
+      '야시장 한가운데서 {name}(이)가 시비를 건다. {description}',
+      '어두운 골목에서 {name}(이)가 나타나 길을 막는다. {description}',
+    ],
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '정면으로 맞서 싸운다', category: 'physical', baseDC: 10 },
+        { text: '방어 자세로 약점을 노린다', category: 'defensive', baseDC: 11 },
+      ],
+      '요리사': [
+        { text: '뜨거운 요리를 무기로 쓴다', category: 'creative', baseDC: 10 },
+        { text: '칼솜씨로 위협한다', category: 'physical', baseDC: 11 },
+      ],
+      '개발자': [
+        { text: '전자기기로 교란한다', category: 'technical', baseDC: 10 },
+        { text: '약점을 분석해 공략한다', category: 'technical', baseDC: 12 },
+      ],
+      '영업사원': [
+        { text: '협상을 시도한다', category: 'social', baseDC: 10 },
+        { text: '심리전으로 혼란을 준다', category: 'social', baseDC: 11 },
+      ],
+    },
+    defaultChoices: [
+      { text: '물건을 던져 공격한다', category: 'physical', baseDC: 10 },
+      { text: '주변 환경을 이용해 대응한다', category: 'creative', baseDC: 11 },
+    ],
+  },
+  machine: {
+    situations: [
+      '폭주하는 {name}(이)가 길을 가로막는다! {description}',
+      '갑자기 {name}(이)가 작동하기 시작했다. 빨간 눈이 번쩍인다! {description}',
+    ],
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 핵심 부위를 노린다', category: 'physical', baseDC: 10 },
+        { text: '장애물 뒤로 숨어 접근한다', category: 'defensive', baseDC: 11 },
+      ],
+      '요리사': [
+        { text: '기름을 뿌려 미끄러뜨린다', category: 'creative', baseDC: 10 },
+        { text: '물을 끼얹어 합선시킨다', category: 'creative', baseDC: 11 },
+      ],
+      '개발자': [
+        { text: '전원부를 찾아 차단한다', category: 'technical', baseDC: 9 },
+        { text: '제어 시스템을 해킹한다', category: 'technical', baseDC: 12 },
+      ],
+      '영업사원': [
+        { text: '"고장 신고 접수했습니다" 달랜다', category: 'social', baseDC: 11 },
+        { text: '주의를 끌어 다른 곳으로 유인한다', category: 'creative', baseDC: 10 },
+      ],
+    },
+    defaultChoices: [
+      { text: '전원 코드를 찾아 뽑는다', category: 'technical', baseDC: 10 },
+      { text: '벽으로 유인해 부딪치게 한다', category: 'creative', baseDC: 11 },
+    ],
+  },
+  supernatural: {
+    situations: [
+      '어둠 속에서 {name}(이)가 나타났다! 기이한 기운이 감돈다. {description}',
+      '형광등이 깜빡이더니 {name}(이)가 모습을 드러냈다. {description}',
+    ],
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '두려움을 이기고 돌진한다', category: 'physical', baseDC: 11 },
+        { text: '주변 물건으로 방어진을 친다', category: 'defensive', baseDC: 10 },
+      ],
+      '요리사': [
+        { text: '소금을 뿌려 퇴마를 시도한다', category: 'creative', baseDC: 10 },
+        { text: '강한 냄새로 혼란을 준다', category: 'creative', baseDC: 11 },
+      ],
+      '개발자': [
+        { text: '강한 빛으로 약점을 찌른다', category: 'technical', baseDC: 10 },
+        { text: '전자파로 실체를 교란한다', category: 'technical', baseDC: 12 },
+      ],
+      '영업사원': [
+        { text: '"성불하세요" 진심으로 말한다', category: 'social', baseDC: 10 },
+        { text: '동료들의 사기를 끌어올린다', category: 'social', baseDC: 11 },
+      ],
+    },
+    defaultChoices: [
+      { text: '밝은 곳으로 유인한다', category: 'creative', baseDC: 10 },
+      { text: '무시하고 지나가려 한다', category: 'defensive', baseDC: 11 },
+    ],
+  },
+  insect: {
+    situations: [
+      '거대한 {name}(이)가 다가온다! 불쾌한 소리를 낸다. {description}',
+      '벽 틈에서 {name}(이)가 기어 나왔다! {description}',
+    ],
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 내리친다', category: 'physical', baseDC: 10 },
+        { text: '높은 곳으로 올라간다', category: 'defensive', baseDC: 10 },
+      ],
+      '요리사': [
+        { text: '고추가루를 뿌린다', category: 'creative', baseDC: 10 },
+        { text: '불로 위협한다', category: 'creative', baseDC: 11 },
+      ],
+      '개발자': [
+        { text: '초음파 앱을 틀어 교란한다', category: 'technical', baseDC: 10 },
+        { text: '플래시 스트로보로 혼란을 준다', category: 'technical', baseDC: 11 },
+      ],
+      '영업사원': [
+        { text: '큰 소리로 위협한다', category: 'physical', baseDC: 10 },
+        { text: '방충 스프레이를 찾는다', category: 'creative', baseDC: 11 },
+      ],
+    },
+    defaultChoices: [
+      { text: '물건을 던져 쫓는다', category: 'physical', baseDC: 10 },
+      { text: '뒤로 물러나 관찰한다', category: 'defensive', baseDC: 10 },
+    ],
+  },
+  plant: {
+    situations: [
+      '{name}(이)가 길을 가로막고 있다. 살아 움직이고 있다! {description}',
+      '화단에서 {name}(이)가 갑자기 자라났다! {description}',
+    ],
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 줄기를 쳐낸다', category: 'physical', baseDC: 10 },
+        { text: '뿌리를 피해 우회한다', category: 'defensive', baseDC: 10 },
+      ],
+      '요리사': [
+        { text: '칼로 가지를 정리한다', category: 'physical', baseDC: 10 },
+        { text: '제초제 대용을 찾아 뿌린다', category: 'creative', baseDC: 11 },
+      ],
+      '개발자': [
+        { text: '빛을 차단해 약화시킨다', category: 'technical', baseDC: 10 },
+        { text: '약점 패턴을 분석한다', category: 'technical', baseDC: 11 },
+      ],
+      '영업사원': [
+        { text: '불을 사용해 위협한다', category: 'creative', baseDC: 10 },
+        { text: '다른 길을 찾자고 제안한다', category: 'social', baseDC: 11 },
+      ],
+    },
+    defaultChoices: [
+      { text: '불로 태운다', category: 'creative', baseDC: 10 },
+      { text: '뿌리를 피해 돌아간다', category: 'defensive', baseDC: 10 },
+    ],
+  },
+  blob: {
+    situations: [
+      '정체불명의 {name}(이)가 꿈틀거리고 있다! {description}',
+      '바닥에서 {name}(이)가 스르르 나타났다. {description}',
+    ],
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '배트로 내려친다', category: 'physical', baseDC: 10 },
+        { text: '닿지 않게 거리를 유지한다', category: 'defensive', baseDC: 10 },
+      ],
+      '요리사': [
+        { text: '뜨거운 물을 끼얹는다', category: 'creative', baseDC: 10 },
+        { text: '소금을 뿌려 수축시킨다', category: 'creative', baseDC: 11 },
+      ],
+      '개발자': [
+        { text: '화학적 약점을 추론한다', category: 'technical', baseDC: 10 },
+        { text: '전기 충격을 시도한다', category: 'technical', baseDC: 11 },
+      ],
+      '영업사원': [
+        { text: '주의를 끌어 유인한다', category: 'social', baseDC: 10 },
+        { text: '동료에게 협공을 제안한다', category: 'social', baseDC: 11 },
+      ],
+    },
+    defaultChoices: [
+      { text: '물건을 던져 반응을 본다', category: 'creative', baseDC: 10 },
+      { text: '멀리서 관찰한다', category: 'defensive', baseDC: 10 },
+    ],
+  },
+  boss: {
+    situations: [
+      '강대한 {name}(이)가 앞을 가로막는다! 압도적인 존재감이다. {description}',
+    ],
+    choicesByBackground: {
+      '전직 경비원': [
+        { text: '전력을 다해 돌진한다', category: 'physical', baseDC: 12 },
+        { text: '동료를 지키며 방어진을 편다', category: 'defensive', baseDC: 12 },
+      ],
+      '요리사': [
+        { text: '환경을 이용한 트랩을 설치한다', category: 'creative', baseDC: 12 },
+        { text: '약점을 노린 기습을 시도한다', category: 'creative', baseDC: 13 },
+      ],
+      '개발자': [
+        { text: '약점 패턴을 분석해 공략한다', category: 'technical', baseDC: 12 },
+        { text: '주변 시스템을 해킹해 이용한다', category: 'technical', baseDC: 13 },
+      ],
+      '영업사원': [
+        { text: '동료들의 사기를 끌어올린다', category: 'social', baseDC: 11 },
+        { text: '협상을 시도한다', category: 'social', baseDC: 13 },
+      ],
+    },
+    defaultChoices: [
+      { text: '모두 합심해 공격한다', category: 'physical', baseDC: 12 },
+      { text: '약점을 찾으며 버틴다', category: 'defensive', baseDC: 12 },
+    ],
+  },
+};
+
+// ===== 레지스트리 몬스터 → WaveTemplate 변환 =====
+
+/**
+ * 레지스트리의 MonsterEntry를 WaveTemplate으로 변환.
+ * 카테고리별 제네릭 상황/선택지 사용.
+ */
+function buildTemplateFromRegistry(entry: MonsterEntry): WaveTemplate {
+  const catTemplate = CATEGORY_TEMPLATES[entry.category] ?? CATEGORY_TEMPLATES.animal;
+
+  // 상황 텍스트: 여러 변형 중 ID 기반으로 결정적 선택
+  const sitIdx = entry.id % catTemplate.situations.length;
+  const situation = catTemplate.situations[sitIdx]
+    .replace('{name}', entry.name)
+    .replace('{description}', entry.description);
+
+  return {
+    enemy: {
+      name: entry.name,
+      description: entry.description,
+      defense: entry.defense,
+      imageTag: entry.imageTag,
+    },
+    baseHp: entry.baseHp,
+    baseAttack: entry.baseAttack,
+    situation,
+    choicesByBackground: catTemplate.choicesByBackground,
+    defaultChoices: catTemplate.defaultChoices,
+  };
+}
+
+// ===== 확장된 WAVE_POOLS (기존 18개 + 레지스트리 134개) =====
+
+/** 기존 핸드크래프트 imageTag 집합 — 레지스트리 중복 방지 */
+const EXISTING_TAGS = new Set(
+  WAVE_TEMPLATES.map(t => t.enemy.imageTag)
+    .concat(Object.values(WAVE_VARIANTS).flatMap(arr => arr.map(t => t.enemy.imageTag)))
+);
+
+/**
+ * 웨이브 풀 재구성:
+ * - 보스 웨이브(5, 10): 기존 고정 유지
+ * - 비보스 웨이브: 기존 핸드크래프트 + 레지스트리 티어 매칭
+ */
+export const EXPANDED_WAVE_POOLS: WavePool[] = WAVE_TEMPLATES.map((base, idx) => {
+  const waveNumber = idx + 1;
+  const isBoss = waveNumber % 5 === 0;
+
+  if (isBoss) {
+    return { isBoss: true, variants: [base] };
+  }
+
+  // 기존 핸드크래프트 변형
+  const handcrafted = WAVE_VARIANTS[waveNumber];
+  const variants: WaveTemplate[] = handcrafted ? [base, ...handcrafted] : [base];
+
+  // 레지스트리에서 해당 웨이브 티어의 몬스터 추가
+  const allowedTiers = WAVE_TIER_MAP[waveNumber] ?? [];
+  for (const tier of allowedTiers) {
+    const monsters = MONSTERS_BY_TIER[tier] ?? [];
+    for (const m of monsters) {
+      if (!EXISTING_TAGS.has(m.imageTag)) {
+        variants.push(buildTemplateFromRegistry(m));
+      }
+    }
+  }
+
+  return { isBoss: false, variants };
+});
+
+/** getWaveTemplateFromPool에서 사용 — 확장된 풀 반환 */
+function _getExpandedPools(): WavePool[] {
+  return EXPANDED_WAVE_POOLS;
+}

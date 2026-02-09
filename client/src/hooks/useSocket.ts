@@ -97,12 +97,6 @@ export function useSocket() {
       });
       setPhase('waiting');
 
-      // 솔로 자동시작: CharacterHub에서 "게임 시작" 누른 경우
-      const store = useGameStore.getState();
-      if (store.pendingAction === 'solo_start') {
-        store.setPendingAction(null);
-        socket.emit(SOCKET_EVENTS.START_GAME);
-      }
     });
 
     socket.on(SOCKET_EVENTS.ROOM_JOINED, (data: RoomJoinedResponse) => {

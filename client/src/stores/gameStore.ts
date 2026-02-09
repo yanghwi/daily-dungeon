@@ -62,10 +62,6 @@ interface GameStore {
   characterConfig: CharacterConfig | null;
   setCharacterConfig: (config: CharacterConfig) => void;
 
-  // 솔로 자동시작 플래그
-  pendingAction: 'solo_start' | null;
-  setPendingAction: (action: 'solo_start' | null) => void;
-
   // 연결 상태
   connected: boolean;
   setConnected: (connected: boolean) => void;
@@ -168,10 +164,6 @@ export const useGameStore = create<GameStore>((set) => ({
     localStorage.setItem('rm-character-config', JSON.stringify(config));
     set({ characterConfig: config });
   },
-
-  // 솔로 자동시작 플래그
-  pendingAction: null,
-  setPendingAction: (action) => set({ pendingAction: action }),
 
   connected: false,
   setConnected: (connected) => set({ connected }),

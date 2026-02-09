@@ -1,7 +1,6 @@
 /**
- * 5종 적 스프라이트 box-shadow 데이터
- * 4px 그리드 기반, scale(3) 적용 시 화면 표시
- * 참조: docs/design-system/assets/earthbound-assets.html
+ * 적 스프라이트 설정 — 전체 PNG 기반 (EarthBound 스프라이트)
+ * boxShadow 픽셀아트 제거, 모든 적이 /sprites/{imageTag}.png 사용
  */
 
 export interface SpriteConfig {
@@ -20,620 +19,108 @@ export interface SpriteConfig {
   visualHeight: number;
 }
 
+// ===== 기존 18개 적 (box-shadow → PNG 교체) =====
+
 const SPRITES: Record<string, SpriteConfig> = {
-  /**
-   * Wave 1: 성난 너구리 — 약 10x9 그리드
-   * 회색 몸통 + 검은 마스크 + 줄무늬 꼬리
-   */
-  'raccoon': {
-    boxShadow: [
-      // 귀
-      '8px 0px 0 #636e72', '32px 0px 0 #636e72',
-      '8px 4px 0 #b2bec3', '32px 4px 0 #b2bec3',
-      // 머리
-      '12px 4px 0 #b2bec3', '16px 4px 0 #dfe6e9', '20px 4px 0 #dfe6e9', '24px 4px 0 #dfe6e9', '28px 4px 0 #b2bec3',
-      // 눈 (검은 마스크)
-      '8px 8px 0 #b2bec3', '12px 8px 0 #2d3436', '16px 8px 0 #fff', '20px 8px 0 #dfe6e9', '24px 8px 0 #fff', '28px 8px 0 #2d3436', '32px 8px 0 #b2bec3',
-      // 코/입
-      '12px 12px 0 #b2bec3', '16px 12px 0 #dfe6e9', '20px 12px 0 #2d3436', '24px 12px 0 #dfe6e9', '28px 12px 0 #b2bec3',
-      '16px 16px 0 #b2bec3', '20px 16px 0 #e74c3c', '24px 16px 0 #b2bec3',
-      // 몸통
-      '8px 20px 0 #636e72', '12px 20px 0 #b2bec3', '16px 20px 0 #dfe6e9', '20px 20px 0 #dfe6e9', '24px 20px 0 #dfe6e9', '28px 20px 0 #b2bec3', '32px 20px 0 #636e72',
-      '12px 24px 0 #636e72', '16px 24px 0 #b2bec3', '20px 24px 0 #b2bec3', '24px 24px 0 #b2bec3', '28px 24px 0 #636e72',
-      // 발
-      '12px 28px 0 #2d3436', '16px 28px 0 #2d3436', '24px 28px 0 #2d3436', '28px 28px 0 #2d3436',
-      // 꼬리 (줄무늬)
-      '36px 16px 0 #b2bec3', '40px 12px 0 #636e72', '44px 8px 0 #b2bec3', '48px 4px 0 #636e72',
-    ].join(', '),
-    idleAnimation: 'idle-bounce',
-    idleDuration: '1s',
-    idleSteps: 2,
-    scale: 5,
-    visualWidth: 52,
-    visualHeight: 32,
-  },
-
-  /**
-   * Wave 2: 이상한 자판기 — 약 8x12 그리드
-   * 사각 몸통 + 글리치 디스플레이 + 동전 투입구
-   */
-  'vending-machine': {
-    boxShadow: [
-      // 상단 테두리
-      '8px 0px 0 #636e72', '12px 0px 0 #636e72', '16px 0px 0 #636e72', '20px 0px 0 #636e72', '24px 0px 0 #636e72', '28px 0px 0 #636e72',
-      // 디스플레이 (글리치 색상)
-      '8px 4px 0 #a4b0be', '12px 4px 0 #00cec9', '16px 4px 0 #e84393', '20px 4px 0 #00cec9', '24px 4px 0 #6c5ce7', '28px 4px 0 #a4b0be',
-      '8px 8px 0 #a4b0be', '12px 8px 0 #6c5ce7', '16px 8px 0 #fdcb6e', '20px 8px 0 #e84393', '24px 8px 0 #00cec9', '28px 8px 0 #a4b0be',
-      // 눈 (디스플레이 안)
-      '8px 12px 0 #a4b0be', '12px 12px 0 #2d3436', '16px 12px 0 #e74c3c', '20px 12px 0 #e74c3c', '24px 12px 0 #2d3436', '28px 12px 0 #a4b0be',
-      // 구분선
-      '8px 16px 0 #636e72', '12px 16px 0 #636e72', '16px 16px 0 #636e72', '20px 16px 0 #636e72', '24px 16px 0 #636e72', '28px 16px 0 #636e72',
-      // 몸통 (버튼들)
-      '8px 20px 0 #a4b0be', '12px 20px 0 #e74c3c', '16px 20px 0 #a4b0be', '20px 20px 0 #2ecc71', '24px 20px 0 #a4b0be', '28px 20px 0 #a4b0be',
-      '8px 24px 0 #a4b0be', '12px 24px 0 #a4b0be', '16px 24px 0 #3498db', '20px 24px 0 #a4b0be', '24px 24px 0 #fdcb6e', '28px 24px 0 #a4b0be',
-      // 동전 투입구
-      '8px 28px 0 #a4b0be', '12px 28px 0 #a4b0be', '16px 28px 0 #2d3436', '20px 28px 0 #2d3436', '24px 28px 0 #a4b0be', '28px 28px 0 #a4b0be',
-      // 하단 배출구
-      '8px 32px 0 #636e72', '12px 32px 0 #2d3436', '16px 32px 0 #2d3436', '20px 32px 0 #2d3436', '24px 32px 0 #2d3436', '28px 32px 0 #636e72',
-      '8px 36px 0 #636e72', '12px 36px 0 #636e72', '16px 36px 0 #636e72', '20px 36px 0 #636e72', '24px 36px 0 #636e72', '28px 36px 0 #636e72',
-      // 다리
-      '8px 40px 0 #2d3436', '12px 40px 0 #2d3436', '24px 40px 0 #2d3436', '28px 40px 0 #2d3436',
-    ].join(', '),
-    idleAnimation: 'idle-wobble',
-    idleDuration: '1.2s',
-    idleSteps: 2,
-    scale: 5,
-    visualWidth: 32,
-    visualHeight: 44,
-  },
-
-  /**
-   * Wave 3: 그림자 고양이 떼 — 약 12x8 그리드 (가로로 넓게)
-   * 3마리 겹친 실루엣, 보라+남색 톤, 빛나는 눈
-   */
-  'shadow-cats': {
-    boxShadow: [
-      // 고양이 1 (왼쪽, 약간 뒤)
-      '4px 8px 0 #2d3436', '8px 8px 0 #2d3436',
-      '0px 12px 0 #2d3436', '4px 12px 0 #3d3d5c', '8px 12px 0 #3d3d5c', '12px 12px 0 #2d3436',
-      '0px 16px 0 #3d3d5c', '4px 16px 0 #e84393', '8px 16px 0 #3d3d5c', '12px 16px 0 #e84393',
-      '0px 20px 0 #3d3d5c', '4px 20px 0 #3d3d5c', '8px 20px 0 #3d3d5c', '12px 20px 0 #3d3d5c',
-      '0px 24px 0 #2d3436', '4px 24px 0 #3d3d5c', '8px 24px 0 #3d3d5c', '12px 24px 0 #2d3436',
-      // 고양이 2 (가운데, 앞쪽 — 크게)
-      '16px 4px 0 #2d3436', '20px 4px 0 #4a4a6a',
-      '28px 4px 0 #4a4a6a', '32px 4px 0 #2d3436',
-      '12px 8px 0 #4a4a6a', '16px 8px 0 #6c5ce7', '20px 8px 0 #4a4a6a', '24px 8px 0 #4a4a6a', '28px 8px 0 #6c5ce7', '32px 8px 0 #4a4a6a',
-      '12px 12px 0 #4a4a6a', '16px 12px 0 #4a4a6a', '20px 12px 0 #4a4a6a', '24px 12px 0 #4a4a6a', '28px 12px 0 #4a4a6a', '32px 12px 0 #4a4a6a',
-      '16px 16px 0 #4a4a6a', '20px 16px 0 #6c5ce7', '24px 16px 0 #6c5ce7', '28px 16px 0 #4a4a6a',
-      '16px 20px 0 #2d3436', '20px 20px 0 #4a4a6a', '24px 20px 0 #4a4a6a', '28px 20px 0 #2d3436',
-      '16px 24px 0 #2d3436', '28px 24px 0 #2d3436',
-      // 고양이 3 (오른쪽, 약간 뒤)
-      '36px 8px 0 #2d3436', '40px 8px 0 #2d3436',
-      '32px 12px 0 #2d3436', '36px 12px 0 #3d3d5c', '40px 12px 0 #3d3d5c', '44px 12px 0 #2d3436',
-      '32px 16px 0 #3d3d5c', '36px 16px 0 #a29bfe', '40px 16px 0 #3d3d5c', '44px 16px 0 #a29bfe',
-      '32px 20px 0 #3d3d5c', '36px 20px 0 #3d3d5c', '40px 20px 0 #3d3d5c', '44px 20px 0 #3d3d5c',
-      '36px 24px 0 #2d3436', '40px 24px 0 #2d3436',
-    ].join(', '),
-    idleAnimation: 'idle-float',
-    idleDuration: '2s',
-    idleSteps: null,
-    scale: 5,
-    visualWidth: 48,
-    visualHeight: 28,
-  },
-
-  /**
-   * Wave 4: 폭주 청소로봇 — 약 10x10 그리드
-   * 금속 몸통 + 빨간 경고등 + 브러시 팔
-   */
-  'cleaning-robot': {
-    boxShadow: [
-      // 경고등
-      '20px 0px 0 #e74c3c',
-      // 머리 (돔)
-      '16px 4px 0 #a4b0be', '20px 4px 0 #dfe6e9', '24px 4px 0 #a4b0be',
-      '12px 8px 0 #a4b0be', '16px 8px 0 #dfe6e9', '20px 8px 0 #dfe6e9', '24px 8px 0 #dfe6e9', '28px 8px 0 #a4b0be',
-      // 눈 (LED)
-      '12px 12px 0 #636e72', '16px 12px 0 #00cec9', '20px 12px 0 #636e72', '24px 12px 0 #00cec9', '28px 12px 0 #636e72',
-      // 몸통
-      '8px 16px 0 #636e72', '12px 16px 0 #a4b0be', '16px 16px 0 #dfe6e9', '20px 16px 0 #dfe6e9', '24px 16px 0 #dfe6e9', '28px 16px 0 #a4b0be', '32px 16px 0 #636e72',
-      '8px 20px 0 #636e72', '12px 20px 0 #a4b0be', '16px 20px 0 #e74c3c', '20px 20px 0 #a4b0be', '24px 20px 0 #e74c3c', '28px 20px 0 #a4b0be', '32px 20px 0 #636e72',
-      '8px 24px 0 #636e72', '12px 24px 0 #a4b0be', '16px 24px 0 #a4b0be', '20px 24px 0 #a4b0be', '24px 24px 0 #a4b0be', '28px 24px 0 #a4b0be', '32px 24px 0 #636e72',
-      // 팔 (브러시)
-      '0px 16px 0 #636e72', '4px 16px 0 #2ecc71', '4px 20px 0 #2ecc71', '0px 24px 0 #2ecc71',
-      '36px 16px 0 #636e72', '40px 16px 0 #2ecc71', '40px 20px 0 #2ecc71', '36px 24px 0 #2ecc71',
-      // 하단 (바퀴)
-      '12px 28px 0 #636e72', '16px 28px 0 #2d3436', '20px 28px 0 #636e72', '24px 28px 0 #2d3436', '28px 28px 0 #636e72',
-      '16px 32px 0 #2d3436', '24px 32px 0 #2d3436',
-    ].join(', '),
-    idleAnimation: 'idle-pulse',
-    idleDuration: '0.8s',
-    idleSteps: 2,
-    scale: 6,
-    visualWidth: 44,
-    visualHeight: 36,
-  },
-
-  /**
-   * Wave 5: 야시장의 주인 (보스) — 약 12x12 그리드
-   * 큰 체격 + 앞치마 + 빛나는 눈 + 국자 무기
-   */
-  'market-boss': {
-    boxShadow: [
-      // 머리 (두건)
-      '16px 0px 0 #e74c3c', '20px 0px 0 #c0392b', '24px 0px 0 #e74c3c', '28px 0px 0 #c0392b', '32px 0px 0 #e74c3c',
-      '12px 4px 0 #e74c3c', '16px 4px 0 #c0392b', '20px 4px 0 #e74c3c', '24px 4px 0 #c0392b', '28px 4px 0 #e74c3c', '32px 4px 0 #c0392b', '36px 4px 0 #e74c3c',
-      // 얼굴
-      '12px 8px 0 #ffeaa7', '16px 8px 0 #ffeaa7', '20px 8px 0 #ffeaa7', '24px 8px 0 #ffeaa7', '28px 8px 0 #ffeaa7', '32px 8px 0 #ffeaa7', '36px 8px 0 #ffeaa7',
-      // 눈 (빛나는)
-      '12px 12px 0 #ffeaa7', '16px 12px 0 #fdcb6e', '20px 12px 0 #2d3436', '24px 12px 0 #ffeaa7', '28px 12px 0 #2d3436', '32px 12px 0 #fdcb6e', '36px 12px 0 #ffeaa7',
-      // 입 (웃는)
-      '16px 16px 0 #ffeaa7', '20px 16px 0 #e17055', '24px 16px 0 #e17055', '28px 16px 0 #e17055', '32px 16px 0 #ffeaa7',
-      // 몸통 (앞치마)
-      '8px 20px 0 #2d3436', '12px 20px 0 #dfe6e9', '16px 20px 0 #fff', '20px 20px 0 #fff', '24px 20px 0 #fff', '28px 20px 0 #fff', '32px 20px 0 #fff', '36px 20px 0 #dfe6e9', '40px 20px 0 #2d3436',
-      '8px 24px 0 #2d3436', '12px 24px 0 #dfe6e9', '16px 24px 0 #fff', '20px 24px 0 #e74c3c', '24px 24px 0 #fff', '28px 24px 0 #e74c3c', '32px 24px 0 #fff', '36px 24px 0 #dfe6e9', '40px 24px 0 #2d3436',
-      '8px 28px 0 #2d3436', '12px 28px 0 #dfe6e9', '16px 28px 0 #dfe6e9', '20px 28px 0 #dfe6e9', '24px 28px 0 #dfe6e9', '28px 28px 0 #dfe6e9', '32px 28px 0 #dfe6e9', '36px 28px 0 #dfe6e9', '40px 28px 0 #2d3436',
-      // 다리
-      '12px 32px 0 #2d3436', '16px 32px 0 #636e72', '20px 32px 0 #636e72', '28px 32px 0 #636e72', '32px 32px 0 #636e72', '36px 32px 0 #2d3436',
-      '16px 36px 0 #2d3436', '20px 36px 0 #2d3436', '28px 36px 0 #2d3436', '32px 36px 0 #2d3436',
-      // 국자 (왼손)
-      '0px 16px 0 #a4b0be', '4px 16px 0 #a4b0be',
-      '0px 12px 0 #636e72', '4px 12px 0 #a4b0be', '0px 8px 0 #636e72',
-      '0px 20px 0 #a4b0be', '4px 20px 0 #ffeaa7',
-    ].join(', '),
-    idleAnimation: 'idle-float',
-    idleDuration: '3s',
-    idleSteps: null,
-    scale: 7,
-    visualWidth: 44,
-    visualHeight: 40,
-  },
-
-  /**
-   * Wave 6: 폭주 배달 오토바이 — 약 12x10 그리드
-   * 빨간 배달통 + 바퀴 + 빛나는 헤드라이트
-   */
-  'delivery-bike': {
-    boxShadow: [
-      // 헤드라이트
-      '4px 4px 0 #fdcb6e', '8px 4px 0 #fff',
-      // 핸들바
-      '0px 8px 0 #636e72', '4px 8px 0 #a4b0be', '8px 8px 0 #a4b0be', '12px 8px 0 #636e72',
-      // 차체 (빨간)
-      '8px 12px 0 #e74c3c', '12px 12px 0 #c0392b', '16px 12px 0 #e74c3c', '20px 12px 0 #c0392b',
-      '4px 16px 0 #636e72', '8px 16px 0 #e74c3c', '12px 16px 0 #e74c3c', '16px 16px 0 #c0392b', '20px 16px 0 #e74c3c', '24px 16px 0 #636e72',
-      // 배달통 (3개)
-      '28px 4px 0 #e74c3c', '32px 4px 0 #c0392b', '36px 4px 0 #e74c3c',
-      '28px 8px 0 #c0392b', '32px 8px 0 #fff', '36px 8px 0 #c0392b',
-      '28px 12px 0 #e74c3c', '32px 12px 0 #c0392b', '36px 12px 0 #e74c3c',
-      '40px 8px 0 #e74c3c', '44px 8px 0 #c0392b',
-      '40px 12px 0 #c0392b', '44px 12px 0 #e74c3c',
-      // 눈 (헤드라이트 = 눈)
-      '4px 12px 0 #e74c3c', '8px 8px 0 #e74c3c',
-      // 엔진
-      '8px 20px 0 #636e72', '12px 20px 0 #a4b0be', '16px 20px 0 #a4b0be', '20px 20px 0 #636e72',
-      // 배기가스
-      '0px 20px 0 #b2bec3', '0px 24px 0 #dfe6e9',
-      // 바퀴 (앞)
-      '4px 24px 0 #2d3436', '8px 24px 0 #636e72', '8px 28px 0 #2d3436', '4px 28px 0 #636e72',
-      // 바퀴 (뒤)
-      '20px 24px 0 #2d3436', '24px 24px 0 #636e72', '24px 28px 0 #2d3436', '20px 28px 0 #636e72',
-    ].join(', '),
-    idleAnimation: 'idle-vibrate',
-    idleDuration: '0.3s',
-    idleSteps: 2,
-    scale: 5,
-    visualWidth: 48,
-    visualHeight: 32,
-  },
-
-  /**
-   * Wave 7: 지하상가 마네킹 무리 — 약 12x10 그리드
-   * 3체 실루엣 + 빈 눈 + 관절 라인
-   */
-  'mannequins': {
-    boxShadow: [
-      // 마네킹 1 (왼쪽)
-      '4px 0px 0 #dfe6e9', '8px 0px 0 #dfe6e9',
-      '4px 4px 0 #b2bec3', '8px 4px 0 #b2bec3',
-      '0px 8px 0 #dfe6e9', '4px 8px 0 #2d3436', '8px 8px 0 #2d3436', '12px 8px 0 #dfe6e9',
-      '4px 12px 0 #dfe6e9', '8px 12px 0 #dfe6e9',
-      '0px 16px 0 #b2bec3', '4px 16px 0 #dfe6e9', '8px 16px 0 #dfe6e9', '12px 16px 0 #b2bec3',
-      '4px 20px 0 #b2bec3', '8px 20px 0 #b2bec3',
-      '4px 24px 0 #a4b0be', '8px 24px 0 #a4b0be',
-      // 마네킹 2 (가운데, 크게)
-      '20px 0px 0 #ffeaa7', '24px 0px 0 #ffeaa7',
-      '16px 4px 0 #ffeaa7', '20px 4px 0 #ffeaa7', '24px 4px 0 #ffeaa7', '28px 4px 0 #ffeaa7',
-      '16px 8px 0 #2d3436', '20px 8px 0 #ffeaa7', '24px 8px 0 #ffeaa7', '28px 8px 0 #2d3436',
-      '20px 12px 0 #e17055', '24px 12px 0 #ffeaa7',
-      '16px 16px 0 #dfe6e9', '20px 16px 0 #fff', '24px 16px 0 #fff', '28px 16px 0 #dfe6e9',
-      '16px 20px 0 #dfe6e9', '20px 20px 0 #dfe6e9', '24px 20px 0 #dfe6e9', '28px 20px 0 #dfe6e9',
-      '16px 24px 0 #b2bec3', '20px 24px 0 #b2bec3', '24px 24px 0 #b2bec3', '28px 24px 0 #b2bec3',
-      '16px 28px 0 #a4b0be', '20px 28px 0 #a4b0be', '24px 28px 0 #a4b0be', '28px 28px 0 #a4b0be',
-      // 마네킹 3 (오른쪽)
-      '36px 0px 0 #b2bec3', '40px 0px 0 #b2bec3',
-      '36px 4px 0 #dfe6e9', '40px 4px 0 #dfe6e9',
-      '32px 8px 0 #dfe6e9', '36px 8px 0 #2d3436', '40px 8px 0 #2d3436', '44px 8px 0 #dfe6e9',
-      '36px 12px 0 #dfe6e9', '40px 12px 0 #dfe6e9',
-      '32px 16px 0 #b2bec3', '36px 16px 0 #dfe6e9', '40px 16px 0 #dfe6e9', '44px 16px 0 #b2bec3',
-      '36px 20px 0 #b2bec3', '40px 20px 0 #b2bec3',
-      '36px 24px 0 #a4b0be', '40px 24px 0 #a4b0be',
-    ].join(', '),
-    idleAnimation: 'idle-twitch',
-    idleDuration: '2s',
-    idleSteps: 4,
-    scale: 5,
-    visualWidth: 48,
-    visualHeight: 28,
-  },
-
-  /**
-   * Wave 8: 네온사인 요괴 — 약 10x10 그리드
-   * 글씨 형태의 빛 + 네온 색상 + 깜빡임
-   */
-  'neon-ghost': {
-    boxShadow: [
-      // 몸체 (네온 빛)
-      '12px 0px 0 #e84393', '16px 0px 0 #fd79a8', '20px 0px 0 #e84393', '24px 0px 0 #6c5ce7', '28px 0px 0 #a29bfe',
-      '8px 4px 0 #fd79a8', '12px 4px 0 #e84393', '16px 4px 0 #6c5ce7', '20px 4px 0 #a29bfe', '24px 4px 0 #e84393', '28px 4px 0 #fd79a8', '32px 4px 0 #6c5ce7',
-      // 눈 (밝은 흰색)
-      '8px 8px 0 #6c5ce7', '12px 8px 0 #fff', '16px 8px 0 #e84393', '20px 8px 0 #a29bfe', '24px 8px 0 #e84393', '28px 8px 0 #fff', '32px 8px 0 #6c5ce7',
-      // 입 ("영업중" 글씨)
-      '8px 12px 0 #e84393', '12px 12px 0 #00cec9', '16px 12px 0 #fdcb6e', '20px 12px 0 #00cec9', '24px 12px 0 #fdcb6e', '28px 12px 0 #00cec9', '32px 12px 0 #e84393',
-      // 몸통 (빛 파편)
-      '4px 16px 0 #a29bfe', '8px 16px 0 #fd79a8', '12px 16px 0 #6c5ce7', '16px 16px 0 #e84393', '20px 16px 0 #fd79a8', '24px 16px 0 #6c5ce7', '28px 16px 0 #e84393', '32px 16px 0 #a29bfe', '36px 16px 0 #fd79a8',
-      '8px 20px 0 #6c5ce7', '12px 20px 0 #e84393', '16px 20px 0 #a29bfe', '20px 20px 0 #e84393', '24px 20px 0 #fd79a8', '28px 20px 0 #a29bfe', '32px 20px 0 #6c5ce7',
-      // 하단 (빛 흩어짐)
-      '12px 24px 0 #fd79a8', '16px 24px 0 #6c5ce7', '24px 24px 0 #a29bfe', '28px 24px 0 #e84393',
-      '8px 28px 0 #a29bfe', '20px 28px 0 #e84393', '32px 28px 0 #fd79a8',
-    ].join(', '),
-    idleAnimation: 'idle-flicker',
-    idleDuration: '1.5s',
-    idleSteps: null,
-    scale: 6,
-    visualWidth: 40,
-    visualHeight: 32,
-  },
-
-  /**
-   * Wave 9: 전파 먹는 안테나 — 약 8x14 그리드
-   * 세로로 긴 안테나 + 촉수 + 보라 전기
-   */
-  'antenna-monster': {
-    boxShadow: [
-      // 안테나 끝 (발광)
-      '20px 0px 0 #6c5ce7', '24px 0px 0 #a29bfe',
-      '16px 4px 0 #a29bfe', '20px 4px 0 #e84393', '24px 4px 0 #6c5ce7', '28px 4px 0 #a29bfe',
-      // 안테나 봉
-      '20px 8px 0 #636e72', '24px 8px 0 #a4b0be',
-      '20px 12px 0 #a4b0be', '24px 12px 0 #636e72',
-      // 눈 (LED)
-      '16px 16px 0 #636e72', '20px 16px 0 #e74c3c', '24px 16px 0 #636e72', '28px 16px 0 #e74c3c',
-      // 본체 (박스)
-      '12px 20px 0 #636e72', '16px 20px 0 #a4b0be', '20px 20px 0 #dfe6e9', '24px 20px 0 #a4b0be', '28px 20px 0 #a4b0be', '32px 20px 0 #636e72',
-      '12px 24px 0 #636e72', '16px 24px 0 #a4b0be', '20px 24px 0 #a4b0be', '24px 24px 0 #dfe6e9', '28px 24px 0 #a4b0be', '32px 24px 0 #636e72',
-      '12px 28px 0 #636e72', '16px 28px 0 #636e72', '20px 28px 0 #636e72', '24px 28px 0 #636e72', '28px 28px 0 #636e72', '32px 28px 0 #636e72',
-      // 촉수 (전파 = 보라)
-      '4px 12px 0 #6c5ce7', '8px 16px 0 #a29bfe', '4px 20px 0 #6c5ce7', '0px 24px 0 #a29bfe',
-      '36px 12px 0 #a29bfe', '40px 16px 0 #6c5ce7', '36px 20px 0 #a29bfe', '44px 24px 0 #6c5ce7',
-      // 전기 스파크
-      '0px 8px 0 #fdcb6e', '8px 4px 0 #fdcb6e', '36px 4px 0 #fdcb6e', '44px 8px 0 #fdcb6e',
-      // 지지대 (다리)
-      '16px 32px 0 #636e72', '20px 32px 0 #2d3436', '24px 32px 0 #2d3436', '28px 32px 0 #636e72',
-      '12px 36px 0 #2d3436', '32px 36px 0 #2d3436',
-    ].join(', '),
-    idleAnimation: 'idle-spark',
-    idleDuration: '1s',
-    idleSteps: 3,
-    scale: 5,
-    visualWidth: 48,
-    visualHeight: 40,
-  },
-
-  /**
-   * Wave 10: 자정의 시계 (최종보스) — 약 12x14 그리드
-   * 시계 문자판 + 시침/분침 + 톱니바퀴 + 금색 빛
-   */
-  'midnight-clock': {
-    boxShadow: [
-      // 종 (상단)
-      '20px 0px 0 #fdcb6e', '24px 0px 0 #f39c12', '28px 0px 0 #fdcb6e',
-      // 시계 문자판 (원형)
-      '16px 4px 0 #2d3436', '20px 4px 0 #f39c12', '24px 4px 0 #fdcb6e', '28px 4px 0 #f39c12', '32px 4px 0 #2d3436',
-      '12px 8px 0 #2d3436', '16px 8px 0 #ffeaa7', '20px 8px 0 #fff', '24px 8px 0 #fff', '28px 8px 0 #fff', '32px 8px 0 #ffeaa7', '36px 8px 0 #2d3436',
-      '8px 12px 0 #2d3436', '12px 12px 0 #ffeaa7', '16px 12px 0 #fff', '20px 12px 0 #fff', '24px 12px 0 #e74c3c', '28px 12px 0 #fff', '32px 12px 0 #fff', '36px 12px 0 #ffeaa7', '40px 12px 0 #2d3436',
-      // 눈 (시계 숫자 위치)
-      '8px 16px 0 #2d3436', '12px 16px 0 #ffeaa7', '16px 16px 0 #fff', '20px 16px 0 #e84393', '24px 16px 0 #2d3436', '28px 16px 0 #e84393', '32px 16px 0 #fff', '36px 16px 0 #ffeaa7', '40px 16px 0 #2d3436',
-      // 시침/분침 (XII 표시)
-      '8px 20px 0 #2d3436', '12px 20px 0 #ffeaa7', '16px 20px 0 #fff', '20px 20px 0 #fff', '24px 20px 0 #6c5ce7', '28px 20px 0 #fff', '32px 20px 0 #fff', '36px 20px 0 #ffeaa7', '40px 20px 0 #2d3436',
-      '12px 24px 0 #2d3436', '16px 24px 0 #ffeaa7', '20px 24px 0 #fff', '24px 24px 0 #fff', '28px 24px 0 #fff', '32px 24px 0 #ffeaa7', '36px 24px 0 #2d3436',
-      '16px 28px 0 #2d3436', '20px 28px 0 #f39c12', '24px 28px 0 #fdcb6e', '28px 28px 0 #f39c12', '32px 28px 0 #2d3436',
-      // 톱니바퀴 (좌우)
-      '0px 12px 0 #f39c12', '4px 16px 0 #fdcb6e', '0px 20px 0 #f39c12',
-      '44px 12px 0 #fdcb6e', '48px 16px 0 #f39c12', '44px 20px 0 #fdcb6e',
-      // 추 (하단)
-      '20px 32px 0 #636e72', '24px 32px 0 #a4b0be', '28px 32px 0 #636e72',
-      '20px 36px 0 #a4b0be', '24px 36px 0 #f39c12', '28px 36px 0 #a4b0be',
-      '24px 40px 0 #fdcb6e',
-      // 시간 왜곡 파티클
-      '4px 4px 0 #6c5ce7', '44px 4px 0 #a29bfe', '0px 28px 0 #6c5ce7', '48px 28px 0 #a29bfe',
-    ].join(', '),
-    idleAnimation: 'idle-pendulum',
-    idleDuration: '2.5s',
-    idleSteps: null,
-    scale: 7,
-    visualWidth: 52,
-    visualHeight: 44,
-  },
-  // ===== 변형 적 스프라이트 (웨이브 풀 시스템) =====
-
-  /**
-   * Wave 1 변형: 야시장 떠돌이 개 — 약 10x8 그리드
-   * 갈색 몸통 + 빨간 반다나 + 구부린 꼬리
-   */
-  'stray-dog': {
-    boxShadow: [
-      // 귀
-      '8px 0px 0 #8B6914', '32px 0px 0 #8B6914',
-      '8px 4px 0 #A0752E', '32px 4px 0 #A0752E',
-      // 머리
-      '12px 4px 0 #C49A45', '16px 4px 0 #D4AA55', '20px 4px 0 #D4AA55', '24px 4px 0 #D4AA55', '28px 4px 0 #C49A45',
-      // 눈
-      '8px 8px 0 #C49A45', '12px 8px 0 #2d3436', '16px 8px 0 #fff', '20px 8px 0 #D4AA55', '24px 8px 0 #fff', '28px 8px 0 #2d3436', '32px 8px 0 #C49A45',
-      // 코
-      '16px 12px 0 #C49A45', '20px 12px 0 #2d3436', '24px 12px 0 #C49A45',
-      // 반다나
-      '8px 16px 0 #e74c3c', '12px 16px 0 #c0392b', '16px 16px 0 #e74c3c', '20px 16px 0 #c0392b', '24px 16px 0 #e74c3c', '28px 16px 0 #c0392b', '32px 16px 0 #e74c3c',
-      // 몸통
-      '8px 20px 0 #8B6914', '12px 20px 0 #C49A45', '16px 20px 0 #D4AA55', '20px 20px 0 #D4AA55', '24px 20px 0 #D4AA55', '28px 20px 0 #C49A45', '32px 20px 0 #8B6914',
-      '12px 24px 0 #8B6914', '16px 24px 0 #C49A45', '20px 24px 0 #C49A45', '24px 24px 0 #C49A45', '28px 24px 0 #8B6914',
-      // 발
-      '12px 28px 0 #2d3436', '16px 28px 0 #2d3436', '24px 28px 0 #2d3436', '28px 28px 0 #2d3436',
-      // 꼬리
-      '36px 12px 0 #C49A45', '40px 8px 0 #8B6914', '44px 12px 0 #C49A45',
-    ].join(', '),
-    idleAnimation: 'idle-bounce',
-    idleDuration: '0.8s',
-    idleSteps: 2,
-    scale: 5,
-    visualWidth: 48,
-    visualHeight: 32,
-  },
-
-  /**
-   * Wave 2 변형: 폭주 신호등 — 약 6x14 그리드
-   * 세로로 긴 신호등 + 깜빡이는 빨간불 + 기울어진 기둥
-   */
-  'traffic-light': {
-    boxShadow: [
-      // 상단 캡
-      '16px 0px 0 #636e72', '20px 0px 0 #636e72', '24px 0px 0 #636e72',
-      // 빨간불 (빛남)
-      '12px 4px 0 #2d3436', '16px 4px 0 #e74c3c', '20px 4px 0 #ff6b6b', '24px 4px 0 #e74c3c', '28px 4px 0 #2d3436',
-      '12px 8px 0 #2d3436', '16px 8px 0 #2d3436', '20px 8px 0 #2d3436', '24px 8px 0 #2d3436', '28px 8px 0 #2d3436',
-      // 노란불
-      '12px 12px 0 #2d3436', '16px 12px 0 #fdcb6e', '20px 12px 0 #ffeaa7', '24px 12px 0 #fdcb6e', '28px 12px 0 #2d3436',
-      '12px 16px 0 #2d3436', '16px 16px 0 #2d3436', '20px 16px 0 #2d3436', '24px 16px 0 #2d3436', '28px 16px 0 #2d3436',
-      // 초록불
-      '12px 20px 0 #2d3436', '16px 20px 0 #00b894', '20px 20px 0 #55efc4', '24px 20px 0 #00b894', '28px 20px 0 #2d3436',
-      '12px 24px 0 #2d3436', '16px 24px 0 #2d3436', '20px 24px 0 #2d3436', '24px 24px 0 #2d3436', '28px 24px 0 #2d3436',
-      // 눈 (빨간불 안)
-      '16px 4px 0 #fff', '24px 4px 0 #fff',
-      // 기둥
-      '20px 28px 0 #636e72', '20px 32px 0 #a4b0be', '20px 36px 0 #636e72', '20px 40px 0 #a4b0be',
-      // 팔 (방향 표지)
-      '4px 28px 0 #636e72', '8px 28px 0 #a4b0be', '12px 28px 0 #636e72',
-      '28px 28px 0 #636e72', '32px 28px 0 #a4b0be', '36px 28px 0 #636e72',
-      // 베이스
-      '12px 44px 0 #636e72', '16px 44px 0 #2d3436', '20px 44px 0 #2d3436', '24px 44px 0 #2d3436', '28px 44px 0 #636e72',
-    ].join(', '),
-    idleAnimation: 'idle-flicker',
-    idleDuration: '1.2s',
-    idleSteps: null,
-    scale: 5,
-    visualWidth: 40,
-    visualHeight: 48,
-  },
-
-  /**
-   * Wave 3 변형: 하수구 쥐떼 — 약 12x8 그리드
-   * 여러 마리 쥐 실루엣 + 빛나는 눈 + 긴 꼬리
-   */
-  'sewer-rats': {
-    boxShadow: [
-      // 쥐 1 (왼쪽)
-      '4px 8px 0 #636e72', '8px 8px 0 #636e72',
-      '0px 12px 0 #636e72', '4px 12px 0 #a4b0be', '8px 12px 0 #a4b0be', '12px 12px 0 #636e72',
-      '0px 16px 0 #a4b0be', '4px 16px 0 #e74c3c', '8px 16px 0 #a4b0be', '12px 16px 0 #e74c3c',
-      '0px 20px 0 #a4b0be', '4px 20px 0 #a4b0be', '8px 20px 0 #a4b0be', '12px 20px 0 #a4b0be',
-      '0px 24px 0 #636e72', '4px 24px 0 #636e72', '8px 24px 0 #636e72', '12px 24px 0 #636e72',
-      // 꼬리 1
-      '-4px 20px 0 #a4b0be', '-8px 16px 0 #a4b0be',
-      // 쥐 2 (가운데, 크게)
-      '20px 4px 0 #636e72', '24px 4px 0 #7f8c8d',
-      '16px 8px 0 #7f8c8d', '20px 8px 0 #a4b0be', '24px 8px 0 #a4b0be', '28px 8px 0 #7f8c8d',
-      '16px 12px 0 #ff6b6b', '20px 12px 0 #a4b0be', '24px 12px 0 #a4b0be', '28px 12px 0 #ff6b6b',
-      '16px 16px 0 #a4b0be', '20px 16px 0 #7f8c8d', '24px 16px 0 #7f8c8d', '28px 16px 0 #a4b0be',
-      '20px 20px 0 #636e72', '24px 20px 0 #636e72',
-      // 꼬리 2
-      '32px 8px 0 #a4b0be', '36px 4px 0 #7f8c8d',
-      // 쥐 3 (오른쪽)
-      '36px 12px 0 #636e72', '40px 12px 0 #636e72',
-      '32px 16px 0 #7f8c8d', '36px 16px 0 #a4b0be', '40px 16px 0 #a4b0be', '44px 16px 0 #7f8c8d',
-      '32px 20px 0 #e74c3c', '36px 20px 0 #a4b0be', '40px 20px 0 #a4b0be', '44px 20px 0 #e74c3c',
-      '36px 24px 0 #636e72', '40px 24px 0 #636e72',
-      // 꼬리 3
-      '48px 16px 0 #a4b0be', '52px 12px 0 #7f8c8d',
-    ].join(', '),
-    idleAnimation: 'idle-twitch',
-    idleDuration: '1.5s',
-    idleSteps: 4,
-    scale: 5,
-    visualWidth: 56,
-    visualHeight: 28,
-  },
-
-  /**
-   * Wave 4 변형: 폭주 쇼핑카트 — 약 10x10 그리드
-   * 철제 카트 + 튀어나온 물건들 + 빨간 눈
-   */
-  'shopping-cart': {
-    boxShadow: [
-      // 물건 튀어나옴
-      '12px 0px 0 #fdcb6e', '20px 0px 0 #e84393', '28px 0px 0 #00cec9',
-      '8px 4px 0 #6c5ce7', '16px 4px 0 #e74c3c', '24px 4px 0 #fdcb6e', '32px 4px 0 #2ecc71',
-      // 카트 상단
-      '4px 8px 0 #a4b0be', '8px 8px 0 #dfe6e9', '12px 8px 0 #dfe6e9', '16px 8px 0 #dfe6e9', '20px 8px 0 #dfe6e9', '24px 8px 0 #dfe6e9', '28px 8px 0 #dfe6e9', '32px 8px 0 #a4b0be',
-      // 눈 (빨간 LED)
-      '4px 12px 0 #a4b0be', '8px 12px 0 #e74c3c', '12px 12px 0 #dfe6e9', '16px 12px 0 #a4b0be', '20px 12px 0 #a4b0be', '24px 12px 0 #dfe6e9', '28px 12px 0 #e74c3c', '32px 12px 0 #a4b0be',
-      // 카트 몸체 (그물)
-      '4px 16px 0 #636e72', '8px 16px 0 #a4b0be', '12px 16px 0 #636e72', '16px 16px 0 #a4b0be', '20px 16px 0 #636e72', '24px 16px 0 #a4b0be', '28px 16px 0 #636e72', '32px 16px 0 #a4b0be',
-      '4px 20px 0 #a4b0be', '8px 20px 0 #636e72', '12px 20px 0 #a4b0be', '16px 20px 0 #636e72', '20px 20px 0 #a4b0be', '24px 20px 0 #636e72', '28px 20px 0 #a4b0be', '32px 20px 0 #636e72',
-      // 하단 프레임
-      '4px 24px 0 #636e72', '8px 24px 0 #636e72', '12px 24px 0 #636e72', '16px 24px 0 #636e72', '20px 24px 0 #636e72', '24px 24px 0 #636e72', '28px 24px 0 #636e72', '32px 24px 0 #636e72',
-      // 바퀴
-      '8px 28px 0 #2d3436', '12px 28px 0 #2d3436', '24px 28px 0 #2d3436', '28px 28px 0 #2d3436',
-      // 손잡이
-      '36px 8px 0 #636e72', '36px 12px 0 #a4b0be', '36px 16px 0 #636e72', '40px 16px 0 #636e72',
-    ].join(', '),
-    idleAnimation: 'idle-vibrate',
-    idleDuration: '0.4s',
-    idleSteps: 2,
-    scale: 5,
-    visualWidth: 44,
-    visualHeight: 32,
-  },
-
-  /**
-   * Wave 6 변형: 폭주 포장마차 — 약 12x10 그리드
-   * 나무 포장마차 + 불꽃 + 김 나는 냄비
-   */
-  'food-cart': {
-    boxShadow: [
-      // 김 (상단)
-      '16px 0px 0 #dfe6e9', '24px 0px 0 #b2bec3', '32px 0px 0 #dfe6e9',
-      // 지붕 (천막)
-      '4px 4px 0 #e74c3c', '8px 4px 0 #c0392b', '12px 4px 0 #e74c3c', '16px 4px 0 #c0392b', '20px 4px 0 #e74c3c', '24px 4px 0 #c0392b', '28px 4px 0 #e74c3c', '32px 4px 0 #c0392b', '36px 4px 0 #e74c3c',
-      // 기둥
-      '4px 8px 0 #8B6914', '36px 8px 0 #8B6914',
-      // 조리대
-      '4px 12px 0 #C49A45', '8px 12px 0 #D4AA55', '12px 12px 0 #D4AA55', '16px 12px 0 #D4AA55', '20px 12px 0 #D4AA55', '24px 12px 0 #D4AA55', '28px 12px 0 #D4AA55', '32px 12px 0 #D4AA55', '36px 12px 0 #C49A45',
-      // 눈 (냄비 안)
-      '8px 8px 0 #e74c3c', '12px 8px 0 #fff', '16px 8px 0 #fdcb6e', '20px 8px 0 #e74c3c', '24px 8px 0 #fdcb6e', '28px 8px 0 #fff', '32px 8px 0 #e74c3c',
-      // 몸통
-      '4px 16px 0 #8B6914', '8px 16px 0 #C49A45', '12px 16px 0 #C49A45', '16px 16px 0 #C49A45', '20px 16px 0 #C49A45', '24px 16px 0 #C49A45', '28px 16px 0 #C49A45', '32px 16px 0 #C49A45', '36px 16px 0 #8B6914',
-      '4px 20px 0 #8B6914', '8px 20px 0 #C49A45', '12px 20px 0 #e74c3c', '16px 20px 0 #C49A45', '20px 20px 0 #C49A45', '24px 20px 0 #C49A45', '28px 20px 0 #e74c3c', '32px 20px 0 #C49A45', '36px 20px 0 #8B6914',
-      // 하단
-      '4px 24px 0 #636e72', '8px 24px 0 #636e72', '12px 24px 0 #636e72', '16px 24px 0 #636e72', '20px 24px 0 #636e72', '24px 24px 0 #636e72', '28px 24px 0 #636e72', '32px 24px 0 #636e72', '36px 24px 0 #636e72',
-      // 바퀴
-      '8px 28px 0 #2d3436', '12px 28px 0 #2d3436', '28px 28px 0 #2d3436', '32px 28px 0 #2d3436',
-    ].join(', '),
-    idleAnimation: 'idle-wobble',
-    idleDuration: '1s',
-    idleSteps: 2,
-    scale: 5,
-    visualWidth: 40,
-    visualHeight: 32,
-  },
-
-  /**
-   * Wave 7 변형: 우산 요괴 — 약 10x12 그리드
-   * 일본풍 우산 요괴 + 한 다리 + 큰 눈
-   */
-  'umbrella-ghost': {
-    boxShadow: [
-      // 우산 상단 (돔)
-      '12px 0px 0 #6c5ce7', '16px 0px 0 #a29bfe', '20px 0px 0 #6c5ce7', '24px 0px 0 #a29bfe', '28px 0px 0 #6c5ce7',
-      '8px 4px 0 #6c5ce7', '12px 4px 0 #a29bfe', '16px 4px 0 #6c5ce7', '20px 4px 0 #a29bfe', '24px 4px 0 #6c5ce7', '28px 4px 0 #a29bfe', '32px 4px 0 #6c5ce7',
-      '4px 8px 0 #a29bfe', '8px 8px 0 #6c5ce7', '12px 8px 0 #a29bfe', '16px 8px 0 #6c5ce7', '20px 8px 0 #a29bfe', '24px 8px 0 #6c5ce7', '28px 8px 0 #a29bfe', '32px 8px 0 #6c5ce7', '36px 8px 0 #a29bfe',
-      // 우산 테두리
-      '0px 12px 0 #6c5ce7', '4px 12px 0 #4a4a6a', '8px 12px 0 #6c5ce7', '12px 12px 0 #4a4a6a', '16px 12px 0 #6c5ce7', '20px 12px 0 #4a4a6a', '24px 12px 0 #6c5ce7', '28px 12px 0 #4a4a6a', '32px 12px 0 #6c5ce7', '36px 12px 0 #4a4a6a', '40px 12px 0 #6c5ce7',
-      // 눈 (크고 무서운)
-      '12px 16px 0 #fff', '16px 16px 0 #e74c3c', '24px 16px 0 #fff', '28px 16px 0 #e74c3c',
-      // 혀 (아래)
-      '16px 20px 0 #ffeaa7', '20px 20px 0 #e74c3c', '24px 20px 0 #ffeaa7',
-      // 기둥 (한 다리)
-      '20px 24px 0 #8B6914', '20px 28px 0 #C49A45', '20px 32px 0 #8B6914', '20px 36px 0 #C49A45',
-      // 발 (나막신)
-      '16px 40px 0 #8B6914', '20px 40px 0 #C49A45', '24px 40px 0 #8B6914',
-    ].join(', '),
-    idleAnimation: 'idle-float',
-    idleDuration: '2.5s',
-    idleSteps: null,
-    scale: 5,
-    visualWidth: 44,
-    visualHeight: 44,
-  },
-
-  /**
-   * Wave 8 변형: 고장난 TV — 약 10x10 그리드
-   * 구형 브라운관 + 정전기 + 깨진 화면
-   */
-  'broken-tv': {
-    boxShadow: [
-      // 안테나
-      '8px 0px 0 #636e72', '12px 4px 0 #a4b0be', '28px 4px 0 #a4b0be', '32px 0px 0 #636e72',
-      // 상단 테두리
-      '8px 8px 0 #8B6914', '12px 8px 0 #C49A45', '16px 8px 0 #C49A45', '20px 8px 0 #C49A45', '24px 8px 0 #C49A45', '28px 8px 0 #C49A45', '32px 8px 0 #8B6914',
-      // 화면 (글리치)
-      '8px 12px 0 #C49A45', '12px 12px 0 #00cec9', '16px 12px 0 #2d3436', '20px 12px 0 #e84393', '24px 12px 0 #2d3436', '28px 12px 0 #00cec9', '32px 12px 0 #C49A45',
-      '8px 16px 0 #C49A45', '12px 16px 0 #e84393', '16px 16px 0 #fff', '20px 16px 0 #6c5ce7', '24px 16px 0 #fff', '28px 16px 0 #e84393', '32px 16px 0 #C49A45',
-      '8px 20px 0 #C49A45', '12px 20px 0 #2d3436', '16px 20px 0 #00cec9', '20px 20px 0 #e84393', '24px 20px 0 #00cec9', '28px 20px 0 #2d3436', '32px 20px 0 #C49A45',
-      // 하단 테두리
-      '8px 24px 0 #8B6914', '12px 24px 0 #C49A45', '16px 24px 0 #C49A45', '20px 24px 0 #C49A45', '24px 24px 0 #C49A45', '28px 24px 0 #C49A45', '32px 24px 0 #8B6914',
-      // 다이얼/버튼
-      '8px 28px 0 #636e72', '12px 28px 0 #636e72', '16px 28px 0 #a4b0be', '20px 28px 0 #e74c3c', '24px 28px 0 #a4b0be', '28px 28px 0 #636e72', '32px 28px 0 #636e72',
-      // 다리
-      '12px 32px 0 #2d3436', '16px 32px 0 #2d3436', '24px 32px 0 #2d3436', '28px 32px 0 #2d3436',
-      // 정전기
-      '4px 12px 0 #fdcb6e', '36px 16px 0 #fdcb6e', '4px 20px 0 #a29bfe',
-    ].join(', '),
-    idleAnimation: 'idle-flicker',
-    idleDuration: '1s',
-    idleSteps: null,
-    scale: 5,
-    visualWidth: 40,
-    visualHeight: 36,
-  },
-
-  /**
-   * Wave 9 변형: 변이 전봇대 — 약 8x14 그리드
-   * 세로로 긴 전봇대 + 전선 촉수 + 보라 전기
-   */
-  'electric-pole': {
-    boxShadow: [
-      // 상단 애자 (발광)
-      '12px 0px 0 #fdcb6e', '20px 0px 0 #fdcb6e', '28px 0px 0 #fdcb6e',
-      // 횡목
-      '4px 4px 0 #636e72', '8px 4px 0 #8B6914', '12px 4px 0 #C49A45', '16px 4px 0 #8B6914', '20px 4px 0 #C49A45', '24px 4px 0 #8B6914', '28px 4px 0 #C49A45', '32px 4px 0 #8B6914', '36px 4px 0 #636e72',
-      // 전선 (좌)
-      '0px 8px 0 #2d3436', '4px 8px 0 #636e72',
-      '0px 12px 0 #6c5ce7', '4px 12px 0 #2d3436',
-      // 기둥 상단
-      '16px 8px 0 #8B6914', '20px 8px 0 #C49A45', '24px 8px 0 #8B6914',
-      // 눈 (빨간 LED)
-      '16px 12px 0 #e74c3c', '20px 12px 0 #C49A45', '24px 12px 0 #e74c3c',
-      // 기둥 중간
-      '20px 16px 0 #8B6914', '20px 20px 0 #C49A45', '20px 24px 0 #8B6914', '20px 28px 0 #C49A45',
-      // 전선 (우)
-      '32px 8px 0 #636e72', '36px 8px 0 #2d3436',
-      '36px 12px 0 #6c5ce7', '40px 12px 0 #a29bfe',
-      // 전기 촉수
-      '0px 16px 0 #a29bfe', '4px 20px 0 #6c5ce7', '8px 16px 0 #a29bfe',
-      '32px 16px 0 #6c5ce7', '36px 20px 0 #a29bfe', '40px 16px 0 #6c5ce7',
-      // 스파크
-      '8px 8px 0 #fdcb6e', '32px 4px 0 #fdcb6e', '4px 24px 0 #fdcb6e', '36px 24px 0 #fdcb6e',
-      // 베이스
-      '16px 32px 0 #636e72', '20px 32px 0 #2d3436', '24px 32px 0 #636e72',
-      '12px 36px 0 #2d3436', '16px 36px 0 #636e72', '20px 36px 0 #636e72', '24px 36px 0 #636e72', '28px 36px 0 #2d3436',
-    ].join(', '),
-    idleAnimation: 'idle-spark',
-    idleDuration: '0.8s',
-    idleSteps: 3,
-    scale: 5,
-    visualWidth: 44,
-    visualHeight: 40,
-  },
+  'raccoon':          { boxShadow: '', idleAnimation: 'idle-bounce',   idleDuration: '1s',   idleSteps: 2,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'vending-machine':  { boxShadow: '', idleAnimation: 'idle-wobble',   idleDuration: '1.2s', idleSteps: 2,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'shadow-cats':      { boxShadow: '', idleAnimation: 'idle-float',    idleDuration: '2s',   idleSteps: null, scale: 5, visualWidth: 64, visualHeight: 64 },
+  'cleaning-robot':   { boxShadow: '', idleAnimation: 'idle-pulse',    idleDuration: '0.8s', idleSteps: 2,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'market-boss':      { boxShadow: '', idleAnimation: 'idle-float',    idleDuration: '3s',   idleSteps: null, scale: 5, visualWidth: 64, visualHeight: 64 },
+  'delivery-bike':    { boxShadow: '', idleAnimation: 'idle-vibrate',  idleDuration: '0.3s', idleSteps: 2,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'mannequins':       { boxShadow: '', idleAnimation: 'idle-twitch',   idleDuration: '2s',   idleSteps: 4,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'neon-ghost':       { boxShadow: '', idleAnimation: 'idle-flicker',  idleDuration: '1.5s', idleSteps: null, scale: 5, visualWidth: 64, visualHeight: 64 },
+  'antenna-monster':  { boxShadow: '', idleAnimation: 'idle-spark',    idleDuration: '1s',   idleSteps: 3,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'midnight-clock':   { boxShadow: '', idleAnimation: 'idle-pendulum', idleDuration: '2.5s', idleSteps: null, scale: 5, visualWidth: 64, visualHeight: 64 },
+  'stray-dog':        { boxShadow: '', idleAnimation: 'idle-bounce',   idleDuration: '0.8s', idleSteps: 2,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'traffic-light':    { boxShadow: '', idleAnimation: 'idle-flicker',  idleDuration: '1.2s', idleSteps: null, scale: 5, visualWidth: 64, visualHeight: 64 },
+  'sewer-rats':       { boxShadow: '', idleAnimation: 'idle-twitch',   idleDuration: '1.5s', idleSteps: 4,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'shopping-cart':    { boxShadow: '', idleAnimation: 'idle-vibrate',  idleDuration: '0.4s', idleSteps: 2,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'food-cart':        { boxShadow: '', idleAnimation: 'idle-wobble',   idleDuration: '1s',   idleSteps: 2,    scale: 5, visualWidth: 64, visualHeight: 64 },
+  'umbrella-ghost':   { boxShadow: '', idleAnimation: 'idle-float',    idleDuration: '2.5s', idleSteps: null, scale: 5, visualWidth: 64, visualHeight: 64 },
+  'broken-tv':        { boxShadow: '', idleAnimation: 'idle-flicker',  idleDuration: '1s',   idleSteps: null, scale: 5, visualWidth: 64, visualHeight: 64 },
+  'electric-pole':    { boxShadow: '', idleAnimation: 'idle-spark',    idleDuration: '0.8s', idleSteps: 3,    scale: 5, visualWidth: 64, visualHeight: 64 },
 };
+
+// ===== 레지스트리 몬스터 일괄 등록 (PNG 전용) =====
+
+const CATEGORY_ANIM: Record<string, Pick<SpriteConfig, 'idleAnimation' | 'idleDuration' | 'idleSteps'>> = {
+  animal:       { idleAnimation: 'idle-bounce',  idleDuration: '1.0s', idleSteps: 2 },
+  humanoid:     { idleAnimation: 'idle-twitch',  idleDuration: '2.0s', idleSteps: 4 },
+  machine:      { idleAnimation: 'idle-vibrate', idleDuration: '0.4s', idleSteps: 2 },
+  supernatural: { idleAnimation: 'idle-float',   idleDuration: '2.5s', idleSteps: null },
+  insect:       { idleAnimation: 'idle-vibrate', idleDuration: '0.3s', idleSteps: 2 },
+  plant:        { idleAnimation: 'idle-pulse',   idleDuration: '1.5s', idleSteps: 2 },
+  blob:         { idleAnimation: 'idle-wobble',  idleDuration: '1.5s', idleSteps: 2 },
+  boss:         { idleAnimation: 'idle-pendulum',idleDuration: '2.5s', idleSteps: null },
+};
+
+/** 카테고리별 imageTag 목록 — monsterRegistry.ts와 동기화 */
+const SPRITE_CATEGORIES: Record<string, string[]> = {
+  animal: [
+    'scruffy-dog','dark-crow','jade-cobra','wild-donkey','sewer-mouse','cave-bear',
+    'tunnel-mole','green-bat','trash-critter','midnight-panther','mountain-ram',
+    'mad-duck','swamp-frog','scale-fighter','red-hopper','stampede-bison',
+    'gentle-bronto','gray-wolf','guitar-lizard','mad-rooster','ribbon-mouse',
+    'frost-bear','dusk-bat','sea-stallion','crown-serpent','singing-cat',
+    'pincer-crab','coral-pony','pastel-unicorn','coiled-wyrm','baby-rex',
+    'volt-toad','wyrm-dragon','kraken-spawn',
+  ],
+  humanoid: [
+    'forest-mage','suited-gorilla','angry-imp','violet-priest','crimson-showman',
+    'alley-punk','birdcage-witch','horned-raider','club-caveman','tribal-warrior',
+    'tin-knight','raging-fatty','trench-coat-man','corrupt-officer','shades-brawler',
+    'crimson-ogre','emerald-knight','arcane-wizard','sinister-professor',
+    'mad-professor','wandering-sage','infernal-knight',
+  ],
+  machine: [
+    'rocket-gremlin','silver-saucer','hover-disc','spindly-bot','cursed-sign',
+    'runaway-taxi','rogue-hydrant','possessed-pump','retro-robot','patrol-drone',
+    'spider-mech','gilded-automaton','armored-orb','mini-saucer','bell-robot',
+    'molecular-drone','blade-sphere',
+  ],
+  supernatural: [
+    'horned-demon','shadow-wisp','rabbit-archdemon','rabbit-sorcerer','scarlet-naga',
+    'pumpkin-head','shambling-zombie','pale-ghost','bloated-goblin','bone-mask',
+    'haunted-canvas','melting-clock','psychic-snail','sinister-puppet','magma-snail',
+    'elder-mummy','thorned-fiend','floating-lips','face-serpent','storm-cloud',
+    'one-eyed-stalker','wisp-serpent','solar-face','evil-eye','flame-wraith',
+    'twin-watchers','cyclops-lurker','shadow-wings','staff-phantom','phantom-skull',
+  ],
+  insect: [
+    'neon-firefly','iron-stag-beetle','flutter-moth','plump-caterpillar',
+    'armored-hornet','titan-beetle','giant-larva','dusk-spider',
+  ],
+  plant: [
+    'poison-shroom','tiny-sprout','great-treant','toddling-mushroom',
+    'pebble-fungus','venus-trap','elder-oak',
+  ],
+  blob: [
+    'violet-slime','cherry-pudding','dish-critter','dark-eyeball','dustball',
+    'ooze-phantom','wriggling-worm','plate-imp','kiss-blob','pumpkin-blob',
+    'stone-face','mud-toad','chomping-lips',
+  ],
+  boss: [
+    'golden-titan','jovial-dragon','dread-guardian',
+  ],
+};
+
+// 일괄 등록
+for (const [category, tags] of Object.entries(SPRITE_CATEGORIES)) {
+  const anim = CATEGORY_ANIM[category] ?? CATEGORY_ANIM.animal;
+  for (const tag of tags) {
+    if (!SPRITES[tag]) {
+      SPRITES[tag] = {
+        boxShadow: '',
+        idleAnimation: anim.idleAnimation,
+        idleDuration: anim.idleDuration,
+        idleSteps: anim.idleSteps,
+        scale: 5,
+        visualWidth: 64,
+        visualHeight: 64,
+      };
+    }
+  }
+}
 
 export default SPRITES;

@@ -7,6 +7,7 @@ import {
   getWaveTemplateFromPool,
   type WaveTemplate,
 } from '../game/data/hardcodedData.js';
+import { ALL_IMAGE_TAGS as REGISTRY_TAGS } from '../game/data/monsterRegistry.js';
 import { SeededRandom } from '../game/DailyDungeon.js';
 import type { ChoiceOption } from '@round-midnight/shared';
 
@@ -204,12 +205,15 @@ export async function generateCombatChoices(
   return choiceSets;
 }
 
+// 기존 18개 + 레지스트리 134개 자동 합산
 const VALID_IMAGE_TAGS = new Set([
+  // 기존 하드코딩 적 (box-shadow 스프라이트)
   'raccoon', 'vending-machine', 'shadow-cats', 'cleaning-robot', 'market-boss',
   'delivery-bike', 'mannequins', 'neon-ghost', 'antenna-monster', 'midnight-clock',
-  // 변형 적
   'stray-dog', 'traffic-light', 'sewer-rats', 'shopping-cart',
   'food-cart', 'umbrella-ghost', 'broken-tv', 'electric-pole',
+  // 레지스트리 몬스터 (EarthBound PNG 스프라이트)
+  ...REGISTRY_TAGS,
 ]);
 
 const VALID_CATEGORIES = new Set(['physical', 'social', 'technical', 'defensive', 'creative']);
