@@ -17,26 +17,21 @@ import type {
   TemporaryBuff,
   ActiveSynergy,
 } from '@round-midnight/shared';
-import type { CharacterAppearance } from '../assets/sprites/characterParts';
-
 // 인증 관련 타입
 export interface AuthUser {
   id: string;
   displayName: string;
   pin: string;
-  authProvider?: string;
-  discordUsername?: string;
   level?: number;
   xp?: number;
   xpToNext?: number;
   totalRuns?: number;
 }
 
-// 캐릭터 설정 (허브에서 설정 → character_setup에서 자동제출)
+// 캐릭터 설정 (허브에서 읽기전용)
 export interface CharacterConfig {
   name: string;
   background: string;
-  appearance: CharacterAppearance;
 }
 
 export interface RunHistoryEntry {

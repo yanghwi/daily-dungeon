@@ -6,7 +6,26 @@ import cors from 'cors';
 import path from 'path';
 import { setupSocketHandlers } from './socket/handlers.js';
 import apiRoutes from './api/routes.js';
-import discordRoutes from './auth/discord.js';
+import { prisma } from './db/client.js';
+
+const FIXED_USERS = [
+  { displayName: '최양휘', pin: '910531' },
+  { displayName: '송동우', pin: '910530' },
+  { displayName: '홍솔',   pin: '911125' },
+  { displayName: '정경훈', pin: '910403' },
+];
+
+async function seedFixedUsers() {
+  if (!prisma) return;
+  for (const u of FIXED_USERS) {
+    await prisma.user.upsert({
+      where: { pin: u.pin },
+      update: { displayName: u.displayName },
+      create: { displayName: u.displayName, pin: u.pin },
+    });
+  }
+  console.log('[Seed] Fixed users ensured');
+}
 
 const app = express();
 const httpServer = createServer(app);
@@ -36,8 +55,7 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', game: 'Round Midnight' });
 });
 
-// REST API — Discord OAuth를 먼저 마운트 (requireDb 미들웨어 우회)
-app.use('/api/auth', discordRoutes);
+// REST API
 app.use('/api', apiRoutes);
 
 // Socket.io 핸들러 설정
@@ -53,6 +71,7 @@ app.get('*', (_req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
   console.log(`Round Midnight server running on port ${PORT}`);
+  await seedFixedUsers();
 });

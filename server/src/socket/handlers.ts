@@ -1,11 +1,10 @@
 import { Server, Socket } from 'socket.io';
 import { roomManager } from '../game/Room.js';
-import { createCharacter, applyBackground, getUserLevel } from '../game/Player.js';
+import { createCharacter, applyBackground, getUserLevel, getFixedCharacterByUserId } from '../game/Player.js';
 import { WaveManager } from '../game/WaveManager.js';
 import type {
   CreateRoomPayload,
   JoinRoomPayload,
-  CharacterSetupPayload,
   PlayerChoicePayload,
   ContinueOrRetreatPayload,
   EquipItemPayload,
@@ -95,63 +94,48 @@ export function setupSocketHandlers(io: Server) {
       console.log(`${character.name} joined room ${room.code} (lv: ${level})`);
     });
 
-    // ===== 캐릭터 설정 =====
+    // ===== 게임 시작 =====
 
-    // 게임 시작 (호스트) → 캐릭터 설정 단계로 전환
-    socket.on(SOCKET_EVENTS.START_GAME, () => {
+    // 게임 시작 (호스트) → 고정 배경 자동 적용 → 즉시 wave_intro 진입
+    socket.on(SOCKET_EVENTS.START_GAME, async () => {
       const room = roomManager.getPlayerRoom(socket.id);
       if (!room) return;
 
       const player = room.players.find((p: Character) => p.socketId === socket.id);
       if (!player) return;
 
-      const updatedRoom = roomManager.startCharacterSetup(room.code, player.id);
-      if (!updatedRoom) {
+      // 호스트/인원 체크
+      if (room.hostId !== player.id || room.phase !== 'waiting') {
         socket.emit(SOCKET_EVENTS.ERROR, { message: '게임을 시작할 수 없습니다.' });
         return;
       }
 
-      io.to(room.code).emit(SOCKET_EVENTS.GAME_STARTED, { room: updatedRoom });
-      console.log(`Character setup started in room ${room.code}`);
-    });
-
-    // 캐릭터 배경 선택
-    socket.on(SOCKET_EVENTS.CHARACTER_SETUP, (payload: CharacterSetupPayload) => {
-      const room = roomManager.getPlayerRoom(socket.id);
-      if (!room || room.phase !== 'character_setup') return;
-
-      const player = room.players.find((p: Character) => p.socketId === socket.id);
-      if (!player) return;
-
-      // 이름 업데이트 + 배경 적용
-      player.name = payload.name || player.name;
-      const updatedCharacter = applyBackground(player, payload.background);
-      updatedCharacter.socketId = socket.id; // socketId 유지
-
-      const updatedRoom = roomManager.updateCharacter(room.code, updatedCharacter);
-      if (!updatedRoom) return;
-
-      // 설정 완료 알림
-      io.to(room.code).emit(SOCKET_EVENTS.CHARACTER_READY, {
-        player: updatedCharacter,
-        room: updatedRoom,
-      });
-
-      console.log(`${updatedCharacter.name} selected: ${payload.background}`);
-
-      // 전원 준비 완료 체크
-      if (roomManager.isAllCharactersReady(room.code)) {
-        const gameRoom = roomManager.startGame(room.code);
-        if (gameRoom) {
-          io.to(room.code).emit(SOCKET_EVENTS.ALL_CHARACTERS_READY, { room: gameRoom });
-          console.log(`All characters ready in room ${room.code}, game starting!`);
-
-          // WaveManager 생성 + 첫 웨이브 시작
-          const wm = new WaveManager(room.code, io);
-          waveManagers.set(room.code, wm);
-          wm.startWave(gameRoom).catch((err) => console.error('[handlers] startWave 에러:', err));
+      // 각 플레이어에 고정 배경 자동 적용
+      for (const p of room.players) {
+        if (p.userId) {
+          const fixed = await getFixedCharacterByUserId(p.userId);
+          if (fixed) {
+            const updated = applyBackground(p, fixed.background);
+            updated.socketId = p.socketId;
+            roomManager.updateCharacter(room.code, updated);
+          }
         }
       }
+
+      // character_setup 스킵 → 직접 startGame 호출을 위해 phase를 임시 전환
+      const gameRoom = roomManager.startGameDirect(room.code);
+      if (!gameRoom) {
+        socket.emit(SOCKET_EVENTS.ERROR, { message: '게임을 시작할 수 없습니다.' });
+        return;
+      }
+
+      io.to(room.code).emit(SOCKET_EVENTS.GAME_STARTED, { room: gameRoom });
+      console.log(`Game started directly in room ${room.code} (skipped character_setup)`);
+
+      // WaveManager 생성 + 첫 웨이브 시작
+      const wm = new WaveManager(room.code, io);
+      waveManagers.set(room.code, wm);
+      wm.startWave(gameRoom).catch((err) => console.error('[handlers] startWave 에러:', err));
     });
 
     // ===== 전투 =====
@@ -351,7 +335,7 @@ function handleDisconnect(socket: Socket, io: Server) {
   if (!player) return;
 
   // 게임 진행 중이 아니면 (로비/런 종료) 즉시 제거
-  const activePhases: string[] = ['character_setup', 'wave_intro', 'choosing', 'rolling', 'narrating', 'wave_result', 'maintenance'];
+  const activePhases: string[] = ['wave_intro', 'choosing', 'rolling', 'narrating', 'wave_result', 'maintenance'];
   if (!activePhases.includes(room.phase)) {
     removePlayerImmediate(socket, io);
     return;

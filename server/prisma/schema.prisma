@@ -14,17 +14,10 @@ model User {
   createdAt   DateTime @default(now())
   lastSeenAt  DateTime @updatedAt
 
-  // Phase E에서 추가
-  discordId       String?  @unique
-  discordUsername  String?
-  discordAvatar   String?
-  authProvider     String   @default("pin") // 'pin' | 'discord'
-
   runs    RunParticipant[]
   unlocks UserUnlock[]
 
   @@index([pin])
-  @@index([discordId])
 }
 
 model RunResult {

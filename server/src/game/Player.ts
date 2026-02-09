@@ -3,69 +3,127 @@ import type { Character, Equipment, ItemEffect } from '@round-midnight/shared';
 import { GAME_CONSTANTS } from '@round-midnight/shared';
 import { prisma, getPrisma } from '../db/client.js';
 
-// 배경별 기본 장비 및 스탯
-const BACKGROUND_PRESETS: Record<string, {
+// ─── 고정 4인 캐릭터 데이터 ───
+export interface FixedCharacterData {
+  pin: string;
+  displayName: string;
+  background: string;
   trait: string;
   weakness: string;
+  bonusCategory: string;
+  bonusValue: number;
   equipment: Equipment;
-}> = {
-  '전직 경비원': {
-    trait: '용감한',
-    weakness: '어둠을 무서워함',
+}
+
+export const FIXED_CHARACTERS: FixedCharacterData[] = [
+  {
+    pin: '910531',
+    displayName: '최양휘',
+    background: '데이터 분석가',
+    trait: '차분한',
+    weakness: '숫자 없으면 불안함',
+    bonusCategory: 'technical',
+    bonusValue: 2,
     equipment: {
-      weapon: '알루미늄 배트',
-      top: '두꺼운 패딩',
-      bottom: '작업 바지',
-      hat: '경비 모자',
-      accessory: '행운의 열쇠고리',
-      weaponBonus: 2,
-      armorBonus: 1,
-      accessoryEffect: { type: 'none' },
-    },
-  },
-  '요리사': {
-    trait: '호기심 많은',
-    weakness: '거미 공포증',
-    equipment: {
-      weapon: '식칼',
-      top: '앞치마',
-      bottom: '체크 팬츠',
-      hat: '요리사 모자',
-      accessory: '손목시계',
-      weaponBonus: 2,
-      armorBonus: 1,
-      accessoryEffect: { type: 'min_raise', minValue: 3 },
-    },
-  },
-  '개발자': {
-    trait: '겁 많은',
-    weakness: '사회적 상황에 약함',
-    equipment: {
-      weapon: '노트북',
-      top: '후디',
-      bottom: '트레이닝 바지',
+      weapon: '태블릿 PC',
+      top: '체크 셔츠',
+      bottom: '슬랙스',
       hat: '',
-      accessory: '보조배터리',
+      accessory: '명상 쿠션',
       weaponBonus: 1,
       armorBonus: 1,
       accessoryEffect: { type: 'min_raise', minValue: 5 },
     },
   },
-  '영업사원': {
-    trait: '말빨 좋은',
-    weakness: '체력이 약함',
+  {
+    pin: '910530',
+    displayName: '송동우',
+    background: '마케팅 기획자',
+    trait: '계획적인',
+    weakness: '계획이 틀어지면 패닉',
+    bonusCategory: 'social',
+    bonusValue: 2,
     equipment: {
-      weapon: '명함',
-      top: '정장 상의',
-      bottom: '정장 바지',
-      hat: '',
-      accessory: '고급 볼펜',
+      weapon: '마케팅 기획안',
+      top: '러닝 재킷',
+      bottom: '트레이닝 바지',
+      hat: '캡 모자',
+      accessory: '스마트워치',
       weaponBonus: 1,
+      armorBonus: 1,
+      accessoryEffect: { type: 'min_raise', minValue: 3 },
+    },
+  },
+  {
+    pin: '911125',
+    displayName: '홍솔',
+    background: '스타트업 대표',
+    trait: '자신감 넘치는',
+    weakness: '투자 아이디어에 전투 집중력 저하',
+    bonusCategory: 'creative',
+    bonusValue: 2,
+    equipment: {
+      weapon: '유도복 띠',
+      top: '유도복 상의',
+      bottom: '유도복 바지',
+      hat: '',
+      accessory: '투자 제안서',
+      weaponBonus: 2,
       armorBonus: 1,
       accessoryEffect: { type: 'min_raise', minValue: 4 },
     },
   },
-};
+  {
+    pin: '910403',
+    displayName: '정경훈',
+    background: '기자',
+    trait: '본능적인',
+    weakness: '특종 냄새에 분별력 상실',
+    bonusCategory: 'physical',
+    bonusValue: 2,
+    equipment: {
+      weapon: '복싱 글러브',
+      top: '트렌치코트',
+      bottom: '청바지',
+      hat: '',
+      accessory: '녹음기',
+      weaponBonus: 2,
+      armorBonus: 1,
+      accessoryEffect: { type: 'min_raise', minValue: 4 },
+    },
+  },
+];
+
+// PIN → 고정 캐릭터 데이터 조회
+const FIXED_BY_PIN = new Map(FIXED_CHARACTERS.map((c) => [c.pin, c]));
+
+// 배경별 프리셋 (FIXED_CHARACTERS에서 파생)
+const BACKGROUND_PRESETS: Record<string, {
+  trait: string;
+  weakness: string;
+  equipment: Equipment;
+}> = Object.fromEntries(
+  FIXED_CHARACTERS.map((c) => [c.background, {
+    trait: c.trait,
+    weakness: c.weakness,
+    equipment: { ...c.equipment },
+  }])
+);
+
+/**
+ * userId(DB)로 고정 캐릭터 데이터 조회
+ * DB에서 PIN을 가져온 뒤 FIXED_CHARACTERS에서 매핑
+ */
+export async function getFixedCharacterByUserId(userId: string): Promise<FixedCharacterData | null> {
+  if (!prisma) return null;
+  try {
+    const user = await getPrisma().user.findUnique({ where: { id: userId }, select: { pin: true } });
+    if (!user) return null;
+    return FIXED_BY_PIN.get(user.pin) ?? null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * 로비 참가 시 임시 캐릭터 생성 (배경 미선택 상태)

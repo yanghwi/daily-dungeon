@@ -182,7 +182,6 @@ export interface RunState {
 
 export type RunPhase =
   | 'waiting'           // 로비 대기
-  | 'character_setup'   // 캐릭터 생성
   | 'wave_intro'        // LLM이 상황 + 선택지 생성 중
   | 'choosing'          // 4명이 선택지 고르는 중
   | 'rolling'           // 4명이 주사위 굴리는 중
@@ -296,11 +295,6 @@ export interface RoomJoinedResponse {
   player: Character;
 }
 
-export interface CharacterSetupPayload {
-  name: string;
-  background: string;
-}
-
 export interface EquipItemPayload {
   itemId: string;
 }
@@ -394,11 +388,6 @@ export const SOCKET_EVENTS = {
   ROOM_JOINED: 'room-joined',
   PLAYER_JOINED: 'player-joined',
   PLAYER_LEFT: 'player-left',
-
-  // 캐릭터 설정
-  CHARACTER_SETUP: 'character-setup',
-  CHARACTER_READY: 'character-ready',
-  ALL_CHARACTERS_READY: 'all-characters-ready',
 
   // 게임 진행
   START_GAME: 'start-game',

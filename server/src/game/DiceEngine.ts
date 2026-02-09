@@ -13,10 +13,10 @@ export function rollDice(): number {
  * 캐릭터 보정 합산: 배경 매칭 보너스 + 장비 보너스
  *
  * 배경별 강점 카테고리:
- *   전직 경비원 → physical, defensive (+2)
- *   요리사       → creative (+2)
- *   개발자       → technical (+2)
- *   영업사원     → social (+2)
+ *   데이터 분석가  → technical (+2)
+ *   마케팅 기획자  → social (+2)
+ *   스타트업 대표  → creative (+2)
+ *   기자           → physical, defensive (+2)
  *
  * 장비 보너스:
  *   weaponBonus → physical 카테고리
@@ -27,11 +27,11 @@ export function calculateBonus(
   category: ActionCategory,
   resolved?: ResolvedEffects,
 ): number {
+  // TODO(human): 배경 → 보너스 카테고리 매핑을 구현하세요
+  // BACKGROUND_CATEGORIES Record를 완성하고, backgroundBonus를 계산하세요
   const BACKGROUND_CATEGORIES: Record<string, ActionCategory[]> = {
-    '전직 경비원': ['physical', 'defensive'],
-    '요리사': ['creative'],
-    '개발자': ['technical'],
-    '영업사원': ['social'],
+    // 여기에 4인 캐릭터의 배경 → 강점 카테고리 매핑을 작성하세요
+    // 예: '데이터 분석가': ['technical'],
   };
 
   const strongCategories = BACKGROUND_CATEGORIES[character.background] ?? [];

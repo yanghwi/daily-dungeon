@@ -1,0 +1,71 @@
+# Progress - Round Midnight
+
+## 구현 진행 상황
+
+- [x] **Phase 1**: 프로젝트 셋업 + 로비 + 캐릭터 설정
+- [x] **Phase 2**: 전투 코어 루프 (하드코딩 데이터)
+- [x] **Phase 3**: LLM 연동 (상황/선택지/내러티브/하이라이트)
+- [x] **Phase 4**: 배포 + 모바일 최적화
+  - Railway 배포 (클라이언트 + 서버), Dockerfile 멀티스테이지 빌드
+  - Vite chunk splitting, 반응형 폰트, 가로 모드 차단
+  - 디자인 토큰 CSS 변수, OG 메타 태그
+- [x] **Phase 5**: 전투 화면 가독성 + UX 개선
+  - 폰트 사이즈 전면 확대 (레트로 픽셀 폰트 가독성)
+  - SituationBox 타이프라이터 연출 (한 글자씩 출력 + 탭 스킵)
+  - 체력 실시간 반영 (WAVE_NARRATIVE에서 즉시 HP 갱신)
+- [x] **Phase A**: 기반 정비
+  - 장비 효과 구현 (reroll, crit_expand)
+  - 재접속 핸들러 (playerId 기반 socketId 교체)
+  - 투표 현황 실시간 표시 (VOTE_UPDATE 이벤트)
+  - 몬스터 스프라이트 확대 (scale 3→5~6, 보스 7+)
+  - 스테이지 배경 시스템 개편 (통일 배경 + 보스 전용 배경)
+- [x] **Phase B**: 아이템 시스템 + 루트 메카닉 (106종 아이템 카탈로그)
+  - 5슬롯 장비 (weapon/top/bottom/hat/accessory) + 소모품
+  - ItemEffectResolver → ResolvedEffects 집계 (장비 + 임시 버프)
+  - 인벤토리 20칸 제한 + 아이템 버리기 (DISCARD_ITEM)
+  - 소모품 임시 버프 (TemporaryBuff, 웨이브 종료 시 만료)
+  - LootEngine 가중 랜덤 드랍 + 웨이브/보스 보정
+- [x] **Phase B-feedback**: 전투 흐름 개편 + UX 개선
+  - 멀티라운드 전투 (적 생존 시 선택지만 재생성, 상황 묘사 생략)
+  - 정비 세션 분리 (wave_result → 전리품 3초 → maintenance → 장비 관리 + 투표)
+  - 스프라이트 센터링 보정 (visualWidth/Height + translate 오프셋)
+  - HP 밸런스 (플레이어 100→60, 적 스탯 비례 하향)
+  - 배경 톤 다운 (opacity/speed 대폭 감소)
+  - 로비 캐릭터 패널 (인벤토리/장비 조회)
+  - 적 사망 시 즉시 스프라이트 소멸
+- [x] **Phase C**: 보스 몬스터 시스템 (Wave 6~10 적 + 최종보스 + 보스 드랍 + 스프라이트)
+  - Wave 6~9 일반 적 4종 (배달 오토바이, 마네킹, 네온사인 요괴, 안테나)
+  - Wave 10 최종보스 "자정의 시계" (HP 150, ATK 25, DEF 12)
+  - 5종 box-shadow 스프라이트 + 5종 idle 애니메이션
+  - 보스 드랍 보장 (중보스: rare+, 최종보스: legendary+, 보너스 드랍)
+  - 보스 UI (BOSS/FINAL BOSS 표시, 보스 예고 텔레그래핑)
+  - NEXT_WAVE_PREVIEWS 10웨이브 전체 확장
+- [x] **Phase D**: DB + 영속성 + 데일리 던전
+  - Prisma + PostgreSQL (User, RunResult, RunParticipant, DailySeed, Unlockable, UserUnlock)
+  - REST API (/api/auth/register, /api/auth/pin, /api/me, /api/runs, /api/daily/today, /api/daily/leaderboard, /api/unlocks)
+  - 런 결과 DB 저장 (비동기, 게임 플로우 비블로킹)
+  - 데일리 던전 시드 (SeededRandom, KST 기준 자동 생성)
+  - 클라이언트: 인증 UI (PIN 등록/로그인), 런 히스토리, "오늘의 던전" 버튼
+- [x] **Phase E**: Discord OAuth2 인증
+  - Discord OAuth2 서버 플로우 (redirect 방식, 모바일 사파리 호환)
+  - JWT 토큰 발급 (서버 → 클라이언트)
+  - PIN 유저 ↔ Discord 계정 링크
+  - 클라이언트: Discord 로그인 버튼, URL 콜백 토큰 파싱
+- [x] **Phase F**: 캐릭터 생성 리뉴얼 + 메타 프로그레션
+  - box-shadow 4px 그리드 캐릭터 파츠 (머리 4종 + 몸 3종 + 팔레트 5종)
+  - CharacterCreator 조합 UI (프리뷰 + 탭 선택)
+  - 영구 해금 시스템 (6종 해금 조건: 클리어 횟수, 보스 처치, 데일리)
+  - unlockChecker: 런 종료 시 자동 해금 체크 + DB 저장
+- [x] **Phase G**: 3축 성장 시스템 (빌드 + 레벨 + 해금)
+  - 빌드 축: SynergyResolver 6종 태그 시너지 (cooking/neon/tactical/retro/social/legendary)
+  - 레벨 축: Character.level, HP +3/레벨 (캡 27), DC -1 (Lv5, Lv10)
+  - 해금 축: 8종 추가 (패시브 4, 칭호 2, 배경 1, 코스메틱 1), 총 14종
+  - ItemEffectResolver에 시너지 + 레벨DC + 패시브 통합 (단일 합산 지점)
+  - MaintenanceScreen 시너지 표시 UI + UnlockPanel 해금 목록 UI
+  - GET /api/unlocks/all 엔드포인트
+- [x] **Phase H**: 몬스터 다양성 + LLM 가드레일 강화
+  - 웨이브 풀 시스템: 비보스 웨이브(1-4, 6-9)에 각 2종 적 풀, 시드 기반 결정적 선택
+  - 새 box-shadow 스프라이트 8종 (총 18종): stray-dog, traffic-light, sewer-rats, shopping-cart, food-cart, umbrella-ghost, broken-tv, electric-pole
+  - 보스 웨이브(5, 10) LLM 변경 방지 (코드 레벨 잠금)
+  - LLM 프롬프트 이전 웨이브 누출 수정 (4개 시스템 프롬프트 + 3개 메시지 빌더)
+  - 전투 내러티브 enemyDefeated 정보 LLM 직접 전달 (후처리 강제 추가 제거)

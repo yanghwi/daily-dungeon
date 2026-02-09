@@ -120,22 +120,9 @@ export function useSocket() {
       setRoom(data.room);
     });
 
-    // ===== 캐릭터 설정 =====
+    // ===== 게임 시작 (character_setup 스킵 → 즉시 wave_intro) =====
 
     socket.on(SOCKET_EVENTS.GAME_STARTED, (data: { room: Room }) => {
-      setRoom(data.room);
-      setPhase('character_setup');
-    });
-
-    socket.on(SOCKET_EVENTS.CHARACTER_READY, (data: { player: Character; room: Room }) => {
-      setRoom(data.room);
-      const store = useGameStore.getState();
-      if (store.player?.id === data.player.id) {
-        setPlayer(data.player);
-      }
-    });
-
-    socket.on(SOCKET_EVENTS.ALL_CHARACTERS_READY, (data: { room: Room }) => {
       setRoom(data.room);
       setPhase('wave_intro');
     });
@@ -213,7 +200,7 @@ export function useSocket() {
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       const { phase } = useGameStore.getState();
-      const activePhases = ['character_setup', 'wave_intro', 'choosing', 'rolling', 'narrating', 'wave_result', 'maintenance'];
+      const activePhases = ['wave_intro', 'choosing', 'rolling', 'narrating', 'wave_result', 'maintenance'];
       if (activePhases.includes(phase ?? '')) {
         e.preventDefault();
       }
@@ -243,10 +230,6 @@ export function useSocket() {
     socketRef.current?.emit(SOCKET_EVENTS.LEAVE_ROOM);
     localStorage.removeItem('rm-player-id');
     resetGame();
-  };
-
-  const submitCharacterSetup = (name: string, background: string) => {
-    socketRef.current?.emit(SOCKET_EVENTS.CHARACTER_SETUP, { name, background });
   };
 
   const submitChoice = (choiceId: string) => {
@@ -283,7 +266,6 @@ export function useSocket() {
     joinRoom,
     startGame,
     leaveRoom,
-    submitCharacterSetup,
     submitChoice,
     rollDice,
     voteContinueOrRetreat,

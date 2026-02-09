@@ -4,7 +4,6 @@ import { useGameStore } from './stores/gameStore';
 import LoginScreen from './components/Hub/LoginScreen';
 import CharacterHub from './components/Hub/CharacterHub';
 import LobbyScreen from './components/Lobby/LobbyScreen';
-import CharacterSetup from './components/Lobby/CharacterSetup';
 import BattleScreen from './components/Battle/BattleScreen';
 import RunResult from './components/Battle/RunResult';
 
@@ -13,11 +12,10 @@ const BATTLE_PHASES = new Set(['wave_intro', 'choosing', 'rolling', 'narrating',
 function App() {
   const {
     createRoom, joinRoom, startGame, leaveRoom,
-    submitCharacterSetup, submitChoice, rollDice, voteContinueOrRetreat,
+    submitChoice, rollDice, voteContinueOrRetreat,
     equipItem, unequipItem, useConsumable, discardItem,
   } = useSocket();
   const { phase, room, player, connected, error, setError, resetGame, authUser } = useGameStore();
-  const setAuth = useGameStore((s) => s.setAuth);
 
   // 연결 바: 1.5초 이상 연결 안 되면 표시
   const [showConnectionBar, setShowConnectionBar] = useState(false);
@@ -28,26 +26,6 @@ function App() {
     }
     setShowConnectionBar(false);
   }, [connected]);
-
-  // Discord OAuth 콜백 처리 (URL에서 토큰 파싱)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    const userJson = params.get('user');
-    if (token && userJson) {
-      try {
-        const user = JSON.parse(decodeURIComponent(userJson));
-        setAuth(token, user);
-      } catch { /* ignore parse error */ }
-      // URL 정리
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-    const authError = params.get('auth_error');
-    if (authError) {
-      setError(`Discord 로그인 실패: ${authError}`);
-      window.history.replaceState({}, '', window.location.pathname);
-    }
-  }, []);
 
   // 에러 토스트 자동 제거
   useEffect(() => {
@@ -94,14 +72,6 @@ function App() {
           player={player}
           onStartGame={startGame}
           onLeaveRoom={leaveRoom}
-        />
-      )}
-
-      {phase === 'character_setup' && room && player && (
-        <CharacterSetup
-          room={room}
-          player={player}
-          onSubmit={submitCharacterSetup}
         />
       )}
 

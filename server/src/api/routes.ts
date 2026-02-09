@@ -17,43 +17,7 @@ function requireDb(_req: any, res: any, next: any) {
 
 router.use(requireDb);
 
-// ─── PIN 생성 유틸 ───
-function generatePin(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
 // ─── 인증 API ───
-
-// POST /api/auth/register — 임시 유저 생성
-router.post('/auth/register', async (req, res) => {
-  try {
-    const { displayName } = req.body;
-    if (!displayName || typeof displayName !== 'string' || displayName.trim().length === 0) {
-      res.status(400).json({ error: 'displayName is required' });
-      return;
-    }
-
-    const name = displayName.trim().slice(0, 20);
-
-    // 유니크 PIN 생성 (충돌 시 재시도)
-    let pin = generatePin();
-    for (let i = 0; i < 10; i++) {
-      const exists = await getPrisma().user.findUnique({ where: { pin } });
-      if (!exists) break;
-      pin = generatePin();
-    }
-
-    const user = await getPrisma().user.create({
-      data: { displayName: name, pin },
-    });
-
-    const token = signToken({ userId: user.id, displayName: user.displayName });
-    res.json({ token, user: { id: user.id, displayName: user.displayName, pin: user.pin } });
-  } catch (err) {
-    console.error('Register error:', err);
-    res.status(500).json({ error: 'Registration failed' });
-  }
-});
 
 // POST /api/auth/pin — PIN으로 로그인
 router.post('/auth/pin', async (req, res) => {
@@ -92,8 +56,6 @@ router.get('/me', authMiddleware, async (req, res) => {
         id: true,
         displayName: true,
         pin: true,
-        authProvider: true,
-        discordUsername: true,
         createdAt: true,
       },
     });

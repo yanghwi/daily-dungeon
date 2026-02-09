@@ -79,6 +79,11 @@
   100% { filter: brightness(1); transform: translateX(0); }
 }
 
+/* --- GPU compositing hint for sprite images --- */
+.sprite-animate {
+  will-change: transform, opacity, filter;
+}
+
 /* --- Defeat: shrink + fade --- */
 @keyframes sprite-defeat {
   0%   { opacity: 1; transform: scale(1) rotate(0deg); }

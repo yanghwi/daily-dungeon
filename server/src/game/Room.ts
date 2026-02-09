@@ -69,29 +69,6 @@ export class RoomManager {
   }
 
   /**
-   * 캐릭터 설정 단계로 전환
-   */
-  startCharacterSetup(code: string, playerId: string): Room | null {
-    const room = this.getRoom(code);
-    if (!room) return null;
-    if (room.hostId !== playerId) return null;
-    if (room.players.length < GAME_CONSTANTS.MIN_PLAYERS) return null;
-    if (room.phase !== 'waiting') return null;
-
-    room.phase = 'character_setup';
-    return room;
-  }
-
-  /**
-   * 캐릭터 설정 완료 확인
-   */
-  isAllCharactersReady(code: string): boolean {
-    const room = this.getRoom(code);
-    if (!room) return false;
-    return room.players.every((p) => p.background !== '');
-  }
-
-  /**
    * 캐릭터 업데이트
    */
   updateCharacter(code: string, character: Character): Room | null {
@@ -106,13 +83,12 @@ export class RoomManager {
   }
 
   /**
-   * 게임 시작 (캐릭터 설정 완료 후)
+   * 게임 시작 (waiting → wave_intro 직접 전환)
    */
-  startGame(code: string): Room | null {
+  startGameDirect(code: string): Room | null {
     const room = this.getRoom(code);
     if (!room) return null;
-    if (room.phase !== 'character_setup') return null;
-    if (!this.isAllCharactersReady(code)) return null;
+    if (room.phase !== 'waiting') return null;
 
     room.phase = 'wave_intro';
 

@@ -21,13 +21,6 @@ async function apiFetch(path: string, options?: RequestInit) {
 
 // ─── 인증 API ───
 
-export async function apiRegister(displayName: string) {
-  return apiFetch('/api/auth/register', {
-    method: 'POST',
-    body: JSON.stringify({ displayName }),
-  }) as Promise<{ token: string; user: { id: string; displayName: string; pin: string } }>;
-}
-
 export async function apiLoginPin(pin: string) {
   return apiFetch('/api/auth/pin', {
     method: 'POST',
@@ -59,9 +52,3 @@ export async function apiGetUnlocksAll() {
   return apiFetch('/api/unlocks/all') as Promise<{ unlockables: any[] }>;
 }
 
-// ─── Discord OAuth ───
-
-/** Discord OAuth 리다이렉트 URL (서버가 Discord으로 리다이렉트) */
-export function getDiscordLoginUrl(): string {
-  return `${API_URL}/api/auth/discord`;
-}
