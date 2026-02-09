@@ -78,3 +78,12 @@
   - wave_heal 전면 하향 (시너지/패시브/장비), 12곳
   - 목표: "실수가 치명적이지만 불공정하지 않은" 밸런스. Wave 1에서 fail 6-10회, Wave 10에서 1.8회 생존
   - 변경하지 않은 것: BASE_DAMAGE(15), 적 HP/방어력, DC, 주사위 메커닉, DIFFICULTY_SCALE, 장비 stat 보너스
+- [x] **Phase J**: 134개 몬스터 확장 + 스프라이트 통일
+  - EarthBound 스프라이트 시트에서 134개 개별 PNG 추출 → `client/public/sprites/`
+  - `monsterRegistry.ts` 신규 생성: 134개 몬스터 정의 (id, name, description, imageTag, tier 1-5, category 8종, 자동 스탯 산출)
+  - 8개 카테고리 기반 제네릭 폴백 템플릿 (`CATEGORY_TEMPLATES` in hardcodedData.ts)
+  - 웨이브 풀 대폭 확장: 기존 웨이브당 2종 → 12-16종 변형 적 (`EXPANDED_WAVE_POOLS`)
+  - 티어→웨이브 매핑: tier1→wave1-3, tier2→wave3-5, tier3→wave5-7, tier4→wave7-9, tier5→boss(5,10)
+  - 기존 18개 box-shadow 스프라이트 전부 EarthBound PNG로 교체 (spriteData.ts 721줄→127줄)
+  - `situationGenerator.ts` VALID_IMAGE_TAGS 자동 로드 (monsterRegistry 연동)
+  - 보스 웨이브(5, 10) 잠금 유지, 시드 기반 결정적 선택 유지

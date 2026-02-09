@@ -8,7 +8,7 @@
 - **Socket 이벤트 추가 시 5곳 수정**: shared/types.ts(타입+이벤트명) → server handlers.ts → client useSocket.ts → gameStore.ts
 - **LLM 의존 기능은 반드시 폴백 구현**: 폴백 데이터는 `server/src/game/data/hardcodedData.ts`
 - **장비 보너스는 `ResolvedEffects`만 사용**: `ItemEffectResolver.resolveEquippedEffects()`의 반환값으로 읽을 것
-- **새 적 추가 시 3곳 동기화**: `spriteData.ts` + `hardcodedData.ts` + `situationGenerator.ts`(VALID_IMAGE_TAGS)
+- **새 적 추가 시**: `monsterRegistry.ts`에 엔트리 추가 + `spriteData.ts`의 `SPRITE_CATEGORIES`에 imageTag 추가 + PNG 파일 배치 (hardcodedData/situationGenerator는 자동 연동)
 - **클라이언트→서버 데이터 파이프라인 전 구간 검증**: optional 필드가 `undefined`면 하류에서 무음 실패
 - **UI/디자인 작업 시**: `docs/design-system/` 필수 참조
 - **플랫폼**: 아이폰 사파리 세로, 한 손 엄지, 10분

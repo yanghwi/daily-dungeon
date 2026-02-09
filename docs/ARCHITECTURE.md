@@ -17,7 +17,7 @@ round-midnight/
 │   │   ├── assets/
 │   │   │   ├── backgrounds/           # 전투 배경 (CSS gradient 레이어)
 │   │   │   ├── effects/               # 전투 이펙트 (히트/미스/크리)
-│   │   │   ├── sprites/               # 적 스프라이트 (box-shadow 픽셀아트)
+│   │   │   ├── sprites/               # 적 스프라이트 설정 (전체 PNG 기반, EarthBound)
 │   │   │   └── index.ts
 │   │   ├── components/
 │   │   │   ├── Battle/
@@ -33,7 +33,7 @@ round-midnight/
 │   │   │   │   ├── RunResult.tsx      # 런 종료 화면
 │   │   │   │   └── WaveEndChoice.tsx  # 전리품 표시 (3초)
 │   │   │   ├── Hub/
-│   │   │   │   ├── CharacterHub.tsx    # 메인 허브 (캐릭터 설정 + 게임 시작)
+│   │   │   │   ├── CharacterHub.tsx    # 메인 허브 (캐릭터 설정 + 방 만들기/참가)
 │   │   │   │   ├── LoginScreen.tsx     # 로그인 화면
 │   │   │   │   └── UnlockPanel.tsx     # 해금 목록 UI (14종 진행도)
 │   │   │   ├── RoomCodeBadge.tsx   # 방 코드 상시 배지 (탭→클립보드 복사)
@@ -73,7 +73,8 @@ round-midnight/
 │       │   └── runSaver.ts           # 런 결과 DB 저장 + 해금 체크
 │       ├── game/
 │       │   ├── data/
-│       │   │   ├── hardcodedData.ts   # LLM 폴백 하드코딩 데이터
+│       │   │   ├── hardcodedData.ts   # LLM 폴백 하드코딩 데이터 + 카테고리 템플릿 + 확장 웨이브 풀
+│       │   │   ├── monsterRegistry.ts # 134개 몬스터 레지스트리 (단일 진실의 원천)
 │       │   │   └── items/             # 아이템 카탈로그 (106종)
 │       │   │       ├── index.ts       # getItemById, getAllItems
 │       │   │       ├── weapons.ts     # 무기 30종
@@ -109,6 +110,8 @@ round-midnight/
 │       ├── STYLE-GUIDE.md             # Mother/Earthbound 디자인 시스템
 │       ├── assets/                    # HTML 에셋 (earthbound-assets, poster)
 │       └── references/                # 토큰, UI 컴포넌트, 픽셀아트, 배경
+├── scripts/
+│   └── rename-sprites.py              # 스프라이트 번호→imageTag 매핑 (134개)
 ├── Dockerfile                         # 멀티스테이지 빌드 (Railway 배포)
 └── CLAUDE.md
 ```
