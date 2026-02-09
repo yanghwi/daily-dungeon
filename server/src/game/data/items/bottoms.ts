@@ -60,7 +60,7 @@ export const BOTTOMS: ItemDefinition[] = [
     flavorText: '편의점 갈 때 신던 바지가 전투복이 되었다.',
     effects: [
       { type: 'stat_bonus', stat: 'armorBonus', value: 2 },
-      { type: 'wave_heal', value: 3 },
+      { type: 'wave_heal', value: 1 },
     ],
     tags: ['defensive', 'comfortable'],
     dropWeight: 6,
@@ -77,7 +77,7 @@ export const BOTTOMS: ItemDefinition[] = [
     effects: [
       { type: 'stat_bonus', stat: 'armorBonus', value: 3 },
       { type: 'dc_reduction', category: 'social', value: 2 },
-      { type: 'wave_heal', value: 5 },
+      { type: 'wave_heal', value: 2 },
     ],
     tags: ['defensive', 'cute', 'social'],
     dropWeight: 3,

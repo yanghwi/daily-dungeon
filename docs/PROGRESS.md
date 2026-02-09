@@ -69,3 +69,12 @@
   - 보스 웨이브(5, 10) LLM 변경 방지 (코드 레벨 잠금)
   - LLM 프롬프트 이전 웨이브 누출 수정 (4개 시스템 프롬프트 + 3개 메시지 빌더)
   - 전투 내러티브 enemyDefeated 정보 LLM 직접 전달 (후처리 강제 추가 제거)
+- [x] **Phase H-QoL**: UX 소규모 개선
+  - 방 코드 상시 배지 (`RoomCodeBadge.tsx`): 배틀/결과 화면 우상단 fixed, 탭→클립보드 복사 (Safari 폴백 포함)
+- [x] **Phase I**: 난이도 밸런스 조정 (HP 60→20)
+  - 기본 HP 60→20, HP_PER_LEVEL 3→2, HP_CAP 27→14
+  - 적 baseAttack ~50% 하향 (Wave 1: 8→4, Wave 10: 25→16), WAVE_TEMPLATES 10곳 + WAVE_VARIANTS 8곳
+  - 소모품 hp_restore ~65% 하향 (Common 5-8, Uncommon 8-12, Rare 14-20, Legendary 20-25), 20곳
+  - wave_heal 전면 하향 (시너지/패시브/장비), 12곳
+  - 목표: "실수가 치명적이지만 불공정하지 않은" 밸런스. Wave 1에서 fail 6-10회, Wave 10에서 1.8회 생존
+  - 변경하지 않은 것: BASE_DAMAGE(15), 적 HP/방어력, DC, 주사위 메커닉, DIFFICULTY_SCALE, 장비 stat 보너스

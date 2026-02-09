@@ -36,6 +36,7 @@ round-midnight/
 │   │   │   │   ├── CharacterHub.tsx    # 메인 허브 (캐릭터 설정 + 게임 시작)
 │   │   │   │   ├── LoginScreen.tsx     # 로그인 화면
 │   │   │   │   └── UnlockPanel.tsx     # 해금 목록 UI (14종 진행도)
+│   │   │   ├── RoomCodeBadge.tsx   # 방 코드 상시 배지 (탭→클립보드 복사)
 │   │   │   └── Lobby/
 │   │   │       ├── LobbyScreen.tsx    # 홈(방 생성/참가) + 대기실 + 캐릭터 패널
 │   │   │       ├── LobbyBg.tsx        # 로비 배경

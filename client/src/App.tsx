@@ -6,6 +6,7 @@ import CharacterHub from './components/Hub/CharacterHub';
 import LobbyScreen from './components/Lobby/LobbyScreen';
 import BattleScreen from './components/Battle/BattleScreen';
 import RunResult from './components/Battle/RunResult';
+import RoomCodeBadge from './components/RoomCodeBadge';
 
 const BATTLE_PHASES = new Set(['wave_intro', 'choosing', 'rolling', 'narrating', 'wave_result', 'maintenance']);
 
@@ -52,6 +53,9 @@ function App() {
           {error}
         </div>
       )}
+
+      {/* 방 코드 배지 — 로비 이후 모든 화면에서 표시 */}
+      {room && phase !== 'waiting' && <RoomCodeBadge />}
 
       {/* 메인 콘텐츠 */}
       {!authUser && phase === 'waiting' && (

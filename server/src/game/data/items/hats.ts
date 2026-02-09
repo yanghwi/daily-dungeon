@@ -68,7 +68,7 @@ export const HATS: ItemDefinition[] = [
     flavorText: '주문하신 방어력 배달왔습니다.',
     effects: [
       { type: 'stat_bonus', stat: 'armorBonus', value: 3 },
-      { type: 'wave_heal', value: 5 },
+      { type: 'wave_heal', value: 2 },
     ],
     tags: ['defensive', 'delivery', 'head'],
     dropWeight: 5,

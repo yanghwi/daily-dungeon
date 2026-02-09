@@ -20,8 +20,8 @@ const SYNERGIES: SynergyDefinition[] = [
     tag: 'cooking',
     name: '야시장 셰프',
     tiers: [
-      { threshold: 2, effects: [{ type: 'wave_heal', value: 5 }], description: 'wave_heal +5' },
-      { threshold: 3, effects: [{ type: 'wave_heal', value: 5 }, { type: 'stat_bonus', stat: 'weaponBonus', value: 2 }], description: 'wave_heal +5, 공격력 +2' },
+      { threshold: 2, effects: [{ type: 'wave_heal', value: 2 }], description: 'wave_heal +2' },
+      { threshold: 3, effects: [{ type: 'wave_heal', value: 2 }, { type: 'stat_bonus', stat: 'weaponBonus', value: 2 }], description: 'wave_heal +2, 공격력 +2' },
     ],
   },
   {

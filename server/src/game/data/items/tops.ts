@@ -90,7 +90,7 @@ export const TOPS: ItemDefinition[] = [
     flavorText: '안전 제일. 전투에서도.',
     effects: [
       { type: 'stat_bonus', stat: 'armorBonus', value: 2 },
-      { type: 'wave_heal', value: 3 },
+      { type: 'wave_heal', value: 1 },
     ],
     tags: ['defensive', 'safety'],
     dropWeight: 7,
@@ -161,7 +161,7 @@ export const TOPS: ItemDefinition[] = [
     flavorText: '119의 신뢰를 몸에 걸치다.',
     effects: [
       { type: 'stat_bonus', stat: 'armorBonus', value: 4 },
-      { type: 'wave_heal', value: 8 },
+      { type: 'wave_heal', value: 3 },
     ],
     tags: ['defensive', 'fire-resistant', 'professional'],
     dropWeight: 2,
@@ -194,7 +194,7 @@ export const TOPS: ItemDefinition[] = [
     flavorText: '"이 앞치마를 두른 자, 절대 넘어지지 않는다."',
     effects: [
       { type: 'stat_bonus', stat: 'armorBonus', value: 5 },
-      { type: 'wave_heal', value: 15 },
+      { type: 'wave_heal', value: 5 },
     ],
     tags: ['defensive', 'cooking', 'legendary'],
     dropWeight: 1,

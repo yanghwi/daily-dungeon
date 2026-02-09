@@ -85,7 +85,7 @@ export const UNLOCKABLES: UnlockableDefinition[] = [
     name: '전장의 회복력',
     description: '매 웨이브마다 HP가 조금씩 회복된다.',
     condition: { type: 'wavesTotal', count: 50 },
-    reward: { type: 'passive_bonus', effects: [{ type: 'wave_heal', value: 3 }] },
+    reward: { type: 'passive_bonus', effects: [{ type: 'wave_heal', value: 1 }] },
   },
   // 패시브: 15회 클리어 → reroll +1
   {

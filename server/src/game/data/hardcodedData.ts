@@ -36,7 +36,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'raccoon',
     },
     baseHp: 45,
-    baseAttack: 8,
+    baseAttack: 4,
     situation: '야시장 뒷골목. 쓰레기통에서 뭔가 부스럭거린다. 갑자기 뚜껑이 날아가며 성난 너구리 가족이 튀어나온다! 아기 너구리 세 마리가 뒤에서 끽끽거린다.',
     choicesByBackground: {
       '전직 경비원': [
@@ -71,7 +71,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'vending-machine',
     },
     baseHp: 55,
-    baseAttack: 10,
+    baseAttack: 5,
     situation: '골목을 지나니 편의점 앞 자판기가 덜덜 떨고 있다. "음료... 사줘..." 기계음과 함께 자판기가 캔을 마구 발사하기 시작한다!',
     choicesByBackground: {
       '전직 경비원': [
@@ -106,7 +106,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'shadow-cats',
     },
     baseHp: 65,
-    baseAttack: 12,
+    baseAttack: 7,
     situation: '가로등이 깜빡이더니 꺼진다. 어둠 속에서 수십 개의 눈이 빛나기 시작한다. 그림자 고양이 떼가 사방에서 다가온다. 으르렁거리는 소리가 점점 커진다.',
     choicesByBackground: {
       '전직 경비원': [
@@ -141,7 +141,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'cleaning-robot',
     },
     baseHp: 75,
-    baseAttack: 15,
+    baseAttack: 9,
     situation: '지하도에 들어서자 "청소... 모드... 실행..." 하는 기계음이 울린다. 거대한 산업용 청소로봇이 빨간 눈을 켜고 돌진해온다. 회전 브러시에서 불꽃이 튄다!',
     choicesByBackground: {
       '전직 경비원': [
@@ -177,7 +177,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'market-boss',
     },
     baseHp: 95,
-    baseAttack: 18,
+    baseAttack: 10,
     situation: '야시장 중앙 광장. 모든 노점의 불이 동시에 꺼졌다가 보라색으로 켜진다. 거대한 고양이 탈을 쓴 존재가 천천히 나타난다. "어서 와. 오늘 밤의 마지막 손님이구나." 노점 포장마차들이 그의 손짓에 따라 움직이기 시작한다.',
     choicesByBackground: {
       '전직 경비원': [
@@ -215,7 +215,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'delivery-bike',
     },
     baseHp: 85,
-    baseAttack: 16,
+    baseAttack: 10,
     situation: '야시장을 벗어나 큰 도로에 접어들었다. 갑자기 뒤에서 미친 듯한 경적이 울린다. 배달통을 세 개나 단 오토바이가 빨간 눈을 번쩍이며 돌진해온다! 배달통에서 뜨거운 국물이 쏟아지고 있다.',
     choicesByBackground: {
       '전직 경비원': [
@@ -250,7 +250,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'mannequins',
     },
     baseHp: 95,
-    baseAttack: 18,
+    baseAttack: 11,
     situation: '지하상가 계단을 내려가니 폐점한 옷가게들이 줄지어 있다. 형광등이 깜빡이자 마네킹들이 일제히 고개를 돌린다. 딸깍, 딸깍. 관절 꺾이는 소리와 함께 마네킹 떼가 다가온다. 미소가 새겨진 얼굴이 형광등 아래서 섬뜩하게 빛난다.',
     choicesByBackground: {
       '전직 경비원': [
@@ -285,7 +285,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'neon-ghost',
     },
     baseHp: 105,
-    baseAttack: 20,
+    baseAttack: 12,
     situation: '다시 야시장으로 돌아왔는데 뭔가 이상하다. 모든 간판의 글씨가 사라져 있다. 하늘을 올려다보니 "떡볶이", "호떡", "타코야키" 글씨들이 뭉쳐서 거대한 빛의 형체를 만들고 있다! "영.업.중..." 으스스한 목소리가 울려 퍼진다.',
     choicesByBackground: {
       '전직 경비원': [
@@ -320,7 +320,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'antenna-monster',
     },
     baseHp: 115,
-    baseAttack: 22,
+    baseAttack: 14,
     situation: '건물 옥상으로 올라가니 거대한 통신 안테나가 촉수처럼 구불거리고 있다. 주변 스마트폰이 저절로 켜지고 이상한 주파수가 울린다. 안테나 끝에서 보라색 전기가 사방으로 튄다. 옥상 바닥이 전자기장으로 진동한다!',
     choicesByBackground: {
       '전직 경비원': [
@@ -356,7 +356,7 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
       imageTag: 'midnight-clock',
     },
     baseHp: 150,
-    baseAttack: 25,
+    baseAttack: 16,
     situation: '모든 전투를 뚫고 야시장 끝에 도착했다. 거대한 시계탑이 서 있다. 시침이 12를 가리키는 순간, 종소리와 함께 시계탑이 일어선다. 주변의 시간이 뒤틀리기 시작한다. 떨어진 캔이 거꾸로 솟아오르고, 비가 위로 내린다. "땡... 땡... 자정이야. 아무도 여기서 나갈 수 없어."',
     choicesByBackground: {
       '전직 경비원': [
@@ -407,7 +407,7 @@ const WAVE_VARIANTS: Record<number, WaveTemplate[]> = {
   // Wave 1 변형: 야시장 떠돌이 개
   1: [{
     enemy: { name: '야시장 떠돌이 개', description: '빨간 반다나를 두른 크고 사나운 개. 이빨을 드러내며 으르렁거린다.', defense: 3, imageTag: 'stray-dog' },
-    baseHp: 45, baseAttack: 8,
+    baseHp: 45, baseAttack: 4,
     situation: '야시장 뒷골목. 쓰레기통 옆에 커다란 떠돌이 개가 앉아 있다. 빨간 반다나를 두르고 있는 걸 보니 누군가 키우다 버린 듯. 갑자기 이빨을 드러내며 달려든다!',
     choicesByBackground: {
       '전직 경비원': [
@@ -435,7 +435,7 @@ const WAVE_VARIANTS: Record<number, WaveTemplate[]> = {
   // Wave 2 변형: 폭주 신호등
   2: [{
     enemy: { name: '폭주 신호등', description: '세 눈이 동시에 켜진 미친 신호등. 팔을 휘두른다.', defense: 4, imageTag: 'traffic-light' },
-    baseHp: 55, baseAttack: 10,
+    baseHp: 55, baseAttack: 5,
     situation: '교차로에 도착했는데 신호등이 이상하다. 빨강, 노랑, 초록이 동시에 번쩍이더니 기둥째로 일어선다! 방향 표지판 팔로 차를 쓸어버린다.',
     choicesByBackground: {
       '전직 경비원': [
@@ -463,7 +463,7 @@ const WAVE_VARIANTS: Record<number, WaveTemplate[]> = {
   // Wave 3 변형: 하수구 쥐떼
   3: [{
     enemy: { name: '하수구 쥐떼', description: '맨홀에서 쏟아져 나오는 빨간 눈의 쥐 무리.', defense: 5, imageTag: 'sewer-rats' },
-    baseHp: 65, baseAttack: 12,
+    baseHp: 65, baseAttack: 7,
     situation: '맨홀 뚜껑이 덜컹거리더니 튕겨 나간다. 빨간 눈의 쥐 수십 마리가 파도처럼 밀려온다. 키이익 소리가 골목을 채운다.',
     choicesByBackground: {
       '전직 경비원': [
@@ -491,7 +491,7 @@ const WAVE_VARIANTS: Record<number, WaveTemplate[]> = {
   // Wave 4 변형: 폭주 쇼핑카트
   4: [{
     enemy: { name: '폭주 쇼핑카트', description: '물건이 가득 찬 카트가 빨간 눈으로 돌진한다.', defense: 6, imageTag: 'shopping-cart' },
-    baseHp: 75, baseAttack: 15,
+    baseHp: 75, baseAttack: 9,
     situation: '마트 주차장을 지나는데 쇼핑카트가 저절로 움직인다. 안에 물건이 잔뜩 쌓여 있고 빨간 불이 켜진다. 바퀴가 미친 듯이 돌며 돌진해온다!',
     choicesByBackground: {
       '전직 경비원': [
@@ -520,7 +520,7 @@ const WAVE_VARIANTS: Record<number, WaveTemplate[]> = {
   // Wave 6 변형: 폭주 포장마차
   6: [{
     enemy: { name: '폭주 포장마차', description: '불타는 포장마차가 바퀴 달린 채로 돌진한다.', defense: 7, imageTag: 'food-cart' },
-    baseHp: 85, baseAttack: 16,
+    baseHp: 85, baseAttack: 10,
     situation: '야시장 대로에서 포장마차 하나가 불을 뿜으며 돌진해온다! 뜨거운 국물이 사방에 튀고 천막에 불이 붙었다. "오늘의 메뉴는... 너희다!"',
     choicesByBackground: {
       '전직 경비원': [
@@ -548,7 +548,7 @@ const WAVE_VARIANTS: Record<number, WaveTemplate[]> = {
   // Wave 7 변형: 우산 요괴
   7: [{
     enemy: { name: '버려진 우산 요괴', description: '한쪽 다리로 폴짝거리는 보라색 우산. 눈이 빨갛다.', defense: 8, imageTag: 'umbrella-ghost' },
-    baseHp: 95, baseAttack: 18,
+    baseHp: 95, baseAttack: 11,
     situation: '비가 내리기 시작한다. 버려진 우산 하나가 저절로 펼쳐지더니 한쪽 다리로 일어선다. 빨간 눈이 번쩍이고 긴 혀를 내민다. 뒤에서 우산 여러 개가 더 펼쳐진다.',
     choicesByBackground: {
       '전직 경비원': [
@@ -576,7 +576,7 @@ const WAVE_VARIANTS: Record<number, WaveTemplate[]> = {
   // Wave 8 변형: 고장난 TV
   8: [{
     enemy: { name: '고장난 브라운관 TV', description: '정전기를 뿜으며 걸어다니는 구형 TV. 화면에 눈이 보인다.', defense: 9, imageTag: 'broken-tv' },
-    baseHp: 105, baseAttack: 20,
+    baseHp: 105, baseAttack: 12,
     situation: '전자상가 폐허에 들어섰다. 구석에 쌓인 구형 TV 한 대가 갑자기 켜진다. 화면에 눈 두 개가 나타나더니 정전기를 뿜으며 안테나 다리로 일어선다. "치지직... 시청률... 올려야 해..."',
     choicesByBackground: {
       '전직 경비원': [
@@ -604,7 +604,7 @@ const WAVE_VARIANTS: Record<number, WaveTemplate[]> = {
   // Wave 9 변형: 변이 전봇대
   9: [{
     enemy: { name: '변이 전봇대', description: '전선을 촉수처럼 휘두르는 전봇대. 스파크가 튄다.', defense: 10, imageTag: 'electric-pole' },
-    baseHp: 115, baseAttack: 22,
+    baseHp: 115, baseAttack: 14,
     situation: '큰길에 나서자 전봇대 하나가 꿈틀거린다. 전선이 촉수처럼 풀리며 사방을 휘젓는다. 아스팔트에 불꽃이 튀고, 가로등이 연쇄적으로 터진다!',
     choicesByBackground: {
       '전직 경비원': [

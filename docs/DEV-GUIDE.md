@@ -38,7 +38,7 @@ npm run build --workspace=@round-midnight/server
 
 ### 레벨 보너스
 
-- HP: `+3/레벨` (캡 27) → Lv1: 60HP, Lv5: 72HP, Lv10: 87HP
+- HP: `+2/레벨` (캡 14) → Lv1: 20HP, Lv3: 24HP, Lv5: 28HP, Lv8+: 34HP
 - DC: Lv5에서 전체 DC -1, Lv10에서 추가 DC -1 (총 -2)
 - 비로그인: level=1 (보너스 없음)
 

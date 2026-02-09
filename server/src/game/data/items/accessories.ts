@@ -97,7 +97,7 @@ export const ACCESSORIES: ItemDefinition[] = [
     rarity: 'common',
     description: '주머니에 사탕이 가득',
     flavorText: '당 충전 = 전투력 충전.',
-    effects: [{ type: 'wave_heal', value: 3 }],
+    effects: [{ type: 'wave_heal', value: 1 }],
     tags: ['heal', 'sweet'],
     dropWeight: 13,
   },
@@ -177,7 +177,7 @@ export const ACCESSORIES: ItemDefinition[] = [
     flavorText: '그림자 고양이가 남기고 간 선물.',
     effects: [
       { type: 'reroll', count: 1 },
-      { type: 'wave_heal', value: 3 },
+      { type: 'wave_heal', value: 1 },
     ],
     tags: ['luck', 'cute', 'healing'],
     dropWeight: 6,
@@ -327,7 +327,7 @@ export const ACCESSORIES: ItemDefinition[] = [
     effects: [
       { type: 'dc_reduction', category: 'all', value: 1 },
       { type: 'damage_multiplier', multiplier: 1.5, condition: 'boss' },
-      { type: 'wave_heal', value: 10 },
+      { type: 'wave_heal', value: 3 },
     ],
     tags: ['legendary', 'boss', 'mystical'],
     dropWeight: 1,

@@ -339,8 +339,8 @@ export const GAME_CONSTANTS = {
   MIN_PLAYERS: 1,
 
   // 기본 스탯
-  DEFAULT_HP: 60,
-  DEFAULT_MAX_HP: 60,
+  DEFAULT_HP: 20,
+  DEFAULT_MAX_HP: 20,
 
   // 웨이브
   MAX_WAVES: 10,
@@ -369,8 +369,8 @@ export const GAME_CONSTANTS = {
 
   // 레벨 보너스
   LEVEL_BONUSES: {
-    HP_PER_LEVEL: 3,
-    HP_CAP: 27,
+    HP_PER_LEVEL: 2,
+    HP_CAP: 14,
     DC_REDUCTION_LEVELS: [5, 10] as readonly number[],
     DC_REDUCTION_VALUE: 1,
     MAX_LEVEL: 10,
