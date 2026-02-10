@@ -220,4 +220,8 @@ export const WAVE_TIER_MAP: Record<number, number[]> = {
   5: [],  // boss — locked
   6: [3], 7: [3], 8: [3, 4], 9: [4],
   10: [], // boss — locked
+  11: [3], 12: [3, 4], 13: [4], 14: [4],
+  15: [], // boss — locked
+  16: [4], 17: [4], 18: [4], 19: [4],
+  20: [], // boss — locked
 };

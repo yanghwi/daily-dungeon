@@ -160,7 +160,7 @@ interface RunState {
   roomCode: string;
   players: Character[];
   currentWave: number;
-  maxWaves: number;            // 기본 10
+  maxWaves: number;            // 기본 20
   enemy: Enemy | null;
   accumulatedLoot: LootItem[];
   phase: RunPhase;

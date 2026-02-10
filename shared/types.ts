@@ -343,9 +343,9 @@ export const GAME_CONSTANTS = {
   DEFAULT_MAX_HP: 20,
 
   // 웨이브
-  MAX_WAVES: 10,
+  MAX_WAVES: 20,
   MID_BOSS_WAVE: 5,
-  FINAL_BOSS_WAVE: 10,
+  FINAL_BOSS_WAVE: 20,
 
   // 타임아웃
   CHOICE_TIMEOUT: 10000,      // 선택지 10초
