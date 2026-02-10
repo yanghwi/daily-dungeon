@@ -70,10 +70,10 @@ npm run build --workspace=@round-midnight/server
 
 ### 웨이브 풀 시스템
 - **확장 풀**: `EXPANDED_WAVE_POOLS` — 기존 18개 하드코딩 + 레지스트리 134개 자동 합산 (티어→웨이브 매핑)
-- **티어→웨이브**: tier1→wave1-3, tier2→wave3-5, tier3→wave5-7, tier4→wave7-9, tier5→boss(5,10)
+- **티어→웨이브**: tier1→wave1-3, tier2→wave3-5, tier3→wave6-12, tier4→wave12-19, tier5→boss(5,10,15,20)
 - **선택**: `getWaveTemplateFromPool(waveNumber, pick?)`으로 풀에서 선택
 - **시드 기반 선택**: 데일리 모드는 `SeededRandom("${seed}-wave-${waveNumber}")`으로 결정적, 커스텀 모드는 `Math.random()`
-- **보스 잠금**: `parseLLMSituation()`에서 `waveNumber % 5 === 0`이면 LLM 출력(name/description/imageTag) 무시, 템플릿 강제
+- **보스 잠금**: `parseLLMSituation()`에서 `waveNumber % 5 === 0`이면 LLM 출력(name/description/imageTag) 무시, 템플릿 강제 (Wave 5, 10, 15, 20)
 - **카테고리 템플릿**: 레지스트리 몬스터의 LLM 폴백 시 `CATEGORY_TEMPLATES`에서 카테고리별 제네릭 상황/선택지 사용
 
 ### 스프라이트 시스템

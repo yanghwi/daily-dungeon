@@ -33,13 +33,13 @@
   - 배경 톤 다운 (opacity/speed 대폭 감소)
   - 로비 캐릭터 패널 (인벤토리/장비 조회)
   - 적 사망 시 즉시 스프라이트 소멸
-- [x] **Phase C**: 보스 몬스터 시스템 (Wave 6~10 적 + 최종보스 + 보스 드랍 + 스프라이트)
+- [x] **Phase C**: 보스 몬스터 시스템 (Wave 6~10 적 + 보스 + 보스 드랍 + 스프라이트)
   - Wave 6~9 일반 적 4종 (배달 오토바이, 마네킹, 네온사인 요괴, 안테나)
-  - Wave 10 최종보스 "자정의 시계" (HP 150, ATK 25, DEF 12)
+  - Wave 10 보스 "느긋한 드래곤" (jovial-dragon, HP 150, ATK 16, DEF 12)
   - 5종 box-shadow 스프라이트 + 5종 idle 애니메이션
   - 보스 드랍 보장 (중보스: rare+, 최종보스: legendary+, 보너스 드랍)
   - 보스 UI (BOSS/FINAL BOSS 표시, 보스 예고 텔레그래핑)
-  - NEXT_WAVE_PREVIEWS 10웨이브 전체 확장
+  - NEXT_WAVE_PREVIEWS 20웨이브 전체 확장
 - [x] **Phase D**: DB + 영속성 + 데일리 던전
   - Prisma + PostgreSQL (User, RunResult, RunParticipant, DailySeed, Unlockable, UserUnlock)
   - REST API (/api/auth/register, /api/auth/pin, /api/me, /api/runs, /api/daily/today, /api/daily/leaderboard, /api/unlocks)
@@ -66,7 +66,7 @@
 - [x] **Phase H**: 몬스터 다양성 + LLM 가드레일 강화
   - 웨이브 풀 시스템: 비보스 웨이브(1-4, 6-9)에 각 2종 적 풀, 시드 기반 결정적 선택
   - 새 box-shadow 스프라이트 8종 (총 18종): stray-dog, traffic-light, sewer-rats, shopping-cart, food-cart, umbrella-ghost, broken-tv, electric-pole
-  - 보스 웨이브(5, 10) LLM 변경 방지 (코드 레벨 잠금)
+  - 보스 웨이브(5, 10) LLM 변경 방지 (코드 레벨 잠금, `waveNumber % 5 === 0`)
   - LLM 프롬프트 이전 웨이브 누출 수정 (4개 시스템 프롬프트 + 3개 메시지 빌더)
   - 전투 내러티브 enemyDefeated 정보 LLM 직접 전달 (후처리 강제 추가 제거)
 - [x] **Phase H-QoL**: UX 소규모 개선
@@ -87,3 +87,15 @@
   - 기존 18개 box-shadow 스프라이트 전부 EarthBound PNG로 교체 (spriteData.ts 721줄→127줄)
   - `situationGenerator.ts` VALID_IMAGE_TAGS 자동 로드 (monsterRegistry 연동)
   - 보스 웨이브(5, 10) 잠금 유지, 시드 기반 결정적 선택 유지
+- [x] **Phase K**: 20라운드 확장 + 몬스터 구성 최신화
+  - MAX_WAVES 10 → 20, FINAL_BOSS_WAVE 10 → 20
+  - 웨이브 11-20 템플릿 10종 추가 (레지스트리 스프라이트 활용):
+    11 거미로봇, 12 분노한뇌운, 13 진홍오우거, 14 긴용,
+    15(보스) 황금거인, 16 지옥기사, 17 고대참나무, 18 토끼대악마,
+    19 황금자동인형, 20(최종보스) 공포의수호자
+  - 비보스 웨이브 변형 적 8종 추가 (11-14, 16-19)
+  - WAVE_TIER_MAP 웨이브 11-20 티어 매핑 추가
+  - NEXT_WAVE_PREVIEWS 20웨이브 전체 확장
+  - Wave 10 보스: midnight-clock → jovial-dragon (느긋한 드래곤)으로 교체
+  - 보스 티어 몬스터 3종 전부 활용: Wave 10 jovial-dragon, Wave 15 golden-titan, Wave 20 dread-guardian
+  - 티어→웨이브 매핑 확장: tier3→wave11-12, tier4→wave12-19, boss→wave(5,10,15,20)
