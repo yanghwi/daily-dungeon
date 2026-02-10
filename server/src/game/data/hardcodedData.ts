@@ -354,41 +354,41 @@ export const WAVE_TEMPLATES: WaveTemplate[] = [
     ],
   },
 
-  // ── Wave 10 (보스): 자정의 시계 ──
+  // ── Wave 10 (보스): 느긋한 드래곤 ──
   {
     enemy: {
-      name: '자정의 시계',
-      description: '야시장 시계탑이 자정에 깨어난 존재. 시간이 뒤틀리고, 종소리가 현실을 찢는다.',
+      name: '느긋한 드래곤',
+      description: '웃고 있지만 브레스는 무자비한 드래곤. 야시장의 깊은 곳을 지키고 있다.',
       defense: 12,
-      imageTag: 'midnight-clock',
+      imageTag: 'jovial-dragon',
     },
     baseHp: 150,
     baseAttack: 16,
-    situation: '모든 전투를 뚫고 야시장 끝에 도착했다. 거대한 시계탑이 서 있다. 시침이 12를 가리키는 순간, 종소리와 함께 시계탑이 일어선다. 주변의 시간이 뒤틀리기 시작한다. 떨어진 캔이 거꾸로 솟아오르고, 비가 위로 내린다. "땡... 땡... 자정이야. 아무도 여기서 나갈 수 없어."',
+    situation: '야시장 깊숙한 곳, 거대한 광장에 도착했다. 느긋하게 웃고 있는 드래곤이 광장 한가운데 앉아 있다. 주변에 녹아내린 자판기와 구부러진 가로등이 흩어져 있다. "오, 여기까지 왔어? 재밌군. 조금 놀아볼까?" 느긋한 미소와 함께 입에서 푸른 불꽃이 새어 나온다.',
     choicesByBackground: {
       '전직 경비원': [
-        { text: '전력으로 돌진해 시계 문자판을 공격한다', category: 'physical', baseDC: 13 },
-        { text: '동료들을 지키며 시간 왜곡을 버텨낸다', category: 'defensive', baseDC: 12 },
-        { text: '시계추를 잡아 흔들림을 멈추게 한다', category: 'physical', baseDC: 15 },
+        { text: '브레스를 피해 돌진해 턱 아래를 공격한다', category: 'physical', baseDC: 13 },
+        { text: '동료를 브레스로부터 밀어내고 방어한다', category: 'defensive', baseDC: 12 },
+        { text: '꼬리 쪽으로 돌아가 약점을 노린다', category: 'physical', baseDC: 15 },
       ],
       '요리사': [
-        { text: '뜨거운 요리로 시계 톱니바퀴를 녹인다', category: 'creative', baseDC: 12 },
-        { text: '시간이 멈춘 음식으로 약점을 찾는다', category: 'creative', baseDC: 14 },
-        { text: '폭죽과 화약으로 시계탑을 공격한다', category: 'creative', baseDC: 15 },
+        { text: '극강의 매운 요리로 드래곤의 입을 틀어막는다', category: 'creative', baseDC: 12 },
+        { text: '기름을 뿌리고 드래곤 자신의 불꽃을 역이용한다', category: 'creative', baseDC: 14 },
+        { text: '날개 막 사이에 냄비를 끼워 비행을 방해한다', category: 'creative', baseDC: 15 },
       ],
       '개발자': [
-        { text: '시계의 내부 메커니즘을 분석해 약점을 파악한다', category: 'technical', baseDC: 12 },
-        { text: '시간 왜곡 패턴을 역이용해 루프를 만든다', category: 'technical', baseDC: 15 },
+        { text: '브레스 패턴을 분석해 안전 타이밍을 계산한다', category: 'technical', baseDC: 12 },
+        { text: '광장 전기 시설을 과부하시켜 감전 트랩을 만든다', category: 'technical', baseDC: 15 },
       ],
       '영업사원': [
-        { text: '"시간은 금이에요! 거래합시다!" 협상한다', category: 'social', baseDC: 13 },
-        { text: '동료들의 의지를 모아 시간 왜곡을 거부한다', category: 'social', baseDC: 12 },
-        { text: '"자정이 지나면 당신도 끝이에요" 심리전을 건다', category: 'social', baseDC: 15 },
+        { text: '"놀아주실 거면 조건이 있어요" 거래를 제안한다', category: 'social', baseDC: 13 },
+        { text: '동료들의 의지를 모아 브레스를 버텨낸다', category: 'social', baseDC: 12 },
+        { text: '"더 재밌는 상대가 있는데..." 관심을 돌린다', category: 'social', baseDC: 15 },
       ],
     },
     defaultChoices: [
-      { text: '모두 합심해 시계 기둥을 밀어낸다', category: 'physical', baseDC: 13 },
-      { text: '시간 왜곡을 피하며 약점을 찾는다', category: 'defensive', baseDC: 12 },
+      { text: '브레스 사이 빈틈을 노려 돌진한다', category: 'physical', baseDC: 13 },
+      { text: '포장마차 잔해를 방패 삼아 버틴다', category: 'defensive', baseDC: 12 },
     ],
   },
 
@@ -1357,7 +1357,7 @@ export const NEXT_WAVE_PREVIEWS: string[] = [
   '지하에서 딸깍딸깍 관절 소리가...',              // Wave 6 끝 → 7 예고
   '간판 글씨들이 희미하게 떨리고 있다...',          // Wave 7 끝 → 8 예고
   '옥상에서 이상한 주파수가 들린다...',             // Wave 8 끝 → 9 예고
-  '⚠ 시계탑의 종소리가 울려 퍼진다... 자정이 다가온다.',  // Wave 9 끝 → 10(보스) 예고
+  '⚠ 광장 저편에서 느긋한 웃음소리가... 푸른 불꽃이 보인다.',  // Wave 9 끝 → 10(보스) 예고
   '폐공장 안쪽에서 금속 긁는 소리가...',            // Wave 10 끝 → 11 예고
   '하늘이 점점 어두워지고 있다...',                // Wave 11 끝 → 12 예고
   '다리 아래에서 무거운 발소리가...',               // Wave 12 끝 → 13 예고
@@ -1646,7 +1646,7 @@ const EXISTING_TAGS = new Set(
 
 /**
  * 웨이브 풀 재구성:
- * - 보스 웨이브(5, 10): 기존 고정 유지
+ * - 보스 웨이브(5, 10, 15, 20): 기존 고정 유지
  * - 비보스 웨이브: 기존 핸드크래프트 + 레지스트리 티어 매칭
  */
 export const EXPANDED_WAVE_POOLS: WavePool[] = WAVE_TEMPLATES.map((base, idx) => {
